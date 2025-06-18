@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkPicGlobal - Create Smart Content Links</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="logo-container">
+                <i class="fas fa-link"></i>
+                <h1>LinkPic<span>Global</span></h1>
+            </div>
+            <p class="tagline">Create smart links that work across all devices</p>
+        </header>
+
+        <main class="app-main">
+            <div class="creation-card">
+                <div class="media-selection">
+                    <div class="media-option">
+                        <input type="checkbox" id="useImage" checked>
+                        <label for="useImage">
+                            <i class="fas fa-image"></i> Include Image
+                        </label>
+                    </div>
+                    <div class="media-option">
+                        <input type="checkbox" id="useYoutube">
+                        <label for="useYoutube">
+                            <i class="fab fa-youtube"></i> Include YouTube Video
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Image Upload Section -->
+                <div class="upload-section" id="imageUploadSection">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-box" id="uploadBox">
+                            <div class="image-preview-container">
+                                <img src="" alt="Upload preview" id="imagePreview" class="hidden">
+                                <div class="loading-overlay hidden" id="imageLoading">
+                                    <div class="spinner"></div>
+                                    <p>Uploading to ImgBB...</p>
+                                </div>
+                            </div>
+                            <input type="file" id="imageUpload" accept="image/*" class="hidden">
+                            <label for="imageUpload" class="upload-label">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Upload Image</span>
+                                <p class="drag-text">or drag & drop here</p>
+                                <p class="file-requirements">JPEG, PNG (Max 5MB)</p>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- YouTube URL Section -->
+                <div class="youtube-section hidden" id="youtubeSection">
+                    <div class="youtube-preview" id="youtubePreview">
+                        <div class="youtube-placeholder">
+                            <i class="fab fa-youtube"></i>
+                            <p>Enter YouTube URL to preview</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="youtubeUrl"><i class="fab fa-youtube"></i> YouTube URL</label>
+                        <input type="url" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=...">
+                    </div>
+                </div>
+
+                <form id="linkForm">
+                    <div class="form-group">
+                        <label for="destinationUrl"><i class="fas fa-external-link-alt"></i> Destination URL</label>
+                        <input type="url" id="destinationUrl" placeholder="https://yourwebsite.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="imageCaption"><i class="fas fa-comment-alt"></i> Caption (Optional)</label>
+                        <textarea id="imageCaption" placeholder="Enter a description for your link"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="generate-btn" id="generateBtn">
+                        <i class="fas fa-magic"></i> Generate Smart Link
+                    </button>
+                </form>
+            </div>
+            
+            <div class="result-card hidden" id="resultArea">
+                <div class="result-header">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Your Smart Link is Ready!</h3>
+                    <p class="share-instruction">This link will work on any device</p>
+                </div>
+                
+                <div class="link-container">
+                    <input type="text" id="generatedLink" readonly>
+                    <button id="copyBtn"><i class="fas fa-copy"></i> Copy</button>
+                </div>
+                
+                <div class="social-share">
+                    <p>Share directly to:</p>
+                    <div class="social-icons">
+                        <a href="#" class="social-btn facebook" id="shareFacebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-btn twitter" id="shareTwitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-btn whatsapp" id="shareWhatsapp">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        <a href="#" class="social-btn linkedin" id="shareLinkedin">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="test-link">
+                    <a href="#" id="testLink" target="_blank" class="test-btn">
+                        <i class="fas fa-eye"></i> Test Your Link
+                    </a>
+                </div>
+            </div>
+        </main>
+        
+        <footer class="app-footer">
+            <p>© 2023 LinkPicGlobal | Cross-Device Content Links</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
