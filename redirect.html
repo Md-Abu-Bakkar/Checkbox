@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkPicGlobal - Content Viewer</title>
+    <title>LinkPicGlobal - Content Link</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -15,42 +15,43 @@
     <div class="redirect-container">
         <header class="redirect-header">
             <div class="logo-container">
-                <i class="fas fa-rocket"></i>
-                <h1>LinkPic<span>Global</span> <span class="pro-badge">PRO</span></h1>
+                <i class="fas fa-link"></i>
+                <h1>LinkPic<span>Global</span></h1>
             </div>
         </header>
 
         <div class="ad-container top-ad">
             <!-- Ad will be loaded here by Adsterra script -->
         </div>
-        
+
         <div class="content-viewer">
             <div class="content-display" id="contentDisplay">
-                <!-- Content will be loaded here dynamically -->
+                <!-- Image or YouTube video will be displayed here -->
                 <div class="loading-overlay" id="contentLoading">
                     <div class="spinner"></div>
-                    <p>Loading your content...</p>
+                    <p>Loading content...</p>
                 </div>
             </div>
-            
+
             <div id="contentCaption" class="caption"></div>
-            
+
             <div class="action-buttons">
                 <a href="#" id="destinationLink" class="destination-btn">
-                    <i class="fas fa-external-link-alt"></i> Visit Destination
+                    <i class="fas fa-external-link-alt"></i>
+                    <span id="buttonText">Visit Destination</span>
                 </a>
                 <button id="copyUrlBtn" class="secondary-btn">
                     <i class="fas fa-copy"></i> Copy Link
                 </button>
             </div>
         </div>
-        
+
         <div class="ad-container bottom-ad">
             <!-- Ad will be loaded here by Adsterra script -->
         </div>
 
         <footer class="redirect-footer">
-            <p>Powered by LinkPicGlobal Pro - Advanced Content Linking</p>
+            <p>Powered by LinkPicGlobal - Smart Content Links</p>
         </footer>
     </div>
 
