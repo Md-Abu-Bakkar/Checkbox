@@ -3,10 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkPicGlobal - Create Smart Image Links</title>
-    <meta property="og:title" content="LinkPicGlobal - Smart Content Links">
-    <meta property="og:description" content="Create smart links for your images and videos">
-    <meta property="og:type" content="website">
+    <title>LinkPicGlobal - Create Smart Content Links</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -18,15 +15,24 @@
                 <i class="fas fa-link"></i>
                 <h1>LinkPic<span>Global</span></h1>
             </div>
-            <p class="tagline">Create smart links for images & videos</p>
+            <p class="tagline">Create smart links that work across all devices</p>
         </header>
 
         <main class="app-main">
             <div class="creation-card">
-                <div class="mode-toggle">
-                    <button class="mode-btn active" data-mode="image">Image Mode</button>
-                    <button class="mode-btn" data-mode="youtube">YouTube Mode</button>
-                    <button class="mode-btn" data-mode="both">Both</button>
+                <div class="media-selection">
+                    <div class="media-option">
+                        <input type="checkbox" id="useImage" checked>
+                        <label for="useImage">
+                            <i class="fas fa-image"></i> Include Image
+                        </label>
+                    </div>
+                    <div class="media-option">
+                        <input type="checkbox" id="useYoutube">
+                        <label for="useYoutube">
+                            <i class="fab fa-youtube"></i> Include YouTube Video
+                        </label>
+                    </div>
                 </div>
 
                 <!-- Image Upload Section -->
@@ -72,11 +78,6 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="buttonText"><i class="fas fa-mouse-pointer"></i> Button Text</label>
-                        <input type="text" id="buttonText" placeholder="Visit Destination" value="Visit Destination">
-                    </div>
-                    
-                    <div class="form-group">
                         <label for="imageCaption"><i class="fas fa-comment-alt"></i> Caption (Optional)</label>
                         <textarea id="imageCaption" placeholder="Enter a description for your link"></textarea>
                     </div>
@@ -91,6 +92,7 @@
                 <div class="result-header">
                     <i class="fas fa-check-circle"></i>
                     <h3>Your Smart Link is Ready!</h3>
+                    <p class="share-instruction">This link will work on any device</p>
                 </div>
                 
                 <div class="link-container">
@@ -121,23 +123,14 @@
                         <i class="fas fa-eye"></i> Test Your Link
                     </a>
                 </div>
-                
-                <div class="qr-code-container hidden" id="qrCodeContainer">
-                    <p>Scan QR Code:</p>
-                    <canvas id="qrCodeCanvas"></canvas>
-                    <button id="downloadQrBtn" class="secondary-btn">
-                        <i class="fas fa-download"></i> Download QR Code
-                    </button>
-                </div>
             </div>
         </main>
         
         <footer class="app-footer">
-            <p>© 2023 LinkPicGlobal | Professional Smart Links for Marketing</p>
+            <p>© 2023 LinkPicGlobal | Cross-Device Content Links</p>
         </footer>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
