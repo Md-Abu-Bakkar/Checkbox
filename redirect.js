@@ -6,70 +6,69 @@ document.addEventListener('DOMContentLoaded', function() {
     const contentLoading = document.getElementById('contentLoading');
     const captionElement = document.getElementById('contentCaption');
     const destinationLink = document.getElementById('destinationLink');
-    const buttonTextElement = document.getElementById('buttonText');
+    const destinationButtonText = document.getElementById('destinationButtonText');
     const copyUrlBtn = document.getElementById('copyUrlBtn');
-
+    
     if (linkId) {
-        // Retrieve data from server
-        fetch(`https://your-server.com/api/get-link?id=${linkId}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Link not found');
-                }
-                return response.json();
-            })
-            .then(linkData => {
-                // Display the content based on mode
-                if (linkData.mode === 'image' && linkData.imageUrl) {
-                    displayImage(linkData.imageUrl);
-                } 
-                else if (linkData.mode === 'youtube' && linkData.youtubeId) {
-                    displayYoutubeVideo(linkData.youtubeId);
-                }
-                else if (linkData.mode === 'both' && linkData.imageUrl && linkData.youtubeId) {
-                    displayBothContent(linkData.imageUrl, linkData.youtubeId);
-                }
-
-                // Set caption if available
-                if (linkData.caption) {
-                    captionElement.textContent = linkData.caption;
-                } else {
-                    captionElement.classList.add('hidden');
-                }
-
-                // Set button text
+        // Retrieve data from localStorage
+        const linkData = JSON.parse(localStorage.getItem(`linkpic_${linkId}`));
+        
+        if (linkData) {
+            // Set dynamic OG tags for social sharing
+            updateMetaTags(
+                'LinkPicGlobal - Content Link',
+                linkData.caption || 'Check out this content',
+                window.location.href,
+                linkData.imageUrl || (linkData.youtubeId ? `https://img.youtube.com/vi/${linkData.youtubeId}/maxresdefault.jpg` : null)
+            );
+            
+            // Display the content based on mode
+            if ((linkData.mode === 'image' || linkData.mode === 'both') && linkData.imageUrl) {
+                displayImage(linkData.imageUrl);
+            }
+            
+            if ((linkData.mode === 'youtube' || linkData.mode === 'both') && linkData.youtubeId) {
+                displayYoutubeVideo(linkData.youtubeId);
+            }
+            
+            // Set caption if available
+            if (linkData.caption) {
+                captionElement.textContent = linkData.caption;
+            } else {
+                captionElement.classList.add('hidden');
+            }
+            
+            // Set destination URL and button text
+            if (linkData.url) {
+                destinationLink.href = linkData.url;
+                
                 if (linkData.buttonText) {
-                    buttonTextElement.textContent = linkData.buttonText;
+                    destinationButtonText.textContent = linkData.buttonText;
                 }
-
-                // Set destination URL
-                if (linkData.url) {
-                    destinationLink.href = linkData.url;
-                    
-                    // Add click tracking
-                    destinationLink.addEventListener('click', function() {
-                        // You can add analytics here
-                        console.log('User clicked through to:', linkData.url);
-                    });
-                } else {
-                    destinationLink.classList.add('hidden');
-                }
-
-                // Copy URL button
-                copyUrlBtn.addEventListener('click', function() {
-                    navigator.clipboard.writeText(window.location.href);
-                    alert('Link copied to clipboard!');
+                
+                // Add click tracking
+                destinationLink.addEventListener('click', function() {
+                    // You can add analytics here
+                    console.log('User clicked through to:', linkData.url);
                 });
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                displayError('Link not found or expired');
+            } else {
+                destinationLink.classList.add('hidden');
+            }
+            
+            // Copy URL button
+            copyUrlBtn.addEventListener('click', function() {
+                navigator.clipboard.writeText(window.location.href);
+                showFeedback(this, 'Link copied!');
             });
+        } else {
+            // Data not found
+            displayError('Link not found or expired');
+        }
     } else {
         // No ID provided
         displayError('Invalid link');
     }
-
+    
     function displayImage(imageUrl) {
         const img = document.createElement('img');
         img.src = imageUrl;
@@ -81,37 +80,18 @@ document.addEventListener('DOMContentLoaded', function() {
         contentDisplay.innerHTML = '';
         contentDisplay.appendChild(img);
     }
-
+    
     function displayYoutubeVideo(videoId) {
-        // Auto-play with mute (browser policies require mute for autoplay)
         contentDisplay.innerHTML = `
             <iframe class="youtube-embed" 
-                    src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=1" 
+                    src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&showinfo=0&controls=1" 
                     frameborder="0" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allow="autoplay; fullscreen" 
                     allowfullscreen></iframe>
         `;
         contentLoading.classList.add('hidden');
     }
     
-    function displayBothContent(imageUrl, videoId) {
-        contentDisplay.innerHTML = `
-            <div class="dual-content-container">
-                <div class="content-item">
-                    <img src="${imageUrl}" alt="Shared image" class="dual-image">
-                </div>
-                <div class="content-item">
-                    <iframe class="youtube-embed" 
-                            src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=1" 
-                            frameborder="0" 
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                            allowfullscreen></iframe>
-                </div>
-            </div>
-        `;
-        contentLoading.classList.add('hidden');
-    }
-
     function displayError(message) {
         contentDisplay.innerHTML = `
             <div class="error-message">
@@ -122,5 +102,31 @@ document.addEventListener('DOMContentLoaded', function() {
         contentLoading.classList.add('hidden');
         destinationLink.classList.add('hidden');
         captionElement.classList.add('hidden');
+    }
+    
+    function updateMetaTags(title, description, url, imageUrl = null) {
+        // Update meta tags for social sharing
+        document.querySelector('meta[property="og:title"]').content = title;
+        document.querySelector('meta[property="og:description"]').content = description;
+        document.querySelector('meta[property="og:url"]').content = url;
+        
+        if (imageUrl) {
+            let ogImage = document.querySelector('meta[property="og:image"]');
+            if (!ogImage) {
+                ogImage = document.createElement('meta');
+                ogImage.setAttribute('property', 'og:image');
+                document.head.appendChild(ogImage);
+            }
+            ogImage.content = imageUrl;
+        }
+    }
+    
+    function showFeedback(element, message) {
+        const originalText = element.innerHTML;
+        element.innerHTML = `<i class="fas fa-check"></i> ${message}`;
+        
+        setTimeout(() => {
+            element.innerHTML = originalText;
+        }, 2000);
     }
 });
