@@ -4,9 +4,522 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LinkPicGlobal - Create Smart Content Links</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --primary-light: #e0e7ff;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --dark-color: #1a1a2e;
+            --light-color: #f8f9fa;
+            --gray-color: #6c757d;
+            --light-gray: #e9ecef;
+            --error-color: #f72585;
+            --success-color: #4cc9f0;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            color: var(--dark-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+
+        .app-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo-container i {
+            font-size: 2rem;
+        }
+
+        .logo-container h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .logo-container span {
+            font-weight: 300;
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .app-main {
+            padding: 1.5rem;
+        }
+
+        .creation-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-section, .youtube-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--light-gray);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            text-align: center;
+            transition: var(--transition);
+            margin-bottom: 1rem;
+        }
+
+        .upload-area.dragover {
+            border-color: var(--primary-color);
+            background-color: var(--primary-light);
+        }
+
+        .upload-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            color: var(--gray-color);
+            transition: var(--transition);
+        }
+
+        .upload-label i {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+        }
+
+        .upload-label span {
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        .drag-text, .file-requirements {
+            font-size: 0.85rem;
+            color: var(--gray-color);
+        }
+
+        .image-preview-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            margin-bottom: 1rem;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            background: var(--light-gray);
+        }
+
+        #imagePreview {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: none;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            display: none;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--primary-light);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group label i {
+            font-size: 1rem;
+            color: var(--primary-color);
+        }
+
+        .form-group input[type="url"],
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: var(--transition);
+        }
+
+        .form-group input[type="url"]:focus,
+        .form-group input[type="text"]:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .result-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            display: none;
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .result-header i {
+            font-size: 3rem;
+            color: var(--success-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .result-header h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .link-container {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .link-container input {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            font-family: inherit;
+            font-size: 0.9rem;
+            background: var(--light-gray);
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #copyBtn {
+            padding: 0 1.2rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #copyBtn:hover {
+            background: var(--secondary-color);
+        }
+
+        .social-share {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            margin-top: 0.8rem;
+        }
+
+        .social-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .social-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .facebook { background: #3b5998; }
+        .twitter { background: #1da1f2; }
+        .whatsapp { background: #25d366; }
+        .linkedin { background: #0077b5; }
+
+        .test-link {
+            text-align: center;
+        }
+
+        .test-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            background: var(--success-color);
+            color: white;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .test-btn:hover {
+            background: #3aa8d8;
+            transform: translateY(-2px);
+        }
+
+        .app-footer {
+            text-align: center;
+            padding: 1rem;
+            background: var(--light-gray);
+            color: var(--gray-color);
+            font-size: 0.85rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Media selection styles */
+        .media-selection {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .media-option {
+            flex: 1;
+        }
+
+        .media-option input {
+            display: none;
+        }
+
+        .media-option label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            background-color: var(--light-gray);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .media-option input:checked + label {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+        }
+
+        .media-option label i {
+            font-size: 1.2rem;
+        }
+
+        /* YouTube preview styles */
+        .youtube-preview {
+            width: 100%;
+            height: 200px;
+            background: var(--light-gray);
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .youtube-placeholder {
+            text-align: center;
+            color: var(--gray-color);
+        }
+
+        .youtube-placeholder i {
+            font-size: 3rem;
+            color: #ff0000;
+            margin-bottom: 0.5rem;
+        }
+
+        .youtube-embed {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Advanced options */
+        .advanced-options {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--light-gray);
+        }
+
+        .advanced-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-color);
+            font-weight: 500;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+
+        .advanced-toggle i {
+            transition: var(--transition);
+        }
+
+        .advanced-toggle.active i {
+            transform: rotate(180deg);
+        }
+
+        .advanced-content {
+            display: none;
+        }
+
+        .advanced-content.show {
+            display: block;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .media-selection {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .app-main {
+                padding: 1rem;
+            }
+
+            .creation-card, .result-card {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .logo-container h1 {
+                font-size: 1.5rem;
+            }
+
+            .link-container {
+                flex-direction: column;
+            }
+
+            #copyBtn {
+                padding: 0.8rem;
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
@@ -30,7 +543,7 @@
                     <div class="media-option">
                         <input type="checkbox" id="useYoutube">
                         <label for="useYoutube">
-                            <i class="fab fa-youtube"></i> Include YouTube Video
+                            <i class="fab fa-youtube"></i> Include YouTube
                         </label>
                     </div>
                 </div>
@@ -69,6 +582,10 @@
                         <label for="youtubeUrl"><i class="fab fa-youtube"></i> YouTube URL</label>
                         <input type="url" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=...">
                     </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="autoplayYoutube">
+                        <label for="autoplayYoutube">Auto-play video</label>
+                    </div>
                 </div>
 
                 <form id="linkForm">
@@ -80,6 +597,25 @@
                     <div class="form-group">
                         <label for="imageCaption"><i class="fas fa-comment-alt"></i> Caption (Optional)</label>
                         <textarea id="imageCaption" placeholder="Enter a description for your link"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="buttonText"><i class="fas fa-edit"></i> Button Text</label>
+                        <input type="text" id="buttonText" placeholder="Visit Destination" value="Visit Destination">
+                    </div>
+
+                    <div class="advanced-options">
+                        <div class="advanced-toggle" id="advancedToggle">
+                            <i class="fas fa-chevron-down"></i>
+                            <span>Advanced Options</span>
+                        </div>
+                        <div class="advanced-content" id="advancedContent">
+                            <div class="form-group">
+                                <label for="adRemoveCode"><i class="fas fa-ad"></i> Ad Removal Code (Optional)</label>
+                                <input type="text" id="adRemoveCode" placeholder="Enter code to remove ads">
+                                <small class="hint">Contact us to get an ad removal code</small>
+                            </div>
+                        </div>
                     </div>
                     
                     <button type="submit" class="generate-btn" id="generateBtn">
@@ -131,6 +667,294 @@
         </footer>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const imageUpload = document.getElementById('imageUpload');
+            const uploadBox = document.getElementById('uploadBox');
+            const uploadLabel = document.querySelector('.upload-label');
+            const imagePreview = document.getElementById('imagePreview');
+            const imageLoading = document.getElementById('imageLoading');
+            const linkForm = document.getElementById('linkForm');
+            const resultArea = document.getElementById('resultArea');
+            const generatedLink = document.getElementById('generatedLink');
+            const copyBtn = document.getElementById('copyBtn');
+            const testLink = document.getElementById('testLink');
+            const useImageCheckbox = document.getElementById('useImage');
+            const useYoutubeCheckbox = document.getElementById('useYoutube');
+            const imageUploadSection = document.getElementById('imageUploadSection');
+            const youtubeSection = document.getElementById('youtubeSection');
+            const youtubeUrlInput = document.getElementById('youtubeUrl');
+            const youtubePreview = document.getElementById('youtubePreview');
+            const autoplayCheckbox = document.getElementById('autoplayYoutube');
+            const advancedToggle = document.getElementById('advancedToggle');
+            const advancedContent = document.getElementById('advancedContent');
+            const buttonTextInput = document.getElementById('buttonText');
+            
+            // ImgBB API Key
+            const IMGBB_API_KEY = 'ddc161b9a8fbb6f041c35e04629ccf71';
+            
+            // State variables
+            let uploadedImageUrl = null;
+            let youtubeVideoId = null;
+            
+            // Initialize the app
+            init();
+            
+            function init() {
+                setupEventListeners();
+                updateMediaSections();
+            }
+            
+            function setupEventListeners() {
+                // Media selection checkboxes
+                useImageCheckbox.addEventListener('change', updateMediaSections);
+                useYoutubeCheckbox.addEventListener('change', updateMediaSections);
+                
+                // Image upload
+                imageUpload.addEventListener('change', function(e) {
+                    handleImageUpload(e.target.files[0]);
+                });
+                
+                // Drag and drop
+                uploadBox.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    uploadBox.classList.add('dragover');
+                });
+                
+                uploadBox.addEventListener('dragleave', function() {
+                    uploadBox.classList.remove('dragover');
+                });
+                
+                uploadBox.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    uploadBox.classList.remove('dragover');
+                    if (e.dataTransfer.files.length) {
+                        handleImageUpload(e.dataTransfer.files[0]);
+                    }
+                });
+                
+                // YouTube URL input
+                youtubeUrlInput.addEventListener('input', function() {
+                    updateYoutubePreview(this.value);
+                });
+                
+                // Advanced options toggle
+                advancedToggle.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    advancedContent.classList.toggle('show');
+                });
+                
+                // Form submission
+                linkForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    generateLink();
+                });
+                
+                // Copy button
+                copyBtn.addEventListener('click', function() {
+                    copyToClipboard(generatedLink.value);
+                    showFeedback(this, 'Copied!');
+                });
+            }
+            
+            function updateMediaSections() {
+                const useImage = useImageCheckbox.checked;
+                const useYoutube = useYoutubeCheckbox.checked;
+                
+                imageUploadSection.classList.toggle('hidden', !useImage);
+                youtubeSection.classList.toggle('hidden', !useYoutube);
+            }
+            
+            function handleImageUpload(file) {
+                if (!file || !file.type.match('image.*')) {
+                    alert('Please select a valid image file (JPEG, PNG)');
+                    return;
+                }
+                
+                if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                    alert('Image size should be less than 5MB');
+                    return;
+                }
+                
+                // Show loading state
+                imageLoading.classList.remove('hidden');
+                uploadLabel.classList.add('hidden');
+                
+                // Preview image
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+                
+                // Upload to ImgBB
+                uploadToImgBB(file)
+                    .then(url => {
+                        uploadedImageUrl = url;
+                    })
+                    .catch(error => {
+                        console.error('Upload failed:', error);
+                        alert('Image upload failed. Please try again.');
+                    })
+                    .finally(() => {
+                        imageLoading.classList.add('hidden');
+                    });
+            }
+            
+            function uploadToImgBB(file) {
+                return new Promise((resolve, reject) => {
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    
+                    fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            resolve(data.data.url);
+                        } else {
+                            reject(data.error.message || 'Upload failed');
+                        }
+                    })
+                    .catch(error => reject(error));
+                });
+            }
+            
+            function updateYoutubePreview(url) {
+                const videoId = extractYoutubeId(url);
+                
+                if (videoId) {
+                    youtubeVideoId = videoId;
+                    youtubePreview.innerHTML = `
+                        <iframe class="youtube-embed" 
+                                src="https://www.youtube.com/embed/${videoId}?autoplay=0&showinfo=0&controls=1" 
+                                frameborder="0" 
+                                allowfullscreen></iframe>
+                    `;
+                } else {
+                    youtubeVideoId = null;
+                    youtubePreview.innerHTML = `
+                        <div class="youtube-placeholder">
+                            <i class="fab fa-youtube"></i>
+                            <p>${url ? 'Invalid YouTube URL' : 'Enter YouTube URL to preview'}</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            function extractYoutubeId(url) {
+                if (!url) return null;
+                
+                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                const match = url.match(regExp);
+                
+                return (match && match[2].length === 11) ? match[2] : null;
+            }
+            
+            function generateLink() {
+                const destinationUrl = document.getElementById('destinationUrl').value;
+                const imageCaption = document.getElementById('imageCaption').value;
+                const buttonText = document.getElementById('buttonText').value || 'Visit Destination';
+                const useImage = useImageCheckbox.checked;
+                const useYoutube = useYoutubeCheckbox.checked;
+                const autoplay = autoplayCheckbox.checked;
+                const adRemoveCode = document.getElementById('adRemoveCode').value;
+                
+                if (!destinationUrl) {
+                    alert('Please enter a destination URL');
+                    return;
+                }
+                
+                if (useImage && !uploadedImageUrl) {
+                    alert('Please upload an image first');
+                    return;
+                }
+                
+                if (useYoutube && !youtubeVideoId) {
+                    alert('Please enter a valid YouTube URL');
+                    return;
+                }
+                
+                // Create the shareable link with all data in URL parameters
+                const baseUrl = window.location.href.replace('index.html', '');
+                let link = `${baseUrl}redirect.html?dest=${encodeURIComponent(destinationUrl)}`;
+                
+                // Add caption if provided
+                if (imageCaption) {
+                    link += `&caption=${encodeURIComponent(imageCaption)}`;
+                }
+                
+                // Add button text
+                link += `&button=${encodeURIComponent(buttonText)}`;
+                
+                // Add image if selected
+                if (useImage && uploadedImageUrl) {
+                    link += `&image=${encodeURIComponent(uploadedImageUrl)}`;
+                }
+                
+                // Add YouTube video if selected
+                if (useYoutube && youtubeVideoId) {
+                    link += `&youtube=${youtubeVideoId}`;
+                    if (autoplay) {
+                        link += `&autoplay=1`;
+                    }
+                }
+                
+                // Add ad removal code if provided
+                if (adRemoveCode) {
+                    link += `&adcode=${encodeURIComponent(adRemoveCode)}`;
+                }
+                
+                // Update UI
+                generatedLink.value = link;
+                testLink.href = link;
+                resultArea.classList.remove('hidden');
+                
+                // Scroll to result
+                resultArea.scrollIntoView({ behavior: 'smooth' });
+                
+                // Initialize social sharing
+                setupSocialSharing(link, imageCaption);
+            }
+            
+            function setupSocialSharing(link, text = '') {
+                const encodedLink = encodeURIComponent(link);
+                const encodedText = encodeURIComponent(text);
+                
+                document.getElementById('shareFacebook').href = `https://www.facebook.com/sharer/sharer.php?u=${encodedLink}`;
+                document.getElementById('shareTwitter').href = `https://twitter.com/intent/tweet?url=${encodedLink}&text=${encodedText}`;
+                document.getElementById('shareWhatsapp').href = `https://wa.me/?text=${encodedText}%20${encodedLink}`;
+                document.getElementById('shareLinkedin').href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedLink}`;
+            }
+            
+            function copyToClipboard(text) {
+                navigator.clipboard.writeText(text).then(() => {
+                    console.log('Copied to clipboard');
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                    // Fallback for older browsers
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                });
+            }
+            
+            function showFeedback(element, message) {
+                const originalText = element.innerHTML;
+                element.innerHTML = `<i class="fas fa-check"></i> ${message}`;
+                
+                setTimeout(() => {
+                    element.innerHTML = originalText;
+                }, 2000);
+            }
+        });
+    </script>
 </body>
 </html>
