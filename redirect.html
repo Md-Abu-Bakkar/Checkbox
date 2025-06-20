@@ -4,12 +4,307 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LinkPicGlobal - Content Link</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Adsterra Ads -->
-    <script type='text/javascript' src='//pl26865068.profitableratecpm.com/28/5a/9d/285a9daf669638cc241d55b11a9022a8.js'></script>
-    <script type='text/javascript' src='//pl26865081.profitableratecpm.com/3f/7c/da/3f7cdae06fb7910f8f7c01f3378a4291.js'></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --primary-light: #e0e7ff;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --dark-color: #1a1a2e;
+            --light-color: #f8f9fa;
+            --gray-color: #6c757d;
+            --light-gray: #e9ecef;
+            --error-color: #f72585;
+            --success-color: #4cc9f0;
+            --border-radius: 12px;
+            --box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            color: var(--dark-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .redirect-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+
+        .redirect-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .logo-container i {
+            font-size: 2rem;
+        }
+
+        .logo-container h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .logo-container span {
+            font-weight: 300;
+        }
+
+        .ad-container {
+            padding: 1rem;
+            text-align: center;
+            background: var(--light-gray);
+        }
+
+        .top-ad {
+            border-bottom: 1px solid #ddd;
+        }
+
+        .bottom-ad {
+            border-top: 1px solid #ddd;
+        }
+
+        .content-viewer {
+            padding: 1.5rem;
+        }
+
+        .content-display {
+            width: 100%;
+            min-height: 300px;
+            background: var(--light-gray);
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--primary-light);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .content-display img {
+            width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .caption {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--dark-color);
+            font-size: 1rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .destination-btn {
+            flex: 1;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .destination-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        .secondary-btn {
+            flex: 1;
+            padding: 1rem;
+            background: white;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .secondary-btn:hover {
+            background: var(--primary-light);
+        }
+
+        .redirect-footer {
+            text-align: center;
+            padding: 1rem;
+            background: var(--light-gray);
+            color: var(--gray-color);
+            font-size: 0.85rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Dual media styles */
+        .dual-media-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            width: 100%;
+            height: 100%;
+            padding: 1rem;
+        }
+
+        .media-item {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background: white;
+            border-radius: var(--border-radius);
+        }
+
+        .media-item img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .no-media-message {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray-color);
+        }
+
+        .no-media-message i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 2rem;
+            color: var(--error-color);
+        }
+
+        .error-message i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .content-viewer {
+                padding: 1rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+
+            .dual-media-container {
+                padding: 0.5rem;
+                gap: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .logo-container h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+    <!-- Open Graph meta tags for rich preview -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" id="ogUrl">
+    <meta property="og:title" id="ogTitle">
+    <meta property="og:description" id="ogDescription">
+    <meta property="og:image" id="ogImage">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <!-- Adsterra Ads - Will be loaded conditionally -->
 </head>
 <body>
     <div class="redirect-container">
@@ -20,8 +315,8 @@
             </div>
         </header>
 
-        <div class="ad-container top-ad">
-            <!-- Ad will be loaded here by Adsterra script -->
+        <div class="ad-container top-ad" id="topAd">
+            <!-- Ad will be loaded here by Adsterra script if no ad code provided -->
         </div>
         
         <div class="content-viewer">
@@ -37,7 +332,7 @@
             
             <div class="action-buttons">
                 <a href="#" id="destinationLink" class="destination-btn">
-                    <i class="fas fa-external-link-alt"></i> Visit Destination
+                    <i class="fas fa-external-link-alt"></i> <span id="buttonText">Visit Destination</span>
                 </a>
                 <button id="copyUrlBtn" class="secondary-btn">
                     <i class="fas fa-copy"></i> Copy Link
@@ -45,8 +340,8 @@
             </div>
         </div>
         
-        <div class="ad-container bottom-ad">
-            <!-- Ad will be loaded here by Adsterra script -->
+        <div class="ad-container bottom-ad" id="bottomAd">
+            <!-- Ad will be loaded here by Adsterra script if no ad code provided -->
         </div>
 
         <footer class="redirect-footer">
@@ -54,6 +349,171 @@
         </footer>
     </div>
 
-    <script src="redirect.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const destinationUrl = urlParams.get('dest');
+            const caption = urlParams.get('caption');
+            const buttonText = urlParams.get('button') || 'Visit Destination';
+            const imageUrl = urlParams.get('image');
+            const youtubeId = urlParams.get('youtube');
+            const autoplay = urlParams.get('autoplay') === '1';
+            const adRemoveCode = urlParams.get('adcode');
+            const VALID_AD_CODES = ['LPG123', 'LPG456', 'LPG789']; // Replace with your valid codes
+            
+            const contentDisplay = document.getElementById('contentDisplay');
+            const contentLoading = document.getElementById('contentLoading');
+            const captionElement = document.getElementById('contentCaption');
+            const destinationLink = document.getElementById('destinationLink');
+            const buttonTextElement = document.getElementById('buttonText');
+            const copyUrlBtn = document.getElementById('copyUrlBtn');
+            const topAd = document.getElementById('topAd');
+            const bottomAd = document.getElementById('bottomAd');
+            
+            // Set Open Graph meta tags for rich preview
+            document.getElementById('ogUrl').content = window.location.href;
+            document.getElementById('ogTitle').content = 'LinkPicGlobal Content Link';
+            if (caption) {
+                document.getElementById('ogDescription').content = decodeURIComponent(caption);
+            }
+            if (imageUrl) {
+                document.getElementById('ogImage').content = decodeURIComponent(imageUrl);
+            }
+            
+            // Check if ad removal code is valid
+            if (adRemoveCode && VALID_AD_CODES.includes(adRemoveCode)) {
+                topAd.classList.add('hidden');
+                bottomAd.classList.add('hidden');
+            } else {
+                // Load ads if no valid ad code provided
+                loadAds();
+            }
+            
+            if (!destinationUrl) {
+                displayError('Invalid link - missing destination URL');
+                return;
+            }
+            
+            // Set destination URL
+            destinationLink.href = destinationUrl;
+            buttonTextElement.textContent = buttonText;
+            
+            // Set caption if available
+            if (caption) {
+                captionElement.textContent = decodeURIComponent(caption);
+            } else {
+                captionElement.classList.add('hidden');
+            }
+            
+            // Display content based on available media
+            if (imageUrl && youtubeId) {
+                // Both image and YouTube video
+                displayDualMedia(decodeURIComponent(imageUrl), youtubeId, autoplay);
+            } else if (imageUrl) {
+                // Only image
+                displayImage(decodeURIComponent(imageUrl));
+            } else if (youtubeId) {
+                // Only YouTube video
+                displayYoutubeVideo(youtubeId, autoplay);
+            } else {
+                // No media - just show destination button
+                displayNoMedia();
+            }
+            
+            // Copy URL button
+            copyUrlBtn.addEventListener('click', function() {
+                navigator.clipboard.writeText(window.location.href);
+                showFeedback(this, 'Copied!');
+            });
+            
+            function displayImage(imageUrl) {
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.alt = 'Shared image';
+                img.onload = function() {
+                    contentLoading.classList.add('hidden');
+                };
+                
+                contentDisplay.innerHTML = '';
+                contentDisplay.appendChild(img);
+            }
+            
+            function displayYoutubeVideo(videoId, autoplay) {
+                contentDisplay.innerHTML = `
+                    <div class="video-container">
+                        <iframe class="youtube-embed" 
+                                src="https://www.youtube.com/embed/${videoId}?autoplay=${autoplay ? 1 : 0}&showinfo=0&controls=1" 
+                                frameborder="0" 
+                                allowfullscreen></iframe>
+                    </div>
+                `;
+                contentLoading.classList.add('hidden');
+            }
+            
+            function displayDualMedia(imageUrl, videoId, autoplay) {
+                contentDisplay.innerHTML = `
+                    <div class="dual-media-container">
+                        <div class="media-item image-item">
+                            <img src="${imageUrl}" alt="Shared image">
+                        </div>
+                        <div class="media-item video-item">
+                            <div class="video-container">
+                                <iframe class="youtube-embed" 
+                                        src="https://www.youtube.com/embed/${videoId}?autoplay=${autoplay ? 1 : 0}&showinfo=0&controls=1" 
+                                        frameborder="0" 
+                                        allowfullscreen></iframe>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                contentLoading.classList.add('hidden');
+            }
+            
+            function displayNoMedia() {
+                contentDisplay.innerHTML = `
+                    <div class="no-media-message">
+                        <i class="fas fa-external-link-alt"></i>
+                        <p>Click the button below to visit the destination</p>
+                    </div>
+                `;
+                contentLoading.classList.add('hidden');
+            }
+            
+            function displayError(message) {
+                contentDisplay.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>${message}</p>
+                    </div>
+                `;
+                contentLoading.classList.add('hidden');
+                destinationLink.classList.add('hidden');
+                captionElement.classList.add('hidden');
+            }
+            
+            function loadAds() {
+                // Load Adsterra ads
+                const adScript1 = document.createElement('script');
+                adScript1.type = 'text/javascript';
+                adScript1.src = '//pl26865068.profitableratecpm.com/28/5a/9d/285a9daf669638cc241d55b11a9022a8.js';
+                
+                const adScript2 = document.createElement('script');
+                adScript2.type = 'text/javascript';
+                adScript2.src = '//pl26865081.profitableratecpm.com/3f/7c/da/3f7cdae06fb7910f8f7c01f3378a4291.js';
+                
+                topAd.appendChild(adScript1);
+                bottomAd.appendChild(adScript2);
+            }
+            
+            function showFeedback(element, message) {
+                const originalText = element.innerHTML;
+                element.innerHTML = `<i class="fas fa-check"></i> ${message}`;
+                
+                setTimeout(() => {
+                    element.innerHTML = originalText;
+                }, 2000);
+            }
+        });
+    </script>
 </body>
 </html>
