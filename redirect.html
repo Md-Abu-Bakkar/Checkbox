@@ -4,12 +4,198 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LinkPicGlobal - Content</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Adsterra Ads -->
     <script type='text/javascript' src='//pl26865068.profitableratecpm.com/28/5a/9d/285a9daf669638cc241d55b11a9022a8.js'></script>
     <script type='text/javascript' src='//pl26865081.profitableratecpm.com/3f/7c/da/3f7cdae06fb7910f8f7c01f3378a4291.js'></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a0ca3;
+            --accent: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border-radius: 12px;
+            --shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #f5f7ff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .content-container {
+            padding: 2rem;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-content img {
+            max-width: 100%;
+            max-height: 500px;
+            border-radius: var(--border-radius);
+            display: block;
+            margin: 0 auto;
+            box-shadow: var(--shadow);
+        }
+
+        .video-content iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .combined-content {
+            width: 100%;
+        }
+
+        .combined-content .image-part {
+            margin-bottom: 1.5rem;
+        }
+
+        .combined-content .image-part img {
+            max-width: 100%;
+            max-height: 400px;
+            border-radius: var(--border-radius);
+            display: block;
+            margin: 0 auto;
+            box-shadow: var(--shadow);
+        }
+
+        .combined-content .video-part iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .caption {
+            padding: 0 2rem 1.5rem;
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--dark);
+        }
+
+        .destination-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            margin: 0 auto 2rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .destination-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(67,97,238,0.3);
+        }
+
+        .ad-container {
+            padding: 1rem;
+            background: #f8f9fa;
+            text-align: center;
+        }
+
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding: 2rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(67,97,238,0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            color: #dc3545;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 1.5rem;
+            }
+            
+            .content-container {
+                padding: 1.5rem;
+            }
+            
+            .video-content iframe,
+            .combined-content .video-part iframe {
+                height: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .video-content iframe,
+            .combined-content .video-part iframe {
+                height: 250px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -26,15 +212,110 @@
         
         <div id="captionContainer" class="caption"></div>
         
-        <a href="#" id="destinationLink" class="destination-btn">
-            <i class="fas fa-external-link-alt"></i> Visit Destination
-        </a>
+        <div style="text-align: center;">
+            <a href="#" id="destinationLink" class="destination-btn">
+                <i class="fas fa-external-link-alt"></i> Visit Destination
+            </a>
+        </div>
         
         <div class="ad-container">
             <!-- Ad will be loaded here -->
         </div>
     </div>
 
-    <script src="redirect.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const contentContainer = document.getElementById('contentContainer');
+            const captionContainer = document.getElementById('captionContainer');
+            const destinationLink = document.getElementById('destinationLink');
+            
+            // Try to get data from URL hash first
+            const hash = window.location.hash.substring(1);
+            
+            if (hash) {
+                try {
+                    const linkData = JSON.parse(atob(hash));
+                    displayContent(linkData);
+                    return;
+                } catch (e) {
+                    console.error('Error parsing hash data:', e);
+                }
+            }
+            
+            // If no hash, check for ID parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const linkId = urlParams.get('id');
+            
+            if (linkId) {
+                // Try to get from localStorage
+                const linkData = JSON.parse(localStorage.getItem(`linkpic_${linkId}`) || 'null');
+                
+                if (linkData) {
+                    displayContent(linkData);
+                } else {
+                    showError('Content not found or expired');
+                }
+            } else {
+                showError('Invalid link');
+            }
+            
+            function displayContent(linkData) {
+                // Remove loading
+                contentContainer.innerHTML = '';
+                
+                // Display content based on mode
+                if (linkData.mode === 'image' && linkData.image) {
+                    contentContainer.innerHTML = `
+                        <div class="image-content">
+                            <img src="${linkData.image}" alt="Shared content">
+                        </div>
+                    `;
+                } else if (linkData.mode === 'video' && linkData.video) {
+                    contentContainer.innerHTML = `
+                        <div class="video-content">
+                            <iframe src="https://www.youtube.com/embed/${linkData.video}?autoplay=1&mute=1" 
+                                    frameborder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowfullscreen></iframe>
+                        </div>
+                    `;
+                } else if (linkData.mode === 'both' && linkData.image && linkData.video) {
+                    contentContainer.innerHTML = `
+                        <div class="combined-content">
+                            <div class="image-part">
+                                <img src="${linkData.image}" alt="Shared image">
+                            </div>
+                            <div class="video-part">
+                                <iframe src="https://www.youtube.com/embed/${linkData.video}?autoplay=1&mute=1" 
+                                        frameborder="0" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        allowfullscreen></iframe>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Set caption if available
+                if (linkData.caption) {
+                    captionContainer.textContent = linkData.caption;
+                } else {
+                    captionContainer.style.display = 'none';
+                }
+                
+                // Set destination link
+                if (linkData.destination) {
+                    destinationLink.href = linkData.destination;
+                } else {
+                    destinationLink.style.display = 'none';
+                }
+            }
+            
+            function showError(message) {
+                contentContainer.innerHTML = `<p class="error">${message}</p>`;
+                destinationLink.style.display = 'none';
+                captionContainer.style.display = 'none';
+            }
+        });
+    </script>
 </body>
 </html>
