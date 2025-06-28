@@ -276,6 +276,11 @@
             margin-bottom: 0.3rem;
         }
 
+        .result-header p {
+            color: var(--gray-color);
+            font-size: 0.9rem;
+        }
+
         .link-container {
             display: flex;
             gap: 0.5rem;
@@ -485,6 +490,13 @@
             margin-bottom: 1rem;
         }
 
+        .hint {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--gray-color);
+        }
+
         /* Responsive styles */
         @media (max-width: 768px) {
             .media-selection {
@@ -628,7 +640,7 @@
                 <div class="result-header">
                     <i class="fas fa-check-circle"></i>
                     <h3>Your Smart Link is Ready!</h3>
-                    <p class="share-instruction">This link will work on any device</p>
+                    <p>This link will work on any device</p>
                 </div>
                 
                 <div class="link-container">
@@ -693,6 +705,20 @@
             
             // ImgBB API Key
             const IMGBB_API_KEY = 'ddc161b9a8fbb6f041c35e04629ccf71';
+            
+            // Valid Ad Removal Codes (10 codes)
+            const VALID_AD_CODES = [
+                'LPG2023X1',
+                'LPG2023X2',
+                'LPG2023X3',
+                'LPG2023X4',
+                'LPG2023X5',
+                'LPG2023X6',
+                'LPG2023X7',
+                'LPG2023X8',
+                'LPG2023X9',
+                'LPG2023X10'
+            ];
             
             // State variables
             let uploadedImageUrl = null;
