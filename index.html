@@ -3,42 +3,390 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkPicGlobal - Create Smart Links</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>LinkPicGlobal Pro</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a0ca3;
+            --accent: #4cc9f0;
+            --success: #4bb543;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border-radius: 12px;
+            --shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #f5f7ff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        header p {
+            opacity: 0.9;
+        }
+
+        .app-main {
+            padding: 2rem;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            background: #f1f3ff;
+            padding: 8px;
+            border-radius: var(--border-radius);
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .upload-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-area {
+            border: 2px dashed #d1d5ff;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            text-align: center;
+            background: #f8f9ff;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+        }
+
+        .upload-box {
+            position: relative;
+        }
+
+        .upload-box img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .upload-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .video-preview {
+            height: 200px;
+            background: #f8f9fa;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1rem;
+            color: var(--gray);
+            overflow: hidden;
+        }
+
+        .video-preview iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .combined-columns {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .column {
+            flex: 1;
+        }
+
+        .column h3 {
+            margin-bottom: 1rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e0e3ff;
+            border-radius: var(--border-radius);
+            font-family: inherit;
+            background: #f8f9ff;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67,97,238,0.2);
+            background: white;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 0.5rem;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(67,97,238,0.3);
+        }
+
+        .result {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f8f9ff;
+            border-radius: var(--border-radius);
+            display: none;
+        }
+
+        .link-box {
+            display: flex;
+            margin: 1.5rem 0;
+            border: 1px solid #e0e3ff;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .link-box input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: none;
+            font-family: inherit;
+            background: white;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .link-box button {
+            padding: 0 1.5rem;
+            background: var(--accent);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .test-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.75rem 1.5rem;
+            background: var(--success);
+            color: white;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            margin-top: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .test-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(75,181,67,0.3);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding: 2rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(67,97,238,0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .combined-columns {
+                flex-direction: column;
+            }
+            
+            header {
+                padding: 1.5rem;
+            }
+            
+            .app-main {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .mode-selector {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-link"></i> LinkPicGlobal</h1>
-            <p>Create powerful links with images and videos</p>
+            <h1><i class="fas fa-link"></i> LinkPicGlobal Pro</h1>
+            <p>Create smart links that work everywhere</p>
         </header>
         
-        <main>
+        <main class="app-main">
             <div class="mode-selector">
-                <button class="mode-btn active" data-mode="image">Image Only</button>
-                <button class="mode-btn" data-mode="video">Video Only</button>
-                <button class="mode-btn" data-mode="both">Both</button>
+                <button class="mode-btn active" data-mode="image"><i class="fas fa-image"></i> Image</button>
+                <button class="mode-btn" data-mode="video"><i class="fab fa-youtube"></i> Video</button>
+                <button class="mode-btn" data-mode="both"><i class="fas fa-layer-group"></i> Both</button>
             </div>
 
-            <!-- Image Upload Section -->
+            <!-- Image Section -->
             <div class="upload-section" id="imageSection">
                 <div class="upload-area" id="imageUploadArea">
                     <div class="upload-box">
                         <img src="" alt="Preview" id="imagePreview" class="hidden">
                         <input type="file" id="imageUpload" accept="image/*">
                         <label for="imageUpload" class="upload-btn">
-                            <i class="fas fa-cloud-upload-alt"></i> Select Image
+                            <i class="fas fa-cloud-upload-alt"></i> Upload Image
                         </label>
                     </div>
                 </div>
             </div>
 
-            <!-- Video Upload Section -->
+            <!-- Video Section -->
             <div class="upload-section hidden" id="videoSection">
                 <div class="form-group">
-                    <label for="youtubeUrl"><i class="fab fa-youtube"></i> YouTube URL</label>
+                    <label for="youtubeUrl"><i class="fab fa-youtube"></i> YouTube Video URL</label>
                     <input type="url" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=...">
                 </div>
                 <div class="video-preview" id="videoPreview">
@@ -56,7 +404,7 @@
                                 <img src="" alt="Preview" id="combinedImagePreview" class="hidden">
                                 <input type="file" id="combinedImageUpload" accept="image/*">
                                 <label for="combinedImageUpload" class="upload-btn">
-                                    <i class="fas fa-cloud-upload-alt"></i> Select Image
+                                    <i class="fas fa-cloud-upload-alt"></i> Upload Image
                                 </label>
                             </div>
                         </div>
@@ -75,33 +423,233 @@
 
             <form id="linkForm">
                 <div class="form-group">
-                    <label for="destinationUrl"><i class="fas fa-link"></i> Destination URL</label>
-                    <input type="url" id="destinationUrl" placeholder="https://example.com" required>
+                    <label for="destinationUrl"><i class="fas fa-external-link-alt"></i> Destination URL</label>
+                    <input type="url" id="destinationUrl" placeholder="https://yourwebsite.com" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="caption"><i class="fas fa-comment"></i> Caption (Optional)</label>
+                    <label for="caption"><i class="fas fa-comment-alt"></i> Caption (Optional)</label>
                     <textarea id="caption" placeholder="Enter description"></textarea>
                 </div>
                 
                 <button type="submit" class="generate-btn">
-                    <i class="fas fa-magic"></i> Generate Link
+                    <i class="fas fa-bolt"></i> Generate Smart Link
                 </button>
             </form>
             
-            <div class="result hidden" id="result">
+            <div class="result" id="result">
                 <h3>Your Link is Ready!</h3>
                 <div class="link-box">
                     <input type="text" id="generatedLink" readonly>
                     <button id="copyBtn"><i class="fas fa-copy"></i> Copy</button>
                 </div>
                 <a href="#" id="testLink" target="_blank" class="test-btn">
-                    <i class="fas fa-eye"></i> Test Link
+                    <i class="fas fa-eye"></i> Test Your Link
                 </a>
             </div>
         </main>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const modeBtns = document.querySelectorAll('.mode-btn');
+            const sections = {
+                image: document.getElementById('imageSection'),
+                video: document.getElementById('videoSection'),
+                both: document.getElementById('bothSection')
+            };
+            const imageUpload = document.getElementById('imageUpload');
+            const imagePreview = document.getElementById('imagePreview');
+            const youtubeUrl = document.getElementById('youtubeUrl');
+            const videoPreview = document.getElementById('videoPreview');
+            const combinedImageUpload = document.getElementById('combinedImageUpload');
+            const combinedImagePreview = document.getElementById('combinedImagePreview');
+            const combinedYoutubeUrl = document.getElementById('combinedYoutubeUrl');
+            const combinedVideoPreview = document.getElementById('combinedVideoPreview');
+            const linkForm = document.getElementById('linkForm');
+            const resultDiv = document.getElementById('result');
+            const generatedLink = document.getElementById('generatedLink');
+            const copyBtn = document.getElementById('copyBtn');
+            const testLink = document.getElementById('testLink');
+
+            // State
+            let currentMode = 'image';
+            let imageData = null;
+            let youtubeId = null;
+            let combinedImageData = null;
+            let combinedYoutubeId = null;
+
+            // Mode selection
+            modeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    currentMode = this.dataset.mode;
+                    modeBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Hide all sections
+                    Object.values(sections).forEach(section => {
+                        section.classList.add('hidden');
+                    });
+                    
+                    // Show current section
+                    sections[currentMode].classList.remove('hidden');
+                });
+            });
+
+            // Image upload (simple mode)
+            imageUpload.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file && file.type.match('image.*')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imageData = e.target.result;
+                        imagePreview.src = imageData;
+                        imagePreview.classList.remove('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // YouTube URL (simple mode)
+            youtubeUrl.addEventListener('input', function() {
+                const url = this.value;
+                const videoId = getYouTubeId(url);
+                
+                if (videoId) {
+                    youtubeId = videoId;
+                    videoPreview.innerHTML = `
+                        <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=0&controls=1" 
+                                frameborder="0" allowfullscreen></iframe>
+                    `;
+                } else {
+                    youtubeId = null;
+                    videoPreview.innerHTML = '<p>' + (url ? 'Invalid YouTube URL' : 'Enter YouTube URL to preview') + '</p>';
+                }
+            });
+
+            // Image upload (combined mode)
+            combinedImageUpload.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file && file.type.match('image.*')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        combinedImageData = e.target.result;
+                        combinedImagePreview.src = combinedImageData;
+                        combinedImagePreview.classList.remove('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // YouTube URL (combined mode)
+            combinedYoutubeUrl.addEventListener('input', function() {
+                const url = this.value;
+                const videoId = getYouTubeId(url);
+                
+                if (videoId) {
+                    combinedYoutubeId = videoId;
+                    combinedVideoPreview.innerHTML = `
+                        <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=0&controls=1" 
+                                frameborder="0" allowfullscreen></iframe>
+                    `;
+                } else {
+                    combinedYoutubeId = null;
+                    combinedVideoPreview.innerHTML = '<p>' + (url ? 'Invalid YouTube URL' : 'Enter YouTube URL') + '</p>';
+                }
+            });
+
+            // Form submission
+            linkForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const destinationUrl = document.getElementById('destinationUrl').value;
+                const caption = document.getElementById('caption').value;
+                
+                // Validate based on mode
+                if (currentMode === 'image' && !imageData) {
+                    alert('Please upload an image');
+                    return;
+                }
+                
+                if (currentMode === 'video' && !youtubeId) {
+                    alert('Please enter a valid YouTube URL');
+                    return;
+                }
+                
+                if (currentMode === 'both' && (!combinedImageData || !combinedYoutubeId)) {
+                    alert('Please provide both image and YouTube URL');
+                    return;
+                }
+                
+                // Create data object
+                const linkData = {
+                    mode: currentMode,
+                    destination: destinationUrl,
+                    caption: caption || null
+                };
+                
+                // Add content based on mode
+                if (currentMode === 'image') {
+                    linkData.image = imageData;
+                } else if (currentMode === 'video') {
+                    linkData.video = youtubeId;
+                } else {
+                    linkData.image = combinedImageData;
+                    linkData.video = combinedYoutubeId;
+                }
+                
+                // Generate unique ID
+                const linkId = generateId(12);
+                
+                // Store in localStorage as fallback
+                localStorage.setItem(`linkpic_${linkId}`, JSON.stringify(linkData));
+                
+                // Generate link with data in URL hash
+                const baseUrl = window.location.href.replace('index.html', '');
+                const dataString = btoa(JSON.stringify(linkData));
+                const link = `${baseUrl}redirect.html#${dataString}`;
+                
+                // Show result
+                generatedLink.value = link;
+                testLink.href = link;
+                resultDiv.style.display = 'block';
+                
+                // Scroll to result
+                resultDiv.scrollIntoView({ behavior: 'smooth' });
+            });
+
+            // Copy button
+            copyBtn.addEventListener('click', function() {
+                generatedLink.select();
+                document.execCommand('copy');
+                
+                // Show feedback
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                }, 2000);
+            });
+
+            // Helper functions
+            function getYouTubeId(url) {
+                if (!url) return null;
+                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                const match = url.match(regExp);
+                return (match && match[2].length === 11) ? match[2] : null;
+            }
+
+            function generateId(length) {
+                const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let result = '';
+                for (let i = 0; i < length; i++) {
+                    result += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return result;
+            }
+        });
+    </script>
 </body>
 </html>
