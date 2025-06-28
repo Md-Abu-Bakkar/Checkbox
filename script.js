@@ -1,263 +1,205 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // DOM Elements
+    // Elements
+    const modeBtns = document.querySelectorAll('.mode-btn');
+    const imageSection = document.getElementById('imageSection');
+    const videoSection = document.getElementById('videoSection');
+    const bothSection = document.getElementById('bothSection');
     const imageUpload = document.getElementById('imageUpload');
-    const uploadBox = document.getElementById('uploadBox');
-    const uploadLabel = document.querySelector('.upload-label');
     const imagePreview = document.getElementById('imagePreview');
-    const imageLoading = document.getElementById('imageLoading');
+    const youtubeUrl = document.getElementById('youtubeUrl');
+    const videoPreview = document.getElementById('videoPreview');
+    const combinedImageUpload = document.getElementById('combinedImageUpload');
+    const combinedImagePreview = document.getElementById('combinedImagePreview');
+    const combinedYoutubeUrl = document.getElementById('combinedYoutubeUrl');
+    const combinedVideoPreview = document.getElementById('combinedVideoPreview');
     const linkForm = document.getElementById('linkForm');
-    const resultArea = document.getElementById('resultArea');
+    const resultDiv = document.getElementById('result');
     const generatedLink = document.getElementById('generatedLink');
     const copyBtn = document.getElementById('copyBtn');
     const testLink = document.getElementById('testLink');
-    const useImageCheckbox = document.getElementById('useImage');
-    const useYoutubeCheckbox = document.getElementById('useYoutube');
-    const imageUploadSection = document.getElementById('imageUploadSection');
-    const youtubeSection = document.getElementById('youtubeSection');
-    const youtubeUrlInput = document.getElementById('youtubeUrl');
-    const youtubePreview = document.getElementById('youtubePreview');
-    
-    // ImgBB API Key
-    const IMGBB_API_KEY = 'ddc161b9a8fbb6f041c35e04629ccf71';
-    
-    // State variables
-    let uploadedImageUrl = null;
-    let youtubeVideoId = null;
-    
-    // Initialize the app
-    init();
-    
-    function init() {
-        setupEventListeners();
-        updateMediaSections();
-    }
-    
-    function setupEventListeners() {
-        // Media selection checkboxes
-        useImageCheckbox.addEventListener('change', updateMediaSections);
-        useYoutubeCheckbox.addEventListener('change', updateMediaSections);
-        
-        // Image upload
-        imageUpload.addEventListener('change', function(e) {
-            handleImageUpload(e.target.files[0]);
-        });
-        
-        // Drag and drop
-        uploadBox.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            uploadBox.classList.add('dragover');
-        });
-        
-        uploadBox.addEventListener('dragleave', function() {
-            uploadBox.classList.remove('dragover');
-        });
-        
-        uploadBox.addEventListener('drop', function(e) {
-            e.preventDefault();
-            uploadBox.classList.remove('dragover');
-            if (e.dataTransfer.files.length) {
-                handleImageUpload(e.dataTransfer.files[0]);
+
+    // State
+    let currentMode = 'image';
+    let imageUrl = null;
+    let youtubeId = null;
+    let combinedImageUrl = null;
+    let combinedYoutubeId = null;
+
+    // Mode selection
+    modeBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            currentMode = this.dataset.mode;
+            modeBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            imageSection.classList.add('hidden');
+            videoSection.classList.add('hidden');
+            bothSection.classList.add('hidden');
+            
+            if (currentMode === 'image') {
+                imageSection.classList.remove('hidden');
+            } else if (currentMode === 'video') {
+                videoSection.classList.remove('hidden');
+            } else {
+                bothSection.classList.remove('hidden');
             }
         });
-        
-        // YouTube URL input
-        youtubeUrlInput.addEventListener('input', function() {
-            updateYoutubePreview(this.value);
-        });
-        
-        // Form submission
-        linkForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            generateLink();
-        });
-        
-        // Copy button
-        copyBtn.addEventListener('click', function() {
-            copyToClipboard(generatedLink.value);
-            showFeedback(this, 'Copied!');
-        });
-    }
-    
-    function updateMediaSections() {
-        const useImage = useImageCheckbox.checked;
-        const useYoutube = useYoutubeCheckbox.checked;
-        
-        imageUploadSection.classList.toggle('hidden', !useImage);
-        youtubeSection.classList.toggle('hidden', !useYoutube);
-        
-        // Validate at least one media type is selected
-        if (!useImage && !useYoutube) {
-            useImageCheckbox.checked = true;
-            imageUploadSection.classList.remove('hidden');
-        }
-    }
-    
-    function handleImageUpload(file) {
-        if (!file || !file.type.match('image.*')) {
-            alert('Please select a valid image file (JPEG, PNG)');
-            return;
-        }
-        
-        if (file.size > 5 * 1024 * 1024) { // 5MB limit
-            alert('Image size should be less than 5MB');
-            return;
-        }
-        
-        // Show loading state
-        imageLoading.classList.remove('hidden');
-        uploadLabel.classList.add('hidden');
-        
-        // Upload to ImgBB
-        uploadToImgBB(file)
-            .then(url => {
-                uploadedImageUrl = url;
-                imagePreview.src = url;
+    });
+
+    // Image upload (simple mode)
+    imageUpload.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file && file.type.match('image.*')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imageUrl = e.target.result;
+                imagePreview.src = imageUrl;
                 imagePreview.classList.remove('hidden');
-            })
-            .catch(error => {
-                console.error('Upload failed:', error);
-                alert('Image upload failed. Please try again.');
-            })
-            .finally(() => {
-                imageLoading.classList.add('hidden');
-            });
-    }
-    
-    function uploadToImgBB(file) {
-        return new Promise((resolve, reject) => {
-            const formData = new FormData();
-            formData.append('image', file);
-            
-            fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    resolve(data.data.url);
-                } else {
-                    reject(data.error.message || 'Upload failed');
-                }
-            })
-            .catch(error => reject(error));
-        });
-    }
-    
-    function updateYoutubePreview(url) {
-        const videoId = extractYoutubeId(url);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // YouTube URL (simple mode)
+    youtubeUrl.addEventListener('input', function() {
+        const url = this.value;
+        const videoId = getYouTubeId(url);
         
         if (videoId) {
-            youtubeVideoId = videoId;
-            youtubePreview.innerHTML = `
-                <iframe class="youtube-embed" 
-                        src="https://www.youtube.com/embed/${videoId}?autoplay=0&showinfo=0&controls=1" 
+            youtubeId = videoId;
+            videoPreview.innerHTML = `
+                <iframe width="100%" height="100%" 
+                        src="https://www.youtube.com/embed/${videoId}" 
                         frameborder="0" 
                         allowfullscreen></iframe>
             `;
         } else {
-            youtubeVideoId = null;
-            youtubePreview.innerHTML = `
-                <div class="youtube-placeholder">
-                    <i class="fab fa-youtube"></i>
-                    <p>${url ? 'Invalid YouTube URL' : 'Enter YouTube URL to preview'}</p>
-                </div>
+            youtubeId = null;
+            videoPreview.innerHTML = '<p>' + (url ? 'Invalid YouTube URL' : 'Enter YouTube URL to preview') + '</p>';
+        }
+    });
+
+    // Image upload (combined mode)
+    combinedImageUpload.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file && file.type.match('image.*')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                combinedImageUrl = e.target.result;
+                combinedImagePreview.src = combinedImageUrl;
+                combinedImagePreview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // YouTube URL (combined mode)
+    combinedYoutubeUrl.addEventListener('input', function() {
+        const url = this.value;
+        const videoId = getYouTubeId(url);
+        
+        if (videoId) {
+            combinedYoutubeId = videoId;
+            combinedVideoPreview.innerHTML = `
+                <iframe width="100%" height="100%" 
+                        src="https://www.youtube.com/embed/${videoId}" 
+                        frameborder="0" 
+                        allowfullscreen></iframe>
             `;
+        } else {
+            combinedYoutubeId = null;
+            combinedVideoPreview.innerHTML = '<p>' + (url ? 'Invalid YouTube URL' : 'Enter YouTube URL') + '</p>';
         }
-    }
-    
-    function extractYoutubeId(url) {
-        if (!url) return null;
+    });
+
+    // Form submission
+    linkForm.addEventListener('submit', function(e) {
+        e.preventDefault();
         
-        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-        const match = url.match(regExp);
-        
-        return (match && match[2].length === 11) ? match[2] : null;
-    }
-    
-    function generateLink() {
         const destinationUrl = document.getElementById('destinationUrl').value;
-        const imageCaption = document.getElementById('imageCaption').value;
-        const useImage = useImageCheckbox.checked;
-        const useYoutube = useYoutubeCheckbox.checked;
+        const caption = document.getElementById('caption').value;
         
-        if (!destinationUrl) {
-            alert('Please enter a destination URL');
+        // Validate based on mode
+        if (currentMode === 'image' && !imageUrl) {
+            alert('Please upload an image');
             return;
         }
         
-        if (useImage && !uploadedImageUrl) {
-            alert('Please upload an image first');
-            return;
-        }
-        
-        if (useYoutube && !youtubeVideoId) {
+        if (currentMode === 'video' && !youtubeId) {
             alert('Please enter a valid YouTube URL');
             return;
         }
         
-        // Create the shareable link with all data in URL parameters
+        if (currentMode === 'both' && (!combinedImageUrl || !combinedYoutubeId)) {
+            alert('Please provide both image and YouTube URL');
+            return;
+        }
+        
+        // Generate unique ID
+        const linkId = generateId(12);
+        
+        // Create data object
+        const linkData = {
+            mode: currentMode,
+            destination: destinationUrl,
+            caption: caption || null,
+            timestamp: new Date().getTime()
+        };
+        
+        // Add content based on mode
+        if (currentMode === 'image') {
+            linkData.image = imageUrl;
+        } else if (currentMode === 'video') {
+            linkData.video = youtubeId;
+        } else {
+            linkData.image = combinedImageUrl;
+            linkData.video = combinedYoutubeId;
+        }
+        
+        // Store in localStorage
+        localStorage.setItem(`linkpic_${linkId}`, JSON.stringify(linkData));
+        
+        // Generate link
         const baseUrl = window.location.href.replace('index.html', '');
-        let link = `${baseUrl}redirect.html?dest=${encodeURIComponent(destinationUrl)}`;
+        const link = `${baseUrl}redirect.html?id=${linkId}`;
         
-        // Add caption if provided
-        if (imageCaption) {
-            link += `&caption=${encodeURIComponent(imageCaption)}`;
-        }
-        
-        // Add image if selected
-        if (useImage && uploadedImageUrl) {
-            link += `&image=${encodeURIComponent(uploadedImageUrl)}`;
-        }
-        
-        // Add YouTube video if selected
-        if (useYoutube && youtubeVideoId) {
-            link += `&youtube=${youtubeVideoId}`;
-        }
-        
-        // Update UI
+        // Show result
         generatedLink.value = link;
         testLink.href = link;
-        resultArea.classList.remove('hidden');
+        resultDiv.classList.remove('hidden');
         
         // Scroll to result
-        resultArea.scrollIntoView({ behavior: 'smooth' });
+        resultDiv.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Copy button
+    copyBtn.addEventListener('click', function() {
+        generatedLink.select();
+        document.execCommand('copy');
         
-        // Initialize social sharing
-        setupSocialSharing(link, imageCaption);
-    }
-    
-    function setupSocialSharing(link, text = '') {
-        const encodedLink = encodeURIComponent(link);
-        const encodedText = encodeURIComponent(text);
-        
-        document.getElementById('shareFacebook').href = `https://www.facebook.com/sharer/sharer.php?u=${encodedLink}`;
-        document.getElementById('shareTwitter').href = `https://twitter.com/intent/tweet?url=${encodedLink}&text=${encodedText}`;
-        document.getElementById('shareWhatsapp').href = `https://wa.me/?text=${encodedText}%20${encodedLink}`;
-        document.getElementById('shareLinkedin').href = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedLink}`;
-    }
-    
-    function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(() => {
-            console.log('Copied to clipboard');
-        }).catch(err => {
-            console.error('Failed to copy:', err);
-            // Fallback for older browsers
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-        });
-    }
-    
-    function showFeedback(element, message) {
-        const originalText = element.innerHTML;
-        element.innerHTML = `<i class="fas fa-check"></i> ${message}`;
+        // Show feedback
+        const originalText = this.innerHTML;
+        this.innerHTML = '<i class="fas fa-check"></i> Copied!';
         
         setTimeout(() => {
-            element.innerHTML = originalText;
+            this.innerHTML = originalText;
         }, 2000);
+    });
+
+    // Helper functions
+    function getYouTubeId(url) {
+        if (!url) return null;
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+    }
+
+    function generateId(length) {
+        const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
     }
 });
