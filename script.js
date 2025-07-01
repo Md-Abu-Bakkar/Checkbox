@@ -22,6 +22,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Show demo ad in preview
     showDemoAd();
+    
+    // Load demo ads in help section
+    loadDemoAds();
 });
 
 // Set up event listeners
@@ -87,6 +90,45 @@ function initSizeOptions() {
         document.getElementById('ad-preview').style.height = `${this.value}px`;
         updatePreview();
     });
+}
+
+// Load demo ads in help section
+function loadDemoAds() {
+    // 300x250 Demo Ad
+    document.getElementById('demo-ad-300x250').innerHTML = `
+<div style="width: 300px; height: 250px; background-color: #000000; position: relative; overflow: hidden; cursor: pointer;" onclick="window.open('https://example.com', '_blank')">
+    <img src="https://via.placeholder.com/300x250" style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+    <div style="position: absolute; bottom: 0; left: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 10px; text-align: center;">
+        Demo Ad - 300x250
+    </div>
+</div>`.trim();
+
+    // 728x90 Demo Ad
+    document.getElementById('demo-ad-728x90').innerHTML = `
+<div style="width: 728px; height: 90px; background-color: #000000; position: relative; overflow: hidden; cursor: pointer;" onclick="window.open('https://example.com', '_blank')">
+    <img src="https://via.placeholder.com/728x90" style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+    <div style="position: absolute; bottom: 0; left: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 5px; text-align: center;">
+        Demo Ad - 728x90
+    </div>
+</div>`.trim();
+
+    // 320x50 Demo Ad
+    document.getElementById('demo-ad-320x50').innerHTML = `
+<div style="width: 320px; height: 50px; background-color: #000000; position: relative; overflow: hidden; cursor: pointer;" onclick="window.open('https://example.com', '_blank')">
+    <img src="https://via.placeholder.com/320x50" style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+    <div style="position: absolute; bottom: 0; left: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 3px; text-align: center; font-size: 12px;">
+        Demo Ad - 320x50
+    </div>
+</div>`.trim();
+
+    // 468x60 Demo Ad
+    document.getElementById('demo-ad-468x60').innerHTML = `
+<div style="width: 468px; height: 60px; background-color: #000000; position: relative; overflow: hidden; cursor: pointer;" onclick="window.open('https://example.com', '_blank')">
+    <img src="https://via.placeholder.com/468x60" style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+    <div style="position: absolute; bottom: 0; left: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 5px; text-align: center;">
+        Demo Ad - 468x60
+    </div>
+</div>`.trim();
 }
 
 // Show demo ad in preview
@@ -210,7 +252,21 @@ function updatePreview() {
                         iframe.frameBorder = '0';
                         iframe.allow = 'autoplay; encrypted-media';
                         iframe.allowFullscreen = true;
+                        
+                        // Add clickable overlay for YouTube videos
+                        const clickOverlay = document.createElement('div');
+                        clickOverlay.style.position = 'absolute';
+                        clickOverlay.style.top = '0';
+                        clickOverlay.style.left = '0';
+                        clickOverlay.style.width = '100%';
+                        clickOverlay.style.height = '100%';
+                        clickOverlay.style.cursor = 'pointer';
+                        clickOverlay.onclick = function() {
+                            window.open(adLink, '_blank');
+                        };
+                        
                         preview.appendChild(iframe);
+                        preview.appendChild(clickOverlay);
                     }
                 } else {
                     // Handle direct video URLs
@@ -222,6 +278,13 @@ function updatePreview() {
                     videoElement.muted = true;
                     videoElement.loop = true;
                     videoElement.playsInline = true;
+                    
+                    // Make the entire video clickable
+                    videoElement.style.cursor = 'pointer';
+                    videoElement.onclick = function() {
+                        window.open(adLink, '_blank');
+                    };
+                    
                     preview.appendChild(videoElement);
                 }
             }
@@ -258,6 +321,9 @@ function updatePreview() {
             ctaButton.style.border = 'none';
             ctaButton.style.borderRadius = '4px';
             ctaButton.style.cursor = 'pointer';
+            ctaButton.onclick = function() {
+                window.open(adLink, '_blank');
+            };
             
             socialBar.appendChild(ctaButton);
             preview.appendChild(socialBar);
@@ -305,6 +371,11 @@ function updatePreview() {
             closeButton.style.cursor = 'pointer';
             popup.appendChild(closeButton);
             
+            popup.style.cursor = 'pointer';
+            popup.onclick = function() {
+                window.open(adLink, '_blank');
+            };
+            
             preview.appendChild(popup);
             break;
             
@@ -349,7 +420,15 @@ function updatePreview() {
             skipButton.style.border = 'none';
             skipButton.style.borderRadius = '4px';
             skipButton.style.cursor = 'pointer';
+            skipButton.onclick = function(e) {
+                e.stopPropagation();
+            };
             fullscreenContent.appendChild(skipButton);
+            
+            fullscreenContent.style.cursor = 'pointer';
+            fullscreenContent.onclick = function() {
+                window.open(adLink, '_blank');
+            };
             
             preview.appendChild(fullscreenContent);
             break;
@@ -616,8 +695,9 @@ function generateEmbedCode(ad) {
                 if (videoId) {
                     const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0`;
                     embedCode = `
-<div style="width: ${ad.width}px; height: ${ad.height}px; position: relative; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')">
+<div style="width: ${ad.width}px; height: ${ad.height}px; position: relative;">
     <iframe src="${embedUrl}" style="width: 100%; height: 100%; border: none;"></iframe>
+    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')"></div>
 </div>`;
                 }
             } else {
@@ -980,7 +1060,21 @@ function viewAd(adId) {
                         iframe.frameBorder = '0';
                         iframe.allow = 'autoplay; encrypted-media';
                         iframe.allowFullscreen = true;
+                        
+                        // Add clickable overlay
+                        const overlay = document.createElement('div');
+                        overlay.style.position = 'absolute';
+                        overlay.style.top = '0';
+                        overlay.style.left = '0';
+                        overlay.style.width = '100%';
+                        overlay.style.height = '100%';
+                        overlay.style.cursor = 'pointer';
+                        overlay.onclick = function() {
+                            window.open(ad.link, '_blank');
+                        };
+                        
                         adContainer.appendChild(iframe);
+                        adContainer.appendChild(overlay);
                     }
                 } else {
                     // Handle direct video URLs
@@ -992,6 +1086,10 @@ function viewAd(adId) {
                     video.muted = true;
                     video.loop = true;
                     video.playsInline = true;
+                    video.style.cursor = 'pointer';
+                    video.onclick = function() {
+                        window.open(ad.link, '_blank');
+                    };
                     adContainer.appendChild(video);
                 }
             }
@@ -1028,6 +1126,9 @@ function viewAd(adId) {
             ctaButton.style.border = 'none';
             ctaButton.style.borderRadius = '4px';
             ctaButton.style.cursor = 'pointer';
+            ctaButton.onclick = function() {
+                window.open(ad.link, '_blank');
+            };
             
             socialBar.appendChild(ctaButton);
             adContainer.appendChild(socialBar);
