@@ -7,7 +7,15 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header>
+    <!-- Fixed Header Ad -->
+    <div id="header-ad" style="width: 100%; height: 80px; background-color: #000000; position: fixed; top: 0; left: 0; z-index: 1000; overflow: hidden; cursor: pointer;" onclick="window.open('https://control.putulhost.com/aff.php?aff=3958', '_blank')">
+        <img src="https://control.putulhost.com/Affiliate/60.gif" style="width: 100%; height: 100%; object-fit: cover;">
+        <div style="position: absolute; bottom: 0; left: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 10px; text-align: center; font-size: 12px;">
+            🌐 সাশ্রয়ী মূল্যে উচ্চগতির হোস্টিং খুঁজছেন? ✅ BDIX ও Global Server সাপোর্টেড 🚀 ৯৯.৯% আপটাইম ও ২৪/৭ দক্ষ কাস্টমার সাপোর্ট
+        </div>
+    </div>
+
+    <header style="margin-top: 80px;">
         <div class="container">
             <h1>MakeMyAd</h1>
         </div>
@@ -203,61 +211,29 @@
                 <div class="demo-ads">
                     <div class="demo-ad-code">
                         <h4>300x250 (Medium Rectangle)</h4>
-                        <div class="code-block">
-                            &lt;script type="text/javascript"&gt;
-                                atOptions = {
-                                    'key' : '03e7c2c2519ccd98f477369bfbbb04d2',
-                                    'format' : 'iframe',
-                                    'height' : 250,
-                                    'width' : 300,
-                                    'params' : {}
-                                };
-                            &lt;/script&gt;
-                            &lt;script type="text/javascript" src="//www.highperformanceformat.com/03e7c2c2519ccd98f477369bfbbb04d2/invoke.js"&gt;&lt;/script&gt;
+                        <div class="code-block" id="demo-ad-300x250">
+                            <!-- Demo ad will be injected here by JavaScript -->
                         </div>
                     </div>
                     
                     <div class="demo-ad-code">
                         <h4>728x90 (Leaderboard)</h4>
-                        <div class="code-block">
-                            &lt;script type="text/javascript"&gt; 
-                                atOptions = { 
-                                    'key' : 'c949739cfbc90099b78fd03e56e0c06f', 
-                                    'format' : 'iframe', 
-                                    'height' : 90, 
-                                    'width' : 728, 
-                                    'params' : {} 
-                                }; 
-                            &lt;/script&gt; 
-                            &lt;script type="text/javascript" src="//www.highperformanceformat.com/c949739cfbc90099b78fd03e56e0c06f/invoke.js"&gt;&lt;/script&gt;
+                        <div class="code-block" id="demo-ad-728x90">
+                            <!-- Demo ad will be injected here by JavaScript -->
                         </div>
                     </div>
                     
                     <div class="demo-ad-code">
                         <h4>320x50 (Mobile Banner)</h4>
-                        <div class="code-block">
-                            &lt;script type="text/javascript"&gt; 
-                                atOptions = { 
-                                    'key' : 'a481763decb23c81da5296aea54b0fd9', 
-                                    'format' : 'iframe', 
-                                    'height' : 50, 
-                                    'width' : 320, 
-                                    'params' : {} 
-                                }; 
-                            &lt;/script&gt; 
-                            &lt;script type="text/javascript" src="//www.highperformanceformat.com/a481763decb23c81da5296aea54b0fd9/invoke.js"&gt;&lt;/script&gt;
+                        <div class="code-block" id="demo-ad-320x50">
+                            <!-- Demo ad will be injected here by JavaScript -->
                         </div>
                     </div>
                     
                     <div class="demo-ad-code">
                         <h4>468x60 (Banner)</h4>
-                        <div class="code-block">
-                            &lt;div style="width: 468px; height: 60px; background-color: #000000; position: relative; overflow: hidden; cursor: pointer;" onclick="window.open('https://example.com', '_blank')"&gt;
-                                &lt;img src="https://example.com/image.jpg" style="width: 100%; height: 100%; object-fit: cover; object-position: center;"&gt;
-                                &lt;div style="position: absolute; bottom: 0; left: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 5px; text-align: center;"&gt;
-                                    Your ad text here
-                                &lt;/div&gt;
-                            &lt;/div&gt;
+                        <div class="code-block" id="demo-ad-468x60">
+                            <!-- Demo ad will be injected here by JavaScript -->
                         </div>
                     </div>
                 </div>
