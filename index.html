@@ -1,14 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" prefix="og: https://ogp.me/ns#">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MakeMyAd - Professional Ad Generator</title>
-    <meta property="og:title" content="MakeMyAd - Professional Ad Generator">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="">
-    <meta property="og:image" content="">
-    <meta property="og:description" content="Create professional ads with MakeMyAd">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -36,30 +31,138 @@
         <!-- Create Ad Tab -->
         <div id="create-tab" class="tab-content active">
             <form id="ad-form">
-                <!-- Form fields remain the same as previous implementation -->
-                <!-- ... -->
+                <div class="form-group">
+                    <label for="ad-name">Ad Name</label>
+                    <input type="text" id="ad-name" required placeholder="My Awesome Ad">
+                </div>
+                
+                <div class="form-group">
+                    <label for="ad-type">Ad Type</label>
+                    <select id="ad-type" onchange="updateFormFields()">
+                        <option value="banner">Banner Ad</option>
+                        <option value="video">Video Ad</option>
+                        <option value="social">Social Bar</option>
+                        <option value="popup">Popup Ad</option>
+                        <option value="fullscreen">Fullscreen Ad</option>
+                    </select>
+                </div>
+                
+                <div class="form-group" id="size-container">
+                    <label>Ad Size</label>
+                    <div class="ad-size-options">
+                        <div class="ad-size-option selected" data-size="300x250">300x250 (Medium Rectangle)</div>
+                        <div class="ad-size-option" data-size="728x90">728x90 (Leaderboard)</div>
+                        <div class="ad-size-option" data-size="160x600">160x600 (Wide Skyscraper)</div>
+                        <div class="ad-size-option" data-size="320x50">320x50 (Mobile Banner)</div>
+                        <div class="ad-size-option" data-size="468x60">468x60 (Banner)</div>
+                        <div class="ad-size-option" data-size="custom">Custom Size</div>
+                    </div>
+                    <div id="custom-size-container" style="display: none; margin-top: 10px;">
+                        <div style="display: flex; gap: 10px;">
+                            <input type="number" id="custom-width" placeholder="Width" min="50" style="flex: 1;">
+                            <input type="number" id="custom-height" placeholder="Height" min="50" style="flex: 1;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ad-image">Image URL</label>
+                    <input type="url" id="ad-image" placeholder="https://example.com/image.jpg">
+                    <small>For banner, popup, and fullscreen ads</small>
+                </div>
+                
+                <div class="form-group" id="video-url-container" style="display: none;">
+                    <label for="ad-video">Video URL</label>
+                    <input type="url" id="ad-video" placeholder="https://example.com/video.mp4 or YouTube embed URL">
+                    <small>For video ads (MP4, YouTube, Google Drive etc.)</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ad-link">Destination URL</label>
+                    <input type="url" id="ad-link" required placeholder="https://example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="ad-text">Ad Text</label>
+                    <textarea id="ad-text" rows="3" placeholder="Enter your ad text here..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Background Color</label>
+                    <div class="color-picker">
+                        <div class="color-option selected" style="background-color: #ffffff;" data-color="#ffffff"></div>
+                        <div class="color-option" style="background-color: #000000;" data-color="#000000"></div>
+                        <div class="color-option" style="background-color: #4361ee;" data-color="#4361ee"></div>
+                        <div class="color-option" style="background-color: #3a0ca3;" data-color="#3a0ca3"></div>
+                        <div class="color-option" style="background-color: #f72585;" data-color="#f72585"></div>
+                        <input type="color" id="custom-color" style="width: 30px; height: 30px;">
+                    </div>
+                    <input type="hidden" id="bg-color" value="#ffffff">
+                </div>
+                
+                <div class="form-group">
+                    <label for="ad-duration">Display Duration (seconds)</label>
+                    <input type="number" id="ad-duration" min="1" value="5" style="width: 100px;">
+                    <small>For popup and fullscreen ads</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ad-position">Position</label>
+                    <select id="ad-position">
+                        <option value="center">Center</option>
+                        <option value="top">Top</option>
+                        <option value="bottom">Bottom</option>
+                        <option value="left">Left</option>
+                        <option value="right">Right</option>
+                    </select>
+                    <small>For social bar and popup ads</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="crop-position">Crop Position</label>
+                    <select id="crop-position">
+                        <option value="center">Center</option>
+                        <option value="top">Top</option>
+                        <option value="bottom">Bottom</option>
+                        <option value="left">Left</option>
+                        <option value="right">Right</option>
+                    </select>
+                    <small>For image cropping</small>
+                </div>
+                
+                <button type="button" onclick="generateAd()">Generate Ad</button>
             </form>
             
             <div class="preview-container">
-                <!-- Preview container remains the same -->
-                <!-- ... -->
+                <div class="preview-title">Preview</div>
+                <div id="ad-preview" class="ad-preview" style="width: 300px; height: 250px; background-color: #ffffff;">
+                    <!-- Demo ad will be shown here initially -->
+                    <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background-color: #f0f0f0;">
+                        <p>Your ad preview will appear here</p>
+                    </div>
+                </div>
+                <div class="preview-actions">
+                    <button class="crop-btn" onclick="showCropTool()">Crop Image</button>
+                    <button class="clear-btn" onclick="clearPreview()">Clear Preview</button>
+                </div>
             </div>
             
             <div class="ad-code">
                 <label>Embed Code</label>
                 <div class="code-block" id="embed-code">
+                    <!-- Generated code will appear here -->
                     <p>Your ad code will appear here after generation</p>
                 </div>
                 <button class="copy-btn" onclick="copyToClipboard('embed-code')">Copy Code</button>
             </div>
             
             <div class="ad-code">
-                <label>Shareable Link</label>
-                <div class="code-block" id="shareable-link">
-                    <p>Your shareable link will appear here after generation</p>
+                <label>Short Link</label>
+                <div class="code-block" id="short-link">
+                    <!-- Generated short link will appear here -->
+                    <p>Your short link will appear here after generation</p>
                 </div>
-                <button class="copy-btn" onclick="copyToClipboard('shareable-link')">Copy Link</button>
-                <button class="share-btn" onclick="shareAdLink()">Share</button>
+                <button class="copy-btn" onclick="copyToClipboard('short-link')">Copy Link</button>
             </div>
         </div>
         
@@ -67,6 +170,7 @@
         <div id="my-ads-tab" class="tab-content">
             <h2>My Saved Ads</h2>
             <div id="ads-list" class="ads-list">
+                <!-- Saved ads will be listed here -->
                 <p>No ads saved yet. Create your first ad!</p>
             </div>
         </div>
@@ -74,38 +178,87 @@
         <!-- Help Tab -->
         <div id="help-tab" class="tab-content">
             <h2>Help & Instructions</h2>
-            <!-- Help content remains the same -->
-            <!-- ... -->
+            <div class="form-group">
+                <h3>How to Use</h3>
+                <ol>
+                    <li>Select the type of ad you want to create</li>
+                    <li>Fill in the required details (image/video URL, destination URL, etc.)</li>
+                    <li>Customize the appearance (size, color, position)</li>
+                    <li>Use the crop tool to adjust image positioning</li>
+                    <li>Click "Generate Ad" to create your ad</li>
+                    <li>Copy the embed code or short link to use your ad</li>
+                </ol>
+                
+                <h3>Ad Types</h3>
+                <ul>
+                    <li><strong>Banner Ad:</strong> Standard display ad in various sizes</li>
+                    <li><strong>Video Ad:</strong> Auto-play video ad (supports YouTube, MP4, Google Drive)</li>
+                    <li><strong>Social Bar:</strong> Floating bar with call-to-action</li>
+                    <li><strong>Popup Ad:</strong> Appears after a delay or user action</li>
+                    <li><strong>Fullscreen Ad:</strong> Covers the entire viewport</li>
+                </ul>
+                
+                <h3>Tips</h3>
+                <ul>
+                    <li>Use high-quality images for best results</li>
+                    <li>Keep video ads short (5-15 seconds recommended)</li>
+                    <li>Test your ads on different devices</li>
+                    <li>Use the crop tool to perfect image positioning</li>
+                    <li>Save your ads for future editing</li>
+                </ul>
+                
+                <h3>Demo Ad Codes</h3>
+                <div class="demo-ads">
+                    <div class="demo-ad-code">
+                        <h4>300x250 (Medium Rectangle)</h4>
+                        <div class="code-block" id="demo-ad-300x250">
+                            <!-- Demo ad will be injected here by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="demo-ad-code">
+                        <h4>728x90 (Leaderboard)</h4>
+                        <div class="code-block" id="demo-ad-728x90">
+                            <!-- Demo ad will be injected here by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="demo-ad-code">
+                        <h4>320x50 (Mobile Banner)</h4>
+                        <div class="code-block" id="demo-ad-320x50">
+                            <!-- Demo ad will be injected here by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="demo-ad-code">
+                        <h4>468x60 (Banner)</h4>
+                        <div class="code-block" id="demo-ad-468x60">
+                            <!-- Demo ad will be injected here by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Crop Tool Modal -->
     <div id="crop-modal" class="modal">
-        <!-- Modal content remains the same -->
-        <!-- ... -->
-    </div>
-
-    <!-- Share Modal -->
-    <div id="share-modal" class="modal">
         <div class="modal-content">
-            <span class="close-btn" onclick="hideShareModal()">&times;</span>
-            <h2>Share Ad</h2>
-            <div class="share-options">
-                <button onclick="shareVia('facebook')">Facebook</button>
-                <button onclick="shareVia('twitter')">Twitter</button>
-                <button onclick="shareVia('whatsapp')">WhatsApp</button>
-                <button onclick="shareVia('telegram')">Telegram</button>
-                <button onclick="shareVia('email')">Email</button>
-            </div>
-            <div class="qr-code-container">
-                <h3>QR Code</h3>
-                <div id="qr-code"></div>
-                <button onclick="downloadQRCode()">Download QR Code</button>
+            <span class="close-btn" onclick="hideCropTool()">&times;</span>
+            <h2>Crop Image</h2>
+            <div class="crop-container">
+                <div id="crop-preview" style="width: 100%; height: 300px; background-color: #f0f0f0; position: relative; overflow: hidden;">
+                    <img id="crop-image" src="" style="position: absolute; max-width: none;">
+                </div>
+                <div class="crop-controls">
+                    <label for="crop-zoom">Zoom:</label>
+                    <input type="range" id="crop-zoom" min="1" max="3" step="0.1" value="1">
+                    <button onclick="applyCrop()">Apply Crop</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
