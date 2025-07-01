@@ -340,6 +340,15 @@ button:hover {
         width: 95%;
         margin: 10% auto;
     }
+
+    #header-ad {
+        height: 60px;
+    }
+    
+    #header-ad div {
+        font-size: 10px;
+        padding: 5px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -349,5 +358,14 @@ button:hover {
     
     .crop-btn, .clear-btn {
         width: 100%;
+    }
+
+    #header-ad {
+        height: 50px;
+    }
+    
+    #header-ad div {
+        font-size: 8px;
+        padding: 3px;
     }
 }
