@@ -5,56 +5,22 @@ let currentCropSettings = { x: 0, y: 0, zoom: 1 };
 
 // Demo ad scripts for preview
 const demoAds = {
-    '300x250': `<script type="text/javascript">
-        atOptions = {
-            'key': '03e7c2c2519ccd98f477369bfbbb04d2',
-            'format': 'iframe',
-            'height': 250,
-            'width': 300,
-            'params': {}
-        };
-    </script>
-    <script type="text/javascript" src="//www.highperformanceformat.com/03e7c2c2519ccd98f477369bfbbb04d2/invoke.js"></script>`,
-    '728x90': `<script type="text/javascript">
-        atOptions = {
-            'key': 'c949739cfbc90099b78fd03e56e0c06f',
-            'format': 'iframe',
-            'height': 90,
-            'width': 728,
-            'params': {}
-        };
-    </script>
-    <script type="text/javascript" src="//www.highperformanceformat.com/c949739cfbc90099b78fd03e56e0c06f/invoke.js"></script>`,
-    '160x600': `<script type="text/javascript">
-        atOptions = {
-            'key': '8fff0980e1aa6080d86d59920876bf50',
-            'format': 'iframe',
-            'height': 600,
-            'width': 160,
-            'params': {}
-        };
-    </script>
-    <script type="text/javascript" src="//www.highperformanceformat.com/8fff0980e1aa6080d86d59920876bf50/invoke.js"></script>`,
-    '320x50': `<script type="text/javascript">
-        atOptions = {
-            'key': 'a481763decb23c81da5296aea54b0fd9',
-            'format': 'iframe',
-            'height': 50,
-            'width': 320,
-            'params': {}
-        };
-    </script>
-    <script type="text/javascript" src="//www.highperformanceformat.com/a481763decb23c81da5296aea54b0fd9/invoke.js"></script>`,
-    '468x60': `<script type="text/javascript">
-        atOptions = {
-            'key': 'dafe8afc0b0266d5b95a198608249118',
-            'format': 'iframe',
-            'height': 60,
-            'width': 468,
-            'params': {}
-        };
-    </script>
-    <script type="text/javascript" src="//www.highperformanceformat.com/dafe8afc0b0266d5b95a198608249118/invoke.js"></script>`
+    '300x250': `<div style="width:100%;height:100%;background:linear-gradient(135deg,#1a237e,#2196f3);display:flex;justify-content:center;align-items:center;color:white;font-family:Arial,sans-serif;flex-direction:column;">
+        <h3 style="margin-bottom:10px;">Professional Ad</h3>
+        <p>300x250 Banner</p>
+    </div>`,
+    '728x90': `<div style="width:100%;height:100%;background:linear-gradient(135deg,#1a237e,#2196f3);display:flex;justify-content:center;align-items:center;color:white;font-family:Arial,sans-serif;">
+        <h3>728x90 Leaderboard Banner</h3>
+    </div>`,
+    '160x600': `<div style="width:100%;height:100%;background:linear-gradient(135deg,#1a237e,#2196f3);display:flex;justify-content:center;align-items:center;color:white;font-family:Arial,sans-serif;writing-mode:vertical-rl;text-orientation:mixed;">
+        <h3>160x600 Wide Skyscraper</h3>
+    </div>`,
+    '320x50': `<div style="width:100%;height:100%;background:linear-gradient(135deg,#1a237e,#2196f3);display:flex;justify-content:center;align-items:center;color:white;font-family:Arial,sans-serif;">
+        <p>320x50 Mobile Banner</p>
+    </div>`,
+    '468x60': `<div style="width:100%;height:100%;background:linear-gradient(135deg,#1a237e,#2196f3);display:flex;justify-content:center;align-items:center;color:white;font-family:Arial,sans-serif;">
+        <p>468x60 Standard Banner</p>
+    </div>`
 };
 
 // Initialize the application
@@ -65,9 +31,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set up event listeners
     setupEventListeners();
     
-    // Check for hash routing
-    checkHashRouting();
-    
     // Initialize color picker
     initColorPicker();
     
@@ -77,13 +40,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show demo ad in preview
     showDemoAd();
     
-    // Set up header ad click event
-    document.getElementById('header-ad').addEventListener('click', function() {
-        window.open('https://control.putulhost.com/aff.php?aff=3958', '_blank');
-    });
-    
-    // Set up Streamable upload button
-    document.getElementById('upload-video-btn').addEventListener('click', showStreamableModal);
+    // Update form fields based on initial ad type
+    updateFormFields();
 });
 
 // Set up event listeners
@@ -93,20 +51,27 @@ function setupEventListeners() {
         option.addEventListener('click', function() {
             document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
             this.classList.add('selected');
-            document.getElementById('bg-color').value = this.dataset.color;
+            const colorType = this.parentElement.id === 'text-color-picker' ? 'text-color' : 'bg-color';
+            document.getElementById(colorType).value = this.dataset.color;
             updatePreview();
         });
     });
     
-    // Custom color picker
+    // Custom color pickers
     document.getElementById('custom-color').addEventListener('input', function() {
-        document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+        document.querySelectorAll('#bg-color-picker .color-option').forEach(opt => opt.classList.remove('selected'));
         document.getElementById('bg-color').value = this.value;
         updatePreview();
     });
     
+    document.getElementById('custom-text-color').addEventListener('input', function() {
+        document.querySelectorAll('#text-color-picker .color-option').forEach(opt => opt.classList.remove('selected'));
+        document.getElementById('text-color').value = this.value;
+        updatePreview();
+    });
+    
     // Form changes that should update preview
-    const previewUpdateFields = ['ad-image', 'ad-video', 'ad-text', 'ad-link', 'bg-color', 'ad-position', 'crop-position', 'audio-control'];
+    const previewUpdateFields = ['ad-image', 'ad-video', 'ad-text', 'ad-link', 'bg-color', 'text-color', 'ad-position', 'crop-position', 'autoplay-video', 'mute-video', 'loop-video'];
     previewUpdateFields.forEach(id => {
         const element = document.getElementById(id);
         if (element) {
@@ -114,11 +79,17 @@ function setupEventListeners() {
             element.addEventListener('change', updatePreview);
         }
     });
+    
+    // Header ad click event
+    document.getElementById('header-ad').addEventListener('click', function() {
+        window.open('https://control.putulhost.com/aff.php?aff=3958', '_blank');
+    });
 }
 
 // Initialize color picker
 function initColorPicker() {
-    document.getElementById('custom-color').value = '#ffffff';
+    document.getElementById('custom-color').value = '#1a237e';
+    document.getElementById('custom-text-color').value = '#ffffff';
 }
 
 // Initialize size options
@@ -166,7 +137,6 @@ function showDemoAd() {
     
     // Check if user has entered any content
     const hasUserContent = document.getElementById('ad-image').value || 
-                          document.getElementById('ad-video').value || 
                           document.getElementById('ad-text').value;
     
     if (hasUserContent) {
@@ -177,27 +147,12 @@ function showDemoAd() {
     
     // Show demo ad based on selected size
     if (selectedSize !== 'custom' && demoAds[selectedSize]) {
-        const demoContainer = document.createElement('div');
-        demoContainer.style.width = '100%';
-        demoContainer.style.height = '100%';
-        demoContainer.innerHTML = demoAds[selectedSize];
-        preview.appendChild(demoContainer);
-        
-        // Execute the demo ad script
-        const scripts = demoContainer.getElementsByTagName('script');
-        for (let i = 0; i < scripts.length; i++) {
-            if (scripts[i].src) {
-                const script = document.createElement('script');
-                script.src = scripts[i].src;
-                document.body.appendChild(script);
-            } else {
-                eval(scripts[i].innerHTML);
-            }
-        }
+        preview.innerHTML = demoAds[selectedSize];
     } else {
         // Default placeholder
         preview.innerHTML = `
-            <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background-color: #f0f0f0;">
+            <div id="demo-ad-placeholder" style="width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;background-color:#f0f0f0;color:#757575;font-size:16px;text-align:center;gap:10px;">
+                <i class="fas fa-ad" style="font-size:40px;color:#1a237e;"></i>
                 <p>Your ad preview will appear here</p>
             </div>
         `;
@@ -207,14 +162,17 @@ function showDemoAd() {
 // Clear preview
 function clearPreview() {
     document.getElementById('ad-form').reset();
-    document.getElementById('bg-color').value = '#ffffff';
-    document.querySelector('.color-option[data-color="#ffffff"]').classList.add('selected');
-    document.querySelector('.color-option[data-color="#ffffff"]').click();
+    document.getElementById('bg-color').value = '#1a237e';
+    document.getElementById('text-color').value = '#ffffff';
+    document.querySelector('#bg-color-picker .color-option[data-color="#1a237e"]').classList.add('selected');
+    document.querySelector('#text-color-picker .color-option[data-color="#ffffff"]').classList.add('selected');
     document.querySelector('.ad-size-option[data-size="300x250"]').click();
     document.getElementById('embed-code').innerHTML = '<p>Your ad code will appear here after generation</p>';
     document.getElementById('short-link').innerHTML = '<p>Your shareable link will appear here after generation</p>';
-    document.getElementById('ad-script-container').style.display = 'none';
+    document.getElementById('custom-color').value = '#1a237e';
+    document.getElementById('custom-text-color').value = '#ffffff';
     showDemoAd();
+    currentAdId = null;
 }
 
 // Tab navigation
@@ -231,20 +189,30 @@ function openTab(evt, tabName) {
     
     document.getElementById(tabName).classList.add('active');
     evt.currentTarget.classList.add('active');
+    
+    if (tabName === 'my-ads-tab') {
+        loadSavedAds();
+    }
 }
 
 // Update form fields based on ad type
 function updateFormFields() {
     const adType = document.getElementById('ad-type').value;
     
-    // Show/hide video URL field
-    document.getElementById('video-url-container').style.display = adType === 'video' ? 'block' : 'none';
-    
-    // Show/hide audio control for video ads
-    document.getElementById('audio-control-container').style.display = adType === 'video' ? 'block' : 'none';
+    // Show/hide video options
+    document.getElementById('video-options').style.display = adType === 'video' ? 'block' : 'none';
     
     // Show/hide size options for certain ad types
     document.getElementById('size-container').style.display = adType === 'social' || adType === 'fullscreen' ? 'none' : 'block';
+    
+    // Update media URL label
+    const mediaLabel = adType === 'video' ? 'Video URL' : 'Image URL';
+    document.querySelector('#media-url-container label').innerHTML = `<i class="fas fa-${adType === 'video' ? 'video' : 'image'}"></i> ${mediaLabel}`;
+    
+    // Update placeholder
+    document.getElementById('ad-image').placeholder = adType === 'video' 
+        ? 'https://example.com/video.mp4 or YouTube/Streamable URL' 
+        : 'https://example.com/image.jpg';
     
     // Update preview
     updatePreview();
@@ -255,13 +223,15 @@ function updatePreview() {
     const adType = document.getElementById('ad-type').value;
     const preview = document.getElementById('ad-preview');
     const bgColor = document.getElementById('bg-color').value;
+    const textColor = document.getElementById('text-color').value;
     const adText = document.getElementById('ad-text').value;
     const adLink = document.getElementById('ad-link').value;
-    const adImage = document.getElementById('ad-image').value;
-    const adVideo = document.getElementById('ad-video').value;
+    const mediaUrl = document.getElementById('ad-image').value;
     const position = document.getElementById('ad-position').value;
     const cropPosition = document.getElementById('crop-position').value;
-    const audioControl = document.getElementById('audio-control') ? document.getElementById('audio-control').value : 'muted';
+    const autoplay = adType === 'video' ? document.getElementById('autoplay-video').checked : true;
+    const mute = adType === 'video' ? document.getElementById('mute-video').checked : false;
+    const loop = adType === 'video' ? document.getElementById('loop-video').checked : true;
     
     // Set background color
     preview.style.backgroundColor = bgColor;
@@ -270,7 +240,7 @@ function updatePreview() {
     preview.innerHTML = '';
     
     // If no user content, show demo ad
-    if (!adImage && !adVideo && !adText) {
+    if (!mediaUrl && !adText) {
         showDemoAd();
         return;
     }
@@ -278,13 +248,26 @@ function updatePreview() {
     // Create content based on ad type
     switch(adType) {
         case 'banner':
-            if (adImage) {
+            if (mediaUrl) {
                 const img = document.createElement('img');
-                img.src = adImage;
+                img.src = mediaUrl;
                 img.style.width = '100%';
                 img.style.height = '100%';
                 img.style.objectFit = 'cover';
                 img.style.objectPosition = cropPosition;
+                img.onerror = function() {
+                    this.style.display = 'none';
+                    const errorDiv = document.createElement('div');
+                    errorDiv.style.width = '100%';
+                    errorDiv.style.height = '100%';
+                    errorDiv.style.display = 'flex';
+                    errorDiv.style.justifyContent = 'center';
+                    errorDiv.style.alignItems = 'center';
+                    errorDiv.style.backgroundColor = '#f8d7da';
+                    errorDiv.style.color = '#721c24';
+                    errorDiv.innerHTML = '<p>Image failed to load</p>';
+                    preview.appendChild(errorDiv);
+                };
                 preview.appendChild(img);
             }
             
@@ -296,7 +279,7 @@ function updatePreview() {
                 textDiv.style.left = '0';
                 textDiv.style.right = '0';
                 textDiv.style.backgroundColor = 'rgba(0,0,0,0.7)';
-                textDiv.style.color = 'white';
+                textDiv.style.color = textColor;
                 textDiv.style.padding = '10px';
                 textDiv.style.textAlign = 'center';
                 preview.appendChild(textDiv);
@@ -304,24 +287,48 @@ function updatePreview() {
             break;
             
         case 'video':
-            if (adVideo) {
+            if (mediaUrl) {
                 let videoElement;
                 
-                if (adVideo.includes('youtube.com') || adVideo.includes('youtu.be')) {
-                    // Handle YouTube URLs
+                // Check if it's a Streamable URL
+                if (mediaUrl.includes('streamable.com')) {
+                    const streamableId = mediaUrl.split('streamable.com/')[1];
+                    if (streamableId) {
+                        const iframe = document.createElement('iframe');
+                        iframe.src = `https://streamable.com/e/${streamableId}?autoplay=1&muted=${mute ? 1 : 0}&loop=${loop ? 1 : 0}`;
+                        iframe.style.width = '100%';
+                        iframe.style.height = '100%';
+                        iframe.frameBorder = '0';
+                        iframe.allow = 'autoplay; encrypted-media';
+                        iframe.allowFullscreen = true;
+                        
+                        // Add clickable overlay for Streamable videos
+                        const clickOverlay = document.createElement('div');
+                        clickOverlay.style.position = 'absolute';
+                        clickOverlay.style.top = '0';
+                        clickOverlay.style.left = '0';
+                        clickOverlay.style.width = '100%';
+                        clickOverlay.style.height = '100%';
+                        clickOverlay.style.cursor = 'pointer';
+                        clickOverlay.onclick = function() {
+                            window.open(adLink, '_blank');
+                        };
+                        
+                        preview.appendChild(iframe);
+                        preview.appendChild(clickOverlay);
+                    }
+                }
+                // Check if it's a YouTube URL
+                else if (mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be')) {
                     let videoId = '';
-                    if (adVideo.includes('youtube.com/watch?v=')) {
-                        videoId = adVideo.split('v=')[1].split('&')[0];
-                    } else if (adVideo.includes('youtu.be/')) {
-                        videoId = adVideo.split('youtu.be/')[1].split('?')[0];
+                    if (mediaUrl.includes('youtube.com/watch?v=')) {
+                        videoId = mediaUrl.split('v=')[1].split('&')[0];
+                    } else if (mediaUrl.includes('youtu.be/')) {
+                        videoId = mediaUrl.split('youtu.be/')[1].split('?')[0];
                     }
                     
                     if (videoId) {
-                        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}&controls=0`;
-                        if (audioControl === 'muted') {
-                            embedUrl += '&mute=1';
-                        }
-                        
+                        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=${autoplay ? 1 : 0}&mute=${mute ? 1 : 0}&loop=${loop ? 1 : 0}&playlist=${videoId}&controls=0`;
                         const iframe = document.createElement('iframe');
                         iframe.src = embedUrl;
                         iframe.style.width = '100%';
@@ -345,40 +352,16 @@ function updatePreview() {
                         preview.appendChild(iframe);
                         preview.appendChild(clickOverlay);
                     }
-                } else if (adVideo.includes('streamable.com')) {
-                    // Handle Streamable URLs
-                    const videoId = adVideo.split('streamable.com/')[1];
-                    const iframe = document.createElement('iframe');
-                    iframe.src = `https://streamable.com/e/${videoId}?autoplay=1&loop=1&controls=0`;
-                    iframe.style.width = '100%';
-                    iframe.style.height = '100%';
-                    iframe.frameBorder = '0';
-                    iframe.allowFullscreen = true;
-                    
-                    // Add clickable overlay for Streamable videos
-                    const clickOverlay = document.createElement('div');
-                    clickOverlay.style.position = 'absolute';
-                    clickOverlay.style.top = '0';
-                    clickOverlay.style.left = '0';
-                    clickOverlay.style.width = '100%';
-                    clickOverlay.style.height = '100%';
-                    clickOverlay.style.cursor = 'pointer';
-                    clickOverlay.onclick = function() {
-                        window.open(adLink, '_blank');
-                    };
-                    
-                    preview.appendChild(iframe);
-                    preview.appendChild(clickOverlay);
                 } else {
                     // Handle direct video URLs
                     videoElement = document.createElement('video');
-                    videoElement.src = adVideo;
+                    videoElement.src = mediaUrl;
                     videoElement.style.width = '100%';
                     videoElement.style.height = '100%';
-                    videoElement.autoplay = true;
-                    videoElement.loop = true;
+                    videoElement.autoplay = autoplay;
+                    videoElement.muted = mute;
+                    videoElement.loop = loop;
                     videoElement.playsInline = true;
-                    videoElement.muted = audioControl === 'muted';
                     
                     // Make the entire video clickable
                     videoElement.style.cursor = 'pointer';
@@ -417,7 +400,7 @@ function updatePreview() {
             ctaButton.textContent = adText || 'Click Here';
             ctaButton.style.padding = '8px 15px';
             ctaButton.style.backgroundColor = '#4361ee';
-            ctaButton.style.color = 'white';
+            ctaButton.style.color = textColor;
             ctaButton.style.border = 'none';
             ctaButton.style.borderRadius = '4px';
             ctaButton.style.cursor = 'pointer';
@@ -441,9 +424,9 @@ function updatePreview() {
             popup.style.padding = '20px';
             popup.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
             
-            if (adImage) {
+            if (mediaUrl) {
                 const img = document.createElement('img');
-                img.src = adImage;
+                img.src = mediaUrl;
                 img.style.maxWidth = '100%';
                 img.style.maxHeight = '70%';
                 img.style.display = 'block';
@@ -457,6 +440,7 @@ function updatePreview() {
                 textDiv.textContent = adText;
                 textDiv.style.marginTop = '15px';
                 textDiv.style.textAlign = 'center';
+                textDiv.style.color = textColor;
                 popup.appendChild(textDiv);
             }
             
@@ -469,6 +453,7 @@ function updatePreview() {
             closeButton.style.border = 'none';
             closeButton.style.fontSize = '16px';
             closeButton.style.cursor = 'pointer';
+            closeButton.style.color = textColor;
             popup.appendChild(closeButton);
             
             popup.style.cursor = 'pointer';
@@ -485,9 +470,9 @@ function updatePreview() {
             fullscreenContent.style.width = '100%';
             fullscreenContent.style.height = '100%';
             
-            if (adImage) {
+            if (mediaUrl) {
                 const img = document.createElement('img');
-                img.src = adImage;
+                img.src = mediaUrl;
                 img.style.width = '100%';
                 img.style.height = '100%';
                 img.style.objectFit = 'cover';
@@ -503,7 +488,7 @@ function updatePreview() {
                 textDiv.style.left = '0';
                 textDiv.style.right = '0';
                 textDiv.style.backgroundColor = 'rgba(0,0,0,0.7)';
-                textDiv.style.color = 'white';
+                textDiv.style.color = textColor;
                 textDiv.style.padding = '20px';
                 textDiv.style.textAlign = 'center';
                 fullscreenContent.appendChild(textDiv);
@@ -516,7 +501,7 @@ function updatePreview() {
             skipButton.style.right = '20px';
             skipButton.style.padding = '8px 15px';
             skipButton.style.backgroundColor = 'rgba(0,0,0,0.5)';
-            skipButton.style.color = 'white';
+            skipButton.style.color = textColor;
             skipButton.style.border = 'none';
             skipButton.style.borderRadius = '4px';
             skipButton.style.cursor = 'pointer';
@@ -535,23 +520,23 @@ function updatePreview() {
     }
     
     // Make the preview clickable (for demo purposes)
-    preview.style.cursor = 'pointer';
-    preview.onclick = function() {
-        if (adLink) {
+    if (adLink) {
+        preview.style.cursor = 'pointer';
+        preview.onclick = function() {
             window.open(adLink, '_blank');
-        }
-    };
+        };
+    }
 }
 
 // Show crop tool
 function showCropTool() {
-    const adImage = document.getElementById('ad-image').value;
-    if (!adImage) {
+    const mediaUrl = document.getElementById('ad-image').value;
+    if (!mediaUrl) {
         alert('Please enter an image URL first');
         return;
     }
     
-    document.getElementById('crop-image').src = adImage;
+    document.getElementById('crop-image').src = mediaUrl;
     document.getElementById('crop-modal').style.display = 'block';
     
     // Initialize crop settings
@@ -564,7 +549,7 @@ function hideCropTool() {
     document.getElementById('crop-modal').style.display = 'none';
 }
 
-// Update crop image based on current settings
+// Update crop image position
 function updateCropImage() {
     const img = document.getElementById('crop-image');
     img.style.transform = `translate(${currentCropSettings.x}px, ${currentCropSettings.y}px) scale(${currentCropSettings.zoom})`;
@@ -572,489 +557,367 @@ function updateCropImage() {
 
 // Apply crop settings
 function applyCrop() {
-    const cropPosition = document.getElementById('crop-position');
-    
-    // Convert zoom and position to crop position
-    if (currentCropSettings.zoom > 1) {
-        if (currentCropSettings.x < 0) {
-            cropPosition.value = 'left';
-        } else if (currentCropSettings.x > 0) {
-            cropPosition.value = 'right';
-        } else if (currentCropSettings.y < 0) {
-            cropPosition.value = 'top';
-        } else if (currentCropSettings.y > 0) {
-            cropPosition.value = 'bottom';
-        } else {
-            cropPosition.value = 'center';
-        }
-    } else {
-        cropPosition.value = 'center';
+    const positionSelect = document.getElementById('crop-position');
+    if (currentCropSettings.x < 0 && currentCropSettings.y < 0) {
+        positionSelect.value = 'top left';
+    } else if (currentCropSettings.x < 0 && currentCropSettings.y === 0) {
+        positionSelect.value = 'left';
+    } else if (currentCropSettings.x < 0 && currentCropSettings.y > 0) {
+        positionSelect.value = 'bottom left';
+    } else if (currentCropSettings.x === 0 && currentCropSettings.y < 0) {
+        positionSelect.value = 'top';
+    } else if (currentCropSettings.x === 0 && currentCropSettings.y === 0) {
+        positionSelect.value = 'center';
+    } else if (currentCropSettings.x === 0 && currentCropSettings.y > 0) {
+        positionSelect.value = 'bottom';
+    } else if (currentCropSettings.x > 0 && currentCropSettings.y < 0) {
+        positionSelect.value = 'top right';
+    } else if (currentCropSettings.x > 0 && currentCropSettings.y === 0) {
+        positionSelect.value = 'right';
+    } else if (currentCropSettings.x > 0 && currentCropSettings.y > 0) {
+        positionSelect.value = 'bottom right';
     }
     
     hideCropTool();
     updatePreview();
 }
 
-// Show Streamable upload modal
-function showStreamableModal() {
-    document.getElementById('streamable-modal').style.display = 'block';
-    document.getElementById('streamable-result').style.display = 'none';
-    document.getElementById('streamable-progress').style.display = 'none';
-    document.getElementById('video-file').value = '';
-    document.getElementById('streamable-title').value = '';
-}
+// Handle crop zoom change
+document.getElementById('crop-zoom').addEventListener('input', function() {
+    currentCropSettings.zoom = parseFloat(this.value);
+    updateCropImage();
+});
 
-// Hide Streamable upload modal
-function hideStreamableModal() {
-    document.getElementById('streamable-modal').style.display = 'none';
-}
+// Handle crop image dragging
+let isDragging = false;
+let startX, startY;
 
-// Upload video to Streamable
-function uploadToStreamable() {
-    const fileInput = document.getElementById('video-file');
-    const titleInput = document.getElementById('streamable-title');
-    
-    if (!fileInput.files || fileInput.files.length === 0) {
-        alert('Please select a video file first');
-        return;
-    }
-    
-    const file = fileInput.files[0];
-    const title = titleInput.value || 'My Video Ad';
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('title', title);
-    
-    document.getElementById('upload-streamable-btn').disabled = true;
-    document.getElementById('streamable-progress').style.display = 'block';
-    
-    // Note: In a real implementation, you would need a server-side component to handle the upload
-    // to Streamable since it requires authentication. This is just a mock implementation.
-    
-    // Mock upload progress
-    let progress = 0;
-    const progressInterval = setInterval(() => {
-        progress += 5;
-        if (progress > 90) {
-            clearInterval(progressInterval);
-            return;
-        }
-        document.getElementById('upload-progress').value = progress;
-        document.getElementById('upload-status').textContent = `Uploading... ${progress}%`;
-    }, 300);
-    
-    // Simulate successful upload after delay
-    setTimeout(() => {
-        clearInterval(progressInterval);
-        document.getElementById('upload-progress').value = 100;
-        document.getElementById('upload-status').textContent = 'Processing video...';
-        
-        // Simulate processing delay
-        setTimeout(() => {
-            // Generate a mock Streamable URL
-            const randomId = Math.random().toString(36).substring(2, 8);
-            const mockUrl = `https://streamable.com/${randomId}`;
-            
-            document.getElementById('streamable-url').value = mockUrl;
-            document.getElementById('streamable-result').style.display = 'block';
-            document.getElementById('streamable-progress').style.display = 'none';
-            document.getElementById('upload-streamable-btn').disabled = false;
-        }, 2000);
-    }, 3000);
-}
+document.getElementById('crop-image').addEventListener('mousedown', function(e) {
+    isDragging = true;
+    startX = e.clientX - currentCropSettings.x;
+    startY = e.clientY - currentCropSettings.y;
+    this.style.cursor = 'grabbing';
+});
 
-// Use the Streamable URL in the form
-function useStreamableUrl() {
-    const url = document.getElementById('streamable-url').value;
-    document.getElementById('ad-video').value = url;
-    hideStreamableModal();
-    updatePreview();
-}
+document.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    
+    currentCropSettings.x = e.clientX - startX;
+    currentCropSettings.y = e.clientY - startY;
+    updateCropImage();
+});
 
-// Generate the ad code
+document.addEventListener('mouseup', function() {
+    isDragging = false;
+    document.getElementById('crop-image').style.cursor = 'grab';
+});
+
+// Generate ad code
 function generateAd() {
     const adType = document.getElementById('ad-type').value;
-    const adName = document.getElementById('ad-name').value;
+    const adName = document.getElementById('ad-name').value || 'Untitled Ad';
     const bgColor = document.getElementById('bg-color').value;
+    const textColor = document.getElementById('text-color').value;
     const adText = document.getElementById('ad-text').value;
     const adLink = document.getElementById('ad-link').value;
-    const adImage = document.getElementById('ad-image').value;
-    const adVideo = document.getElementById('ad-video').value;
+    const mediaUrl = document.getElementById('ad-image').value;
     const position = document.getElementById('ad-position').value;
     const cropPosition = document.getElementById('crop-position').value;
     const duration = document.getElementById('ad-duration').value;
-    const audioControl = document.getElementById('audio-control') ? document.getElementById('audio-control').value : 'muted';
+    const autoplay = adType === 'video' ? document.getElementById('autoplay-video').checked : true;
+    const mute = adType === 'video' ? document.getElementById('mute-video').checked : false;
+    const loop = adType === 'video' ? document.getElementById('loop-video').checked : true;
     
-    // Get size
+    // Get ad size
     let width, height;
-    const selectedSize = document.querySelector('.ad-size-option.selected').dataset.size;
-    if (selectedSize === 'custom') {
-        width = document.getElementById('custom-width').value || '300';
-        height = document.getElementById('custom-height').value || '250';
+    const sizeOption = document.querySelector('.ad-size-option.selected');
+    if (sizeOption.dataset.size === 'custom') {
+        width = document.getElementById('custom-width').value || 300;
+        height = document.getElementById('custom-height').value || 250;
     } else {
-        [width, height] = selectedSize.split('x');
+        [width, height] = sizeOption.dataset.size.split('x');
     }
     
-    // Create ad object
-    const ad = {
-        id: Date.now().toString(),
-        name: adName,
+    // Generate unique ID for this ad
+    const adId = currentAdId || 'ad-' + Math.random().toString(36).substr(2, 9);
+    currentAdId = adId;
+    
+    // Create ad data object
+    const adData = {
+        id: adId,
         type: adType,
+        name: adName,
         width: width,
         height: height,
         bgColor: bgColor,
+        textColor: textColor,
         text: adText,
         link: adLink,
-        image: adImage,
-        video: adVideo,
+        mediaUrl: mediaUrl,
         position: position,
         cropPosition: cropPosition,
         duration: duration,
-        audioControl: audioControl,
+        autoplay: autoplay,
+        mute: mute,
+        loop: loop,
         createdAt: new Date().toISOString()
     };
     
     // Generate embed code
     let embedCode = '';
-    let shareableLink = '';
-    let adScript = '';
     
-    if (adType === 'video') {
-        // Generate video ad code
-        embedCode = generateVideoAdCode(ad);
-        shareableLink = generateShareableLink(ad);
-        adScript = generateVideoAdScript(ad);
-    } else {
-        // Generate other ad types code
-        embedCode = generateStandardAdCode(ad);
-        shareableLink = generateShareableLink(ad);
-    }
-    
-    // Display the generated code
-    document.getElementById('embed-code').textContent = embedCode;
-    document.getElementById('short-link').textContent = shareableLink;
-    
-    if (adType === 'video') {
-        document.getElementById('ad-script-code').textContent = adScript;
-        document.getElementById('ad-script-container').style.display = 'block';
-    } else {
-        document.getElementById('ad-script-container').style.display = 'none';
-    }
-    
-    // Save the ad
-    saveAd(ad);
-}
-
-// Generate standard ad code
-function generateStandardAdCode(ad) {
-    let code = `<div id="my-ad-${ad.id}" style="width: ${ad.width}px; height: ${ad.height}px; background-color: ${ad.bgColor}; position: relative; overflow: hidden; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')">`;
-    
-    if (ad.image) {
-        code += `<img src="${ad.image}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${ad.cropPosition};">`;
-    }
-    
-    if (ad.text) {
-        code += `<div style="position: absolute; bottom: 0; left: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 10px; text-align: center;">${ad.text}</div>`;
-    }
-    
-    code += `</div>`;
-    
-    return code;
-}
-
-// Generate video ad code
-function generateVideoAdCode(ad) {
-    let code = `<div id="my-ad-${ad.id}" style="width: ${ad.width}px; height: ${ad.height}px; background-color: ${ad.bgColor}; position: relative; overflow: hidden;">`;
-    
-    if (ad.video.includes('youtube.com') || ad.video.includes('youtu.be')) {
-        // YouTube video
-        let videoId = '';
-        if (ad.video.includes('youtube.com/watch?v=')) {
-            videoId = ad.video.split('v=')[1].split('&')[0];
-        } else if (ad.video.includes('youtu.be/')) {
-            videoId = ad.video.split('youtu.be/')[1].split('?')[0];
-        }
-        
-        if (videoId) {
-            const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}&controls=0`;
-            if (ad.audioControl === 'muted') {
-                embedUrl += '&mute=1';
+    if (adType === 'banner') {
+        embedCode = `
+<div id="${adId}" style="width:${width}px;height:${height}px;background-color:${bgColor};position:relative;overflow:hidden;cursor:pointer;" onclick="window.open('${adLink}', '_blank')">
+    ${mediaUrl ? `<img src="${mediaUrl}" style="width:100%;height:100%;object-fit:cover;object-position:${cropPosition};" alt="${adText || 'Advertisement'}">` : ''}
+    ${adText ? `<div style="position:absolute;bottom:0;left:0;right:0;background-color:rgba(0,0,0,0.7);color:${textColor};padding:10px;text-align:center;">${adText}</div>` : ''}
+</div>
+        `;
+    } else if (adType === 'video') {
+        if (mediaUrl.includes('streamable.com')) {
+            const streamableId = mediaUrl.split('streamable.com/')[1];
+            embedCode = `
+<div id="${adId}" style="width:${width}px;height:${height}px;position:relative;">
+    <iframe src="https://streamable.com/e/${streamableId}?autoplay=${autoplay ? 1 : 0}&muted=${mute ? 1 : 0}&loop=${loop ? 1 : 0}" style="width:100%;height:100%;border:none;" allowfullscreen></iframe>
+    <div style="position:absolute;top:0;left:0;width:100%;height:100%;cursor:pointer;" onclick="window.open('${adLink}', '_blank')"></div>
+</div>
+            `;
+        } else if (mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be')) {
+            let videoId = '';
+            if (mediaUrl.includes('youtube.com/watch?v=')) {
+                videoId = mediaUrl.split('v=')[1].split('&')[0];
+            } else if (mediaUrl.includes('youtu.be/')) {
+                videoId = mediaUrl.split('youtu.be/')[1].split('?')[0];
             }
             
-            code += `<iframe src="${embedUrl}" style="width: 100%; height: 100%; border: none;"></iframe>`;
-            code += `<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')"></div>`;
+            embedCode = `
+<div id="${adId}" style="width:${width}px;height:${height}px;position:relative;">
+    <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=${autoplay ? 1 : 0}&mute=${mute ? 1 : 0}&loop=${loop ? 1 : 0}&playlist=${videoId}&controls=0" style="width:100%;height:100%;border:none;" allowfullscreen></iframe>
+    <div style="position:absolute;top:0;left:0;width:100%;height:100%;cursor:pointer;" onclick="window.open('${adLink}', '_blank')"></div>
+</div>
+            `;
+        } else {
+            embedCode = `
+<div id="${adId}" style="width:${width}px;height:${height}px;position:relative;">
+    <video src="${mediaUrl}" style="width:100%;height:100%;" ${autoplay ? 'autoplay' : ''} ${mute ? 'muted' : ''} ${loop ? 'loop' : ''} playsinline></video>
+    <div style="position:absolute;top:0;left:0;width:100%;height:100%;cursor:pointer;" onclick="window.open('${adLink}', '_blank')"></div>
+</div>
+            `;
         }
-    } else if (ad.video.includes('streamable.com')) {
-        // Streamable video
-        const videoId = ad.video.split('streamable.com/')[1];
-        code += `<iframe src="https://streamable.com/e/${videoId}?autoplay=1&loop=1&controls=0" style="width: 100%; height: 100%; border: none;"></iframe>`;
-        code += `<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')"></div>`;
-    } else {
-        // Direct video
-        code += `<video src="${ad.video}" style="width: 100%; height: 100%;" autoplay loop ${ad.audioControl === 'muted' ? 'muted' : ''} playsinline></video>`;
-        code += `<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')"></div>`;
+    } else if (adType === 'social') {
+        const isVertical = position === 'left' || position === 'right';
+        embedCode = `
+<div id="${adId}" style="width:${width}px;height:${height}px;position:relative;background-color:${bgColor};">
+    <div style="position:absolute;${position}:0;width:${isVertical ? '50px' : '100%'};height:${isVertical ? '100%' : '50px'};background-color:${bgColor};display:flex;flex-direction:${isVertical ? 'column' : 'row'};align-items:center;justify-content:center;">
+        <button style="padding:8px 15px;background-color:#4361ee;color:${textColor};border:none;border-radius:4px;cursor:pointer;" onclick="window.open('${adLink}', '_blank')">${adText || 'Click Here'}</button>
+    </div>
+</div>
+        `;
+    } else if (adType === 'popup') {
+        embedCode = `
+<div id="${adId}" style="width:${width}px;height:${height}px;position:relative;background-color:${bgColor};">
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80%;height:80%;background-color:${bgColor};padding:20px;box-shadow:0 0 10px rgba(0,0,0,0.5);cursor:pointer;" onclick="window.open('${adLink}', '_blank')">
+        ${mediaUrl ? `<img src="${mediaUrl}" style="max-width:100%;max-height:70%;display:block;margin:0 auto;object-position:${cropPosition};" alt="${adText || 'Advertisement'}">` : ''}
+        ${adText ? `<div style="margin-top:15px;text-align:center;color:${textColor};">${adText}</div>` : ''}
+        <button style="position:absolute;top:5px;right:5px;background-color:transparent;border:none;font-size:16px;cursor:pointer;color:${textColor};">X</button>
+    </div>
+</div>
+        `;
+    } else if (adType === 'fullscreen') {
+        embedCode = `
+<div id="${adId}" style="width:${width}px;height:${height}px;position:relative;background-color:${bgColor};">
+    <div style="position:relative;width:100%;height:100%;cursor:pointer;" onclick="window.open('${adLink}', '_blank')">
+        ${mediaUrl ? `<img src="${mediaUrl}" style="width:100%;height:100%;object-fit:cover;object-position:${cropPosition};" alt="${adText || 'Advertisement'}">` : ''}
+        ${adText ? `<div style="position:absolute;bottom:20%;left:0;right:0;background-color:rgba(0,0,0,0.7);color:${textColor};padding:20px;text-align:center;">${adText}</div>` : ''}
+        <button style="position:absolute;bottom:20px;right:20px;padding:8px 15px;background-color:rgba(0,0,0,0.5);color:${textColor};border:none;border-radius:4px;cursor:pointer;">Skip Ad</button>
+    </div>
+</div>
+        `;
     }
     
-    code += `</div>`;
+    // Generate shareable link with data encoded
+    const shareableLink = `${window.location.origin}${window.location.pathname}#${encodeURIComponent(JSON.stringify(adData))}`;
     
-    return code;
-}
-
-// Generate shareable link
-function generateShareableLink(ad) {
-    // In a real implementation, this would generate a short link that points to your server
-    // which would then render the ad with the ad script at the bottom
+    // Display the generated code and link
+    document.getElementById('embed-code').textContent = embedCode.trim();
+    document.getElementById('short-link').textContent = shareableLink;
     
-    // For this demo, we'll just create a data URL that contains the ad info
-    const adData = encodeURIComponent(JSON.stringify(ad));
-    return `${window.location.href.split('?')[0]}?ad=${adData}`;
+    // Return the ad data for saving
+    return adData;
 }
 
-// Generate video ad script that shows ad when opened via link
-function generateVideoAdScript(ad) {
-    return `<script>
-        // Check if this page was opened via our shareable link
-        if (window.location.search.includes('ad=')) {
-            // Parse the ad data
-            const adData = JSON.parse(decodeURIComponent(window.location.search.split('ad=')[1]));
-            
-            // Create the ad container
-            const adContainer = document.createElement('div');
-            adContainer.style.position = 'fixed';
-            adContainer.style.bottom = '0';
-            adContainer.style.left = '0';
-            adContainer.style.right = '0';
-            adContainer.style.height = '50px';
-            adContainer.style.backgroundColor = '#f0f0f0';
-            adContainer.style.borderTop = '1px solid #ddd';
-            adContainer.style.zIndex = '1000';
-            adContainer.style.display = 'flex';
-            adContainer.style.justifyContent = 'center';
-            adContainer.style.alignItems = 'center';
-            
-            // Add the ad script
-            const adScript = document.createElement('script');
-            adScript.type = 'text/javascript';
-            adScript.innerHTML = \`
-                atOptions = {
-                    'key': 'a481763decb23c81da5296aea54b0fd9',
-                    'format': 'iframe',
-                    'height': 50,
-                    'width': 320,
-                    'params': {}
-                };
-            \`;
-            
-            const invokeScript = document.createElement('script');
-            invokeScript.type = 'text/javascript';
-            invokeScript.src = '//www.highperformanceformat.com/a481763decb23c81da5296aea54b0fd9/invoke.js';
-            
-            adContainer.appendChild(adScript);
-            adContainer.appendChild(invokeScript);
-            
-            // Add to the page
-            document.body.appendChild(adContainer);
-        }
-    </script>`;
-}
-
-// Save ad to localStorage
-function saveAd(ad) {
-    // Check if we're updating an existing ad
-    if (currentAdId) {
-        const index = ads.findIndex(a => a.id === currentAdId);
-        if (index !== -1) {
-            ads[index] = ad;
-        }
+// Save ad to local storage
+function saveAd() {
+    const adData = generateAd();
+    if (!adData) return;
+    
+    // Check if this is an existing ad
+    const existingIndex = ads.findIndex(ad => ad.id === adData.id);
+    if (existingIndex >= 0) {
+        ads[existingIndex] = adData;
     } else {
-        // Add new ad
-        ads.push(ad);
+        ads.push(adData);
     }
     
     localStorage.setItem('makeMyAds', JSON.stringify(ads));
+    alert('Ad saved successfully!');
     loadSavedAds();
-    currentAdId = null;
 }
 
-// Load saved ads from localStorage
+// Load saved ads from local storage
 function loadSavedAds() {
     const adsList = document.getElementById('ads-list');
-    adsList.innerHTML = '';
-    
     if (ads.length === 0) {
         adsList.innerHTML = '<p>No ads saved yet. Create your first ad!</p>';
         return;
     }
     
+    adsList.innerHTML = '';
     ads.forEach(ad => {
         const adItem = document.createElement('div');
         adItem.className = 'ad-item';
         adItem.innerHTML = `
-            <div>
-                <h3>${ad.name}</h3>
-                <p>Type: ${ad.type} | Size: ${ad.width}x${ad.height}</p>
-                <small>Created: ${new Date(ad.createdAt).toLocaleString()}</small>
+            <div class="ad-item-header">
+                <div class="ad-item-title">${ad.name}</div>
+                <div class="ad-item-type">${ad.type}</div>
+            </div>
+            <div class="ad-item-preview" style="background-color:${ad.bgColor};">
+                ${ad.mediaUrl ? `<img src="${ad.mediaUrl}" style="width:100%;height:100%;object-fit:cover;object-position:${ad.cropPosition};">` : ''}
+                ${ad.text ? `<div style="position:absolute;bottom:0;left:0;right:0;background-color:rgba(0,0,0,0.7);color:${ad.textColor};padding:5px;text-align:center;font-size:12px;">${ad.text}</div>` : ''}
             </div>
             <div class="ad-item-actions">
-                <button onclick="editAd('${ad.id}')">Edit</button>
-                <button class="delete-btn" onclick="deleteAd('${ad.id}')">Delete</button>
+                <button class="secondary-btn" onclick="loadAd('${ad.id}')"><i class="fas fa-edit"></i> Edit</button>
+                <button class="danger-btn" onclick="deleteAd('${ad.id}')"><i class="fas fa-trash"></i> Delete</button>
             </div>
         `;
         adsList.appendChild(adItem);
     });
 }
 
-// Edit an existing ad
-function editAd(adId) {
+// Load ad into editor
+function loadAd(adId) {
     const ad = ads.find(a => a.id === adId);
     if (!ad) return;
     
-    currentAdId = ad.id;
-    
-    // Fill the form with ad data
+    currentAdId = adId;
     document.getElementById('ad-name').value = ad.name;
     document.getElementById('ad-type').value = ad.type;
     document.getElementById('bg-color').value = ad.bgColor;
-    document.getElementById('ad-text').value = ad.text;
+    document.getElementById('text-color').value = ad.textColor;
+    document.getElementById('ad-text').value = ad.text || '';
     document.getElementById('ad-link').value = ad.link;
-    document.getElementById('ad-image').value = ad.image || '';
-    document.getElementById('ad-video').value = ad.video || '';
+    document.getElementById('ad-image').value = ad.mediaUrl || '';
     document.getElementById('ad-position').value = ad.position;
     document.getElementById('crop-position').value = ad.cropPosition;
     document.getElementById('ad-duration').value = ad.duration;
     
-    if (ad.audioControl) {
-        document.getElementById('audio-control').value = ad.audioControl;
+    if (ad.type === 'video') {
+        document.getElementById('autoplay-video').checked = ad.autoplay;
+        document.getElementById('mute-video').checked = ad.mute;
+        document.getElementById('loop-video').checked = ad.loop;
     }
     
     // Set size
-    const standardSize = `${ad.width}x${ad.height}`;
-    const sizeOption = document.querySelector(`.ad-size-option[data-size="${standardSize}"]`);
-    
-    if (sizeOption) {
-        document.querySelectorAll('.ad-size-option').forEach(opt => opt.classList.remove('selected'));
-        sizeOption.classList.add('selected');
-        document.getElementById('custom-size-container').style.display = 'none';
-    } else {
-        document.querySelector('.ad-size-option[data-size="custom"]').click();
-        document.getElementById('custom-width').value = ad.width;
-        document.getElementById('custom-height').value = ad.height;
-    }
+    const sizeOptions = document.querySelectorAll('.ad-size-option');
+    sizeOptions.forEach(option => {
+        option.classList.remove('selected');
+        if (option.dataset.size === `${ad.width}x${ad.height}`) {
+            option.classList.add('selected');
+        } else if (option.dataset.size === 'custom') {
+            document.getElementById('custom-width').value = ad.width;
+            document.getElementById('custom-height').value = ad.height;
+            document.getElementById('custom-size-container').style.display = 'block';
+        }
+    });
     
     // Update preview
     document.getElementById('ad-preview').style.width = `${ad.width}px`;
     document.getElementById('ad-preview').style.height = `${ad.height}px`;
+    updateFormFields();
     updatePreview();
     
     // Switch to create tab
     document.querySelector('.tab[onclick*="create-tab"]').click();
 }
 
-// Delete an ad
+// Delete ad
 function deleteAd(adId) {
-    if (confirm('Are you sure you want to delete this ad?')) {
-        ads = ads.filter(a => a.id !== adId);
-        localStorage.setItem('makeMyAds', JSON.stringify(ads));
-        loadSavedAds();
-        
-        if (currentAdId === adId) {
-            currentAdId = null;
-            clearPreview();
-        }
-    }
-}
-
-// Check for hash routing to load an ad
-function checkHashRouting() {
-    const params = new URLSearchParams(window.location.search);
-    const adParam = params.get('ad');
+    if (!confirm('Are you sure you want to delete this ad?')) return;
     
-    if (adParam) {
-        try {
-            const ad = JSON.parse(decodeURIComponent(adParam));
-            renderAdFromLink(ad);
-        } catch (e) {
-            console.error('Error parsing ad data:', e);
-        }
-    }
-}
-
-// Render ad when opened via link
-function renderAdFromLink(ad) {
-    // Clear the page
-    document.body.innerHTML = '';
+    ads = ads.filter(ad => ad.id !== adId);
+    localStorage.setItem('makeMyAds', JSON.stringify(ads));
+    loadSavedAds();
     
-    // Create ad container
-    const adContainer = document.createElement('div');
-    adContainer.style.width = '100%';
-    adContainer.style.height = '100vh';
-    adContainer.style.display = 'flex';
-    adContainer.style.justifyContent = 'center';
-    adContainer.style.alignItems = 'center';
-    adContainer.style.backgroundColor = '#f5f5f5';
-    
-    // Add the ad
-    if (ad.type === 'video') {
-        adContainer.innerHTML = generateVideoAdCode(ad);
-        
-        // Add the ad script at the bottom
-        const adScriptContainer = document.createElement('div');
-        adScriptContainer.style.position = 'fixed';
-        adScriptContainer.style.bottom = '0';
-        adScriptContainer.style.left = '0';
-        adScriptContainer.style.right = '0';
-        adScriptContainer.style.height = '50px';
-        adScriptContainer.style.backgroundColor = '#f0f0f0';
-        adScriptContainer.style.borderTop = '1px solid #ddd';
-        adScriptContainer.style.zIndex = '1000';
-        adScriptContainer.style.display = 'flex';
-        adScriptContainer.style.justifyContent = 'center';
-        adScriptContainer.style.alignItems = 'center';
-        
-        const adScript = document.createElement('script');
-        adScript.type = 'text/javascript';
-        adScript.innerHTML = `
-            atOptions = {
-                'key': 'a481763decb23c81da5296aea54b0fd9',
-                'format': 'iframe',
-                'height': 50,
-                'width': 320,
-                'params': {}
-            };
-        `;
-        
-        const invokeScript = document.createElement('script');
-        invokeScript.type = 'text/javascript';
-        invokeScript.src = '//www.highperformanceformat.com/a481763decb23c81da5296aea54b0fd9/invoke.js';
-        
-        adScriptContainer.appendChild(adScript);
-        adScriptContainer.appendChild(invokeScript);
-        
-        document.body.appendChild(adContainer);
-        document.body.appendChild(adScriptContainer);
-    } else {
-        adContainer.innerHTML = generateStandardAdCode(ad);
-        document.body.appendChild(adContainer);
+    if (currentAdId === adId) {
+        clearPreview();
     }
 }
 
 // Copy to clipboard
 function copyToClipboard(elementId) {
     const element = document.getElementById(elementId);
-    const range = document.createRange();
-    range.selectNode(element);
-    window.getSelection().removeAllRanges();
-    window.getSelection().addRange(range);
-    document.execCommand('copy');
-    window.getSelection().removeAllRanges();
+    const text = element.textContent || element.innerText;
     
-    // Show copied notification
-    const originalText = elementId === 'embed-code' ? 'Copy Code' : 'Copy Link';
-    const button = document.querySelector(`button[onclick="copyToClipboard('${elementId}')"]`);
-    const originalButtonText = button.textContent;
-    button.textContent = 'Copied!';
-    
-    setTimeout(() => {
-        button.textContent = originalButtonText;
-    }, 2000);
+    navigator.clipboard.writeText(text).then(() => {
+        const originalText = element.textContent;
+        element.textContent = 'Copied to clipboard!';
+        setTimeout(() => {
+            element.textContent = originalText;
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy: ', err);
+    });
 }
+
+// Test ad in modal
+function testAd() {
+    const embedCode = document.getElementById('embed-code').textContent;
+    if (!embedCode || embedCode.includes('Your ad code will appear here')) {
+        alert('Please generate an ad first');
+        return;
+    }
+    
+    const testContainer = document.getElementById('test-ad-container');
+    testContainer.innerHTML = embedCode;
+    
+    document.getElementById('test-modal').style.display = 'block';
+}
+
+// Hide test modal
+function hideTestModal() {
+    document.getElementById('test-modal').style.display = 'none';
+    document.getElementById('test-ad-container').innerHTML = '';
+}
+
+// Check for hash routing (shared links)
+function checkHashRouting() {
+    if (window.location.hash) {
+        try {
+            const adData = JSON.parse(decodeURIComponent(window.location.hash.substr(1)));
+            if (adData && adData.type) {
+                // Check if this ad already exists
+                const existingAd = ads.find(ad => 
+                    ad.type === adData.type && 
+                    ad.link === adData.link && 
+                    ad.mediaUrl === adData.mediaUrl
+                );
+                
+                if (existingAd) {
+                    loadAd(existingAd.id);
+                } else {
+                    // Add as new ad
+                    currentAdId = null;
+                    loadAd(adData.id); // This will create a new ID if needed
+                }
+                
+                // Scroll to top
+                window.scrollTo(0, 0);
+            }
+        } catch (e) {
+            console.error('Error parsing shared ad data:', e);
+        }
+    }
+}
+
+// Initialize hash routing check
+checkHashRouting();
