@@ -2,6 +2,7 @@
 let ads = JSON.parse(localStorage.getItem('makeMyAds')) || [];
 let currentAdId = null;
 let currentCropSettings = { x: 0, y: 0, zoom: 1 };
+let isAudioEnabled = false;
 
 // Demo ad scripts for preview
 const demoAds = {
@@ -74,12 +75,31 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize size options
     initSizeOptions();
     
-    // Load demo ads in preview and help section
-    loadDemoAds();
+    // Show demo ad in preview
+    showDemoAd();
     
-    // Set up demo ad in preview based on selected size
-    updateDemoAdInPreview();
+    // Check if this is an ad view via link
+    if (window.location.hash.includes('ad=')) {
+        showAdFromLink();
+    }
 });
+
+// Show ad when opened via link
+function showAdFromLink() {
+    const adId = window.location.hash.split('ad=')[1];
+    const ad = ads.find(a => a.id === adId);
+    
+    if (ad) {
+        // Show the ad in preview
+        displayAd(ad);
+        
+        // Show the ad code container
+        document.getElementById('ad-code-container').style.display = 'block';
+        
+        // Scroll to the preview
+        document.getElementById('ad-preview').scrollIntoView();
+    }
+}
 
 // Set up event listeners
 function setupEventListeners() {
@@ -101,17 +121,13 @@ function setupEventListeners() {
     });
     
     // Form changes that should update preview
-    const previewUpdateFields = ['ad-image', 'ad-video', 'ad-text', 'ad-link', 'bg-color', 'ad-position', 'crop-position'];
+    const previewUpdateFields = ['ad-image', 'ad-video', 'ad-text', 'ad-link', 'bg-color', 'ad-position', 'crop-position', 'audio-control'];
     previewUpdateFields.forEach(id => {
-        document.getElementById(id).addEventListener('input', updatePreview);
-        document.getElementById(id).addEventListener('change', updatePreview);
-    });
-    
-    // Size change should update demo ad in preview
-    document.querySelectorAll('.ad-size-option').forEach(option => {
-        option.addEventListener('click', function() {
-            updateDemoAdInPreview();
-        });
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('input', updatePreview);
+            element.addEventListener('change', updatePreview);
+        }
     });
 }
 
@@ -136,82 +152,84 @@ function initSizeOptions() {
                 const [width, height] = this.dataset.size.split('x');
                 document.getElementById('ad-preview').style.width = `${width}px`;
                 document.getElementById('ad-preview').style.height = `${height}px`;
+                
+                // Show demo ad for the selected size
+                showDemoAd();
             }
-            
-            updateDemoAdInPreview();
         });
     });
     
     // Custom size inputs
     document.getElementById('custom-width').addEventListener('input', function() {
         document.getElementById('ad-preview').style.width = `${this.value}px`;
-        updateDemoAdInPreview();
+        updatePreview();
     });
     
     document.getElementById('custom-height').addEventListener('input', function() {
         document.getElementById('ad-preview').style.height = `${this.value}px`;
-        updateDemoAdInPreview();
+        updatePreview();
     });
 }
 
-// Load demo ads in help section and preview
-function loadDemoAds() {
-    // Load demo ads in help section
-    document.getElementById('demo-ad-300x250').innerHTML = demoAds['300x250'];
-    document.getElementById('demo-ad-728x90').innerHTML = demoAds['728x90'];
-    document.getElementById('demo-ad-320x50').innerHTML = demoAds['320x50'];
-    document.getElementById('demo-ad-468x60').innerHTML = demoAds['468x60'];
-}
-
-// Update demo ad in preview based on selected size
-function updateDemoAdInPreview() {
-    const selectedSize = document.querySelector('.ad-size-option.selected').dataset.size;
+// Show demo ad in preview
+function showDemoAd() {
     const preview = document.getElementById('ad-preview');
-    const demoPlaceholder = document.getElementById('demo-ad-placeholder');
+    const selectedSize = document.querySelector('.ad-size-option.selected').dataset.size;
     
-    // Only show demo ad if no user content is added
-    if (!document.getElementById('ad-image').value && !document.getElementById('ad-video').value) {
-        if (demoAds[selectedSize]) {
-            preview.innerHTML = `<div style="width:100%;height:100%;">${demoAds[selectedSize]}</div>`;
-            
-            // Execute the demo ad script
-            const scripts = preview.getElementsByTagName('script');
-            for (let i = 0; i < scripts.length; i++) {
-                if (scripts[i].src) {
-                    const script = document.createElement('script');
-                    script.src = scripts[i].src;
-                    preview.appendChild(script);
-                } else {
-                    eval(scripts[i].innerHTML);
-                }
-            }
-        } else {
-            // Default demo content for custom size
-            if (demoPlaceholder) {
-                demoPlaceholder.innerHTML = '<p>Your ad preview will appear here</p>';
+    // Clear previous content
+    preview.innerHTML = '';
+    
+    // Check if user has entered any content
+    const hasUserContent = document.getElementById('ad-image').value || 
+                          document.getElementById('ad-video').value || 
+                          document.getElementById('ad-text').value;
+    
+    if (hasUserContent) {
+        // If user has entered content, show their preview
+        updatePreview();
+        return;
+    }
+    
+    // Show demo ad based on selected size
+    if (selectedSize !== 'custom' && demoAds[selectedSize]) {
+        const demoContainer = document.createElement('div');
+        demoContainer.style.width = '100%';
+        demoContainer.style.height = '100%';
+        demoContainer.innerHTML = demoAds[selectedSize];
+        preview.appendChild(demoContainer);
+        
+        // Execute the demo ad script
+        const scripts = demoContainer.getElementsByTagName('script');
+        for (let i = 0; i < scripts.length; i++) {
+            if (scripts[i].src) {
+                const script = document.createElement('script');
+                script.src = scripts[i].src;
+                document.body.appendChild(script);
             } else {
-                preview.innerHTML = '<div style="width:100%;height:100%;display:flex;justify-content:center;align-items:center;"><p>Your ad preview will appear here</p></div>';
+                eval(scripts[i].innerHTML);
             }
         }
+    } else {
+        // Default placeholder
+        preview.innerHTML = `
+            <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background-color: #f0f0f0;">
+                <p>Your ad preview will appear here</p>
+            </div>
+        `;
     }
 }
 
 // Clear preview
 function clearPreview() {
-    const preview = document.getElementById('ad-preview');
-    preview.innerHTML = '';
-    document.getElementById('embed-code').innerHTML = '<p>Your ad code will appear here after generation</p>';
-    document.getElementById('shareable-link').innerHTML = '<p>Your shareable link will appear here after generation</p>';
-    
-    // Reset form fields
     document.getElementById('ad-form').reset();
     document.getElementById('bg-color').value = '#ffffff';
     document.querySelector('.color-option[data-color="#ffffff"]').classList.add('selected');
-    document.querySelector('.color-option[data-color="#ffffff"]').classList.remove('selected');
-    document.querySelector('.color-option[data-color="#ffffff"]').classList.add('selected');
-    
-    // Show demo ad again
-    updateDemoAdInPreview();
+    document.querySelector('.color-option[data-color="#ffffff"]').click();
+    document.querySelector('.ad-size-option[data-size="300x250"]').click();
+    document.getElementById('embed-code').innerHTML = '<p>Your ad code will appear here after generation</p>';
+    document.getElementById('short-link').innerHTML = '<p>Your shareable link will appear here after generation</p>';
+    document.getElementById('ad-code-container').style.display = 'none';
+    showDemoAd();
 }
 
 // Tab navigation
@@ -237,11 +255,25 @@ function updateFormFields() {
     // Show/hide video URL field
     document.getElementById('video-url-container').style.display = adType === 'video' ? 'block' : 'none';
     
+    // Show/hide audio control for video ads
+    document.getElementById('audio-control-container').style.display = adType === 'video' ? 'block' : 'none';
+    
     // Show/hide size options for certain ad types
     document.getElementById('size-container').style.display = adType === 'social' || adType === 'fullscreen' ? 'none' : 'block';
     
     // Update preview
     updatePreview();
+}
+
+// Toggle audio for video ads
+function toggleAudio(videoElement) {
+    isAudioEnabled = !isAudioEnabled;
+    videoElement.muted = !isAudioEnabled;
+    
+    const audioBtn = videoElement.parentElement.querySelector('.audio-control-btn');
+    if (audioBtn) {
+        audioBtn.innerHTML = isAudioEnabled ? '🔊' : '🔇';
+    }
 }
 
 // Update the preview based on current form values
@@ -255,18 +287,19 @@ function updatePreview() {
     const adVideo = document.getElementById('ad-video').value;
     const position = document.getElementById('ad-position').value;
     const cropPosition = document.getElementById('crop-position').value;
-    
-    // If no user content, show demo ad
-    if (!adImage && !adVideo) {
-        updateDemoAdInPreview();
-        return;
-    }
+    const audioControl = document.getElementById('audio-control') ? document.getElementById('audio-control').value : 'muted';
     
     // Set background color
     preview.style.backgroundColor = bgColor;
     
     // Clear previous content
     preview.innerHTML = '';
+    
+    // If no user content, show demo ad
+    if (!adImage && !adVideo && !adText) {
+        showDemoAd();
+        return;
+    }
     
     // Create content based on ad type
     switch(adType) {
@@ -299,6 +332,7 @@ function updatePreview() {
         case 'video':
             if (adVideo) {
                 let videoElement;
+                
                 if (adVideo.includes('youtube.com') || adVideo.includes('youtu.be')) {
                     // Handle YouTube URLs
                     let videoId = '';
@@ -309,7 +343,7 @@ function updatePreview() {
                     }
                     
                     if (videoId) {
-                        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}&controls=0`;
+                        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${audioControl === 'muted' ? 1 : 0}&loop=1&playlist=${videoId}&controls=0`;
                         const iframe = document.createElement('iframe');
                         iframe.src = embedUrl;
                         iframe.style.width = '100%';
@@ -340,10 +374,9 @@ function updatePreview() {
                     videoElement.style.width = '100%';
                     videoElement.style.height = '100%';
                     videoElement.autoplay = true;
-                    videoElement.muted = false;
+                    videoElement.muted = audioControl === 'muted';
                     videoElement.loop = true;
                     videoElement.playsInline = true;
-                    videoElement.controls = true;
                     
                     // Make the entire video clickable
                     videoElement.style.cursor = 'pointer';
@@ -351,7 +384,23 @@ function updatePreview() {
                         window.open(adLink, '_blank');
                     };
                     
-                    preview.appendChild(videoElement);
+                    // Add audio control button
+                    const audioBtn = document.createElement('button');
+                    audioBtn.className = 'audio-control-btn';
+                    audioBtn.innerHTML = audioControl === 'muted' ? '🔇' : '🔊';
+                    audioBtn.onclick = function(e) {
+                        e.stopPropagation();
+                        toggleAudio(videoElement);
+                    };
+                    
+                    const videoContainer = document.createElement('div');
+                    videoContainer.style.position = 'relative';
+                    videoContainer.style.width = '100%';
+                    videoContainer.style.height = '100%';
+                    videoContainer.appendChild(videoElement);
+                    videoContainer.appendChild(audioBtn);
+                    
+                    preview.appendChild(videoContainer);
                 }
             }
             break;
@@ -430,18 +479,12 @@ function updatePreview() {
             closeButton.style.position = 'absolute';
             closeButton.style.top = '5px';
             closeButton.style.right = '5px';
-            closeButton.style.backgroundColor = '#000';
-            closeButton.style.color = '#fff';
+            closeButton.style.backgroundColor = 'transparent';
             closeButton.style.border = 'none';
             closeButton.style.fontSize = '16px';
             closeButton.style.cursor = 'pointer';
-            closeButton.onclick = function(e) {
-                e.stopPropagation();
-                preview.innerHTML = '';
-                updateDemoAdInPreview();
-            };
-            
             popup.appendChild(closeButton);
+            
             popup.style.cursor = 'pointer';
             popup.onclick = function() {
                 window.open(adLink, '_blank');
@@ -493,8 +536,6 @@ function updatePreview() {
             skipButton.style.cursor = 'pointer';
             skipButton.onclick = function(e) {
                 e.stopPropagation();
-                preview.innerHTML = '';
-                updateDemoAdInPreview();
             };
             
             fullscreenContent.appendChild(skipButton);
@@ -520,44 +561,22 @@ function updatePreview() {
 function showCropTool() {
     const adImage = document.getElementById('ad-image').value;
     if (!adImage) {
-        alert('Please add an image URL first');
+        alert('Please enter an image URL first');
         return;
     }
     
     const modal = document.getElementById('crop-modal');
     const cropImage = document.getElementById('crop-image');
+    
     cropImage.src = adImage;
     cropImage.style.left = '0';
     cropImage.style.top = '0';
-    cropImage.style.transform = 'scale(1)';
+    
+    // Initialize crop settings
     currentCropSettings = { x: 0, y: 0, zoom: 1 };
+    updateCropImage();
     
-    // Set initial position based on crop position selection
-    const cropPosition = document.getElementById('crop-position').value;
-    let initialX = 0, initialY = 0;
-    
-    switch(cropPosition) {
-        case 'top': initialY = '-25%'; break;
-        case 'bottom': initialY = '25%'; break;
-        case 'left': initialX = '-25%'; break;
-        case 'right': initialX = '25%'; break;
-    }
-    
-    cropImage.style.left = initialX;
-    cropImage.style.top = initialY;
-    currentCropSettings.x = parseInt(initialX) || 0;
-    currentCropSettings.y = parseInt(initialY) || 0;
-    
-    modal.style.display = 'block';
-    
-    // Set up zoom slider
-    document.getElementById('crop-zoom').addEventListener('input', function() {
-        const zoomValue = parseFloat(this.value);
-        cropImage.style.transform = `scale(${zoomValue})`;
-        currentCropSettings.zoom = zoomValue;
-    });
-    
-    // Make image draggable
+    // Set up drag functionality
     let isDragging = false;
     let startX, startY;
     
@@ -571,34 +590,28 @@ function showCropTool() {
         if (!isDragging) return;
         currentCropSettings.x = e.clientX - startX;
         currentCropSettings.y = e.clientY - startY;
-        cropImage.style.left = `${currentCropSettings.x}px`;
-        cropImage.style.top = `${currentCropSettings.y}px`;
+        updateCropImage();
     });
     
     document.addEventListener('mouseup', function() {
         isDragging = false;
     });
     
-    // Touch events for mobile
-    cropImage.addEventListener('touchstart', function(e) {
-        isDragging = true;
-        startX = e.touches[0].clientX - currentCropSettings.x;
-        startY = e.touches[0].clientY - currentCropSettings.y;
-        e.preventDefault();
+    // Set up zoom functionality
+    document.getElementById('crop-zoom').addEventListener('input', function() {
+        currentCropSettings.zoom = parseFloat(this.value);
+        updateCropImage();
     });
     
-    document.addEventListener('touchmove', function(e) {
-        if (!isDragging) return;
-        currentCropSettings.x = e.touches[0].clientX - startX;
-        currentCropSettings.y = e.touches[0].clientY - startY;
-        cropImage.style.left = `${currentCropSettings.x}px`;
-        cropImage.style.top = `${currentCropSettings.y}px`;
-        e.preventDefault();
-    });
-    
-    document.addEventListener('touchend', function() {
-        isDragging = false;
-    });
+    modal.style.display = 'block';
+}
+
+// Update crop image position and zoom
+function updateCropImage() {
+    const cropImage = document.getElementById('crop-image');
+    cropImage.style.left = `${currentCropSettings.x}px`;
+    cropImage.style.top = `${currentCropSettings.y}px`;
+    cropImage.style.transform = `scale(${currentCropSettings.zoom})`;
 }
 
 // Hide crop tool
@@ -606,145 +619,107 @@ function hideCropTool() {
     document.getElementById('crop-modal').style.display = 'none';
 }
 
-// Apply crop settings
+// Apply crop settings to preview
 function applyCrop() {
-    // Determine the crop position based on current settings
-    let cropPosition = 'center';
-    const x = currentCropSettings.x;
-    const y = currentCropSettings.y;
+    const cropPositionSelect = document.getElementById('crop-position');
     
-    if (x < -50 && Math.abs(x) > Math.abs(y)) cropPosition = 'left';
-    else if (x > 50 && Math.abs(x) > Math.abs(y)) cropPosition = 'right';
-    else if (y < -50) cropPosition = 'top';
-    else if (y > 50) cropPosition = 'bottom';
+    // Determine crop position based on current settings
+    if (currentCropSettings.zoom > 1) {
+        if (currentCropSettings.x < 0 && Math.abs(currentCropSettings.x) > currentCropSettings.y) {
+            cropPositionSelect.value = 'left';
+        } else if (currentCropSettings.x > 0 && currentCropSettings.x > Math.abs(currentCropSettings.y)) {
+            cropPositionSelect.value = 'right';
+        } else if (currentCropSettings.y < 0) {
+            cropPositionSelect.value = 'top';
+        } else {
+            cropPositionSelect.value = 'bottom';
+        }
+    } else {
+        cropPositionSelect.value = 'center';
+    }
     
-    document.getElementById('crop-position').value = cropPosition;
     hideCropTool();
     updatePreview();
 }
 
-// Generate the ad and save it
+// Generate the ad code
 function generateAd() {
-    const adName = document.getElementById('ad-name').value;
     const adType = document.getElementById('ad-type').value;
+    const adName = document.getElementById('ad-name').value;
+    const bgColor = document.getElementById('bg-color').value;
+    const adText = document.getElementById('ad-text').value;
+    const adLink = document.getElementById('ad-link').value;
     const adImage = document.getElementById('ad-image').value;
     const adVideo = document.getElementById('ad-video').value;
-    const adLink = document.getElementById('ad-link').value;
-    const adText = document.getElementById('ad-text').value;
-    const bgColor = document.getElementById('bg-color').value;
-    const duration = document.getElementById('ad-duration').value;
     const position = document.getElementById('ad-position').value;
     const cropPosition = document.getElementById('crop-position').value;
-    
-    // Validate required fields
-    if (!adName || !adLink) {
-        alert('Please fill in all required fields (Ad Name and Destination URL)');
-        return;
-    }
-    
-    if ((adType === 'banner' || adType === 'popup' || adType === 'fullscreen') && !adImage) {
-        alert('Please add an image URL for this ad type');
-        return;
-    }
-    
-    if (adType === 'video' && !adVideo) {
-        alert('Please add a video URL for this ad type');
-        return;
-    }
+    const duration = document.getElementById('ad-duration').value;
+    const audioControl = document.getElementById('audio-control') ? document.getElementById('audio-control').value : 'muted';
     
     // Get selected size
     let width, height;
     const selectedSize = document.querySelector('.ad-size-option.selected').dataset.size;
     
     if (selectedSize === 'custom') {
-        width = document.getElementById('custom-width').value;
-        height = document.getElementById('custom-height').value;
-        
-        if (!width || !height) {
-            alert('Please enter custom width and height');
-            return;
-        }
+        width = document.getElementById('custom-width').value || '300';
+        height = document.getElementById('custom-height').value || '250';
     } else {
         [width, height] = selectedSize.split('x');
     }
     
-    // For fullscreen and social ads, adjust size
-    if (adType === 'fullscreen') {
-        width = '100%';
-        height = '100vh';
-    } else if (adType === 'social') {
-        if (position === 'left' || position === 'right') {
-            width = '50px';
-            height = '100%';
-        } else {
-            width = '100%';
-            height = '50px';
-        }
-    }
-    
     // Create ad object
     const ad = {
-        id: currentAdId || Date.now().toString(),
+        id: generateId(),
         name: adName,
         type: adType,
         width: width,
         height: height,
+        bgColor: bgColor,
+        text: adText,
+        link: adLink,
         image: adImage,
         video: adVideo,
-        link: adLink,
-        text: adText,
-        bgColor: bgColor,
-        duration: duration,
         position: position,
         cropPosition: cropPosition,
+        duration: duration,
+        audioControl: audioControl,
         createdAt: new Date().toISOString()
     };
     
-    // Save or update the ad
-    if (currentAdId) {
-        // Update existing ad
-        const index = ads.findIndex(a => a.id === currentAdId);
-        if (index !== -1) {
-            ads[index] = ad;
-        }
-    } else {
-        // Add new ad
-        ads.push(ad);
-    }
+    // Save the ad
+    saveAd(ad);
     
-    // Save to localStorage
-    localStorage.setItem('makeMyAds', JSON.stringify(ads));
+    // Generate embed code
+    const embedCode = generateEmbedCode(ad);
+    document.getElementById('embed-code').innerHTML = escapeHtml(embedCode);
     
-    // Generate embed code and shareable link
-    generateEmbedCode(ad);
-    generateShareableLink(ad);
+    // Generate short link
+    const shortLink = generateShortLink(ad.id);
+    document.getElementById('short-link').innerHTML = shortLink;
     
-    // Reload saved ads list
-    loadSavedAds();
-    
-    // Reset currentAdId
-    currentAdId = null;
+    // Display the ad
+    displayAd(ad);
     
     // Show success message
-    alert(`Ad "${adName}" saved successfully!`);
+    alert('Ad generated successfully!');
 }
 
 // Generate embed code for the ad
 function generateEmbedCode(ad) {
-    let embedCode = '';
+    let code = '';
     
     switch(ad.type) {
         case 'banner':
-            embedCode = `
+            code = `
 <div style="width: ${ad.width}px; height: ${ad.height}px; background-color: ${ad.bgColor}; position: relative; overflow: hidden; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')">
     ${ad.image ? `<img src="${ad.image}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${ad.cropPosition};">` : ''}
     ${ad.text ? `<div style="position: absolute; bottom: 0; left: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 10px; text-align: center;">${ad.text}</div>` : ''}
-</div>`;
+</div>
+            `;
             break;
             
         case 'video':
             if (ad.video.includes('youtube.com') || ad.video.includes('youtu.be')) {
-                // YouTube embed code
                 let videoId = '';
                 if (ad.video.includes('youtube.com/watch?v=')) {
                     videoId = ad.video.split('v=')[1].split('&')[0];
@@ -753,208 +728,149 @@ function generateEmbedCode(ad) {
                 }
                 
                 if (videoId) {
-                    const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}&controls=0`;
-                    embedCode = `
+                    code = `
 <div style="width: ${ad.width}px; height: ${ad.height}px; position: relative;">
-    <iframe src="${embedUrl}" style="width: 100%; height: 100%; border: none;"></iframe>
+    <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${ad.audioControl === 'muted' ? 1 : 0}&loop=1&playlist=${videoId}&controls=0" 
+            style="width: 100%; height: 100%; border: none;"></iframe>
     <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')"></div>
-</div>`;
+</div>
+                    `;
                 }
             } else {
-                // Direct video embed code
-                embedCode = `
-<div style="width: ${ad.width}px; height: ${ad.height}px; position: relative; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')">
-    <video style="width: 100%; height: 100%;" autoplay muted loop playsinline controls>
-        <source src="${ad.video}" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
-</div>`;
+                code = `
+<div style="width: ${ad.width}px; height: ${ad.height}px; position: relative;">
+    <video src="${ad.video}" autoplay ${ad.audioControl === 'muted' ? 'muted' : ''} loop playsinline 
+           style="width: 100%; height: 100%; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')"></video>
+    <button class="audio-control-btn" onclick="this.previousElementSibling.muted = !this.previousElementSibling.muted; this.innerHTML = this.previousElementSibling.muted ? '🔇' : '🔊'" 
+            style="position: absolute; bottom: 10px; left: 10px; background-color: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10;">
+        ${ad.audioControl === 'muted' ? '🔇' : '🔊'}
+    </button>
+</div>
+                `;
             }
             break;
             
         case 'social':
             const isVertical = ad.position === 'left' || ad.position === 'right';
-            embedCode = `
-<div style="position: fixed; ${ad.position}: 0; ${isVertical ? 'width: 50px; height: 100%;' : 'width: 100%; height: 50px;'} background-color: ${ad.bgColor}; display: flex; ${isVertical ? 'flex-direction: column;' : ''} align-items: center; justify-content: center; z-index: 1000;">
-    <button style="padding: 8px 15px; background-color: #4361ee; color: white; border: none; border-radius: 4px; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')">
-        ${ad.text || 'Click Here'}
-    </button>
-</div>`;
+            code = `
+<div style="width: ${ad.width}px; height: ${ad.height}px; position: relative; overflow: hidden; background-color: ${ad.bgColor};">
+    <div style="position: absolute; width: ${isVertical ? '50px' : '100%'}; height: ${isVertical ? '100%' : '50px'}; 
+                background-color: ${ad.bgColor}; display: flex; flex-direction: ${isVertical ? 'column' : 'row'}; 
+                align-items: center; justify-content: center; ${ad.position}: 0;">
+        <button onclick="window.open('${ad.link}', '_blank')" 
+                style="padding: 8px 15px; background-color: #4361ee; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            ${ad.text || 'Click Here'}
+        </button>
+    </div>
+</div>
+            `;
             break;
             
         case 'popup':
-            embedCode = `
+            code = `
+<div id="myAdPopup" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 1000; display: none;">
+    <div style="position: absolute; width: 80%; height: 80%; background-color: ${ad.bgColor}; top: 50%; left: 50%; 
+                transform: translate(-50%, -50%); padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.5); cursor: pointer;" 
+         onclick="window.open('${ad.link}', '_blank')">
+        ${ad.image ? `<img src="${ad.image}" style="max-width: 100%; max-height: 70%; display: block; margin: 0 auto; object-position: ${ad.cropPosition};">` : ''}
+        ${ad.text ? `<div style="margin-top: 15px; text-align: center;">${ad.text}</div>` : ''}
+        <button onclick="document.getElementById('myAdPopup').style.display = 'none';" 
+                style="position: absolute; top: 5px; right: 5px; background-color: transparent; border: none; font-size: 16px; cursor: pointer;">X</button>
+    </div>
+</div>
+
 <script>
-    function showPopupAd() {
-        const popup = document.createElement('div');
-        popup.style.position = 'fixed';
-        popup.style.top = '0';
-        popup.style.left = '0';
-        popup.style.width = '100%';
-        popup.style.height = '100%';
-        popup.style.backgroundColor = 'rgba(0,0,0,0.7)';
-        popup.style.zIndex = '1000';
-        popup.style.display = 'flex';
-        popup.style.justifyContent = 'center';
-        popup.style.alignItems = 'center';
-        
-        const popupContent = document.createElement('div');
-        popupContent.style.width = '80%';
-        popupContent.style.height = '80%';
-        popupContent.style.backgroundColor = '${ad.bgColor}';
-        popupContent.style.padding = '20px';
-        popupContent.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
-        popupContent.style.position = 'relative';
-        
-        ${ad.image ? `const img = document.createElement('img');
-        img.src = '${ad.image}';
-        img.style.maxWidth = '100%';
-        img.style.maxHeight = '70%';
-        img.style.display = 'block';
-        img.style.margin = '0 auto';
-        img.style.objectPosition = '${ad.cropPosition}';
-        popupContent.appendChild(img);` : ''}
-        
-        ${ad.text ? `const textDiv = document.createElement('div');
-        textDiv.textContent = '${ad.text.replace(/'/g, "\\'")}';
-        textDiv.style.marginTop = '15px';
-        textDiv.style.textAlign = 'center';
-        popupContent.appendChild(textDiv);` : ''}
-        
-        const closeButton = document.createElement('button');
-        closeButton.textContent = 'X';
-        closeButton.style.position = 'absolute';
-        closeButton.style.top = '5px';
-        closeButton.style.right = '5px';
-        closeButton.style.backgroundColor = '#000';
-        closeButton.style.color = '#fff';
-        closeButton.style.border = 'none';
-        closeButton.style.fontSize = '16px';
-        closeButton.style.cursor = 'pointer';
-        closeButton.onclick = function() {
-            document.body.removeChild(popup);
-        };
-        popupContent.appendChild(closeButton);
-        
-        popupContent.style.cursor = 'pointer';
-        popupContent.onclick = function() {
-            window.open('${ad.link}', '_blank');
-        };
-        
-        popup.appendChild(popupContent);
-        document.body.appendChild(popup);
-        
-        setTimeout(function() {
-            if (document.body.contains(popup)) {
-                document.body.removeChild(popup);
-            }
-        }, ${ad.duration * 1000});
-    }
-    
-    // Show popup after 3 seconds
-    setTimeout(showPopupAd, 3000);
-</script>`;
+    setTimeout(function() {
+        document.getElementById('myAdPopup').style.display = 'block';
+    }, ${ad.duration * 1000});
+</script>
+            `;
             break;
             
         case 'fullscreen':
-            embedCode = `
+            code = `
+<div id="myFullscreenAd" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: ${ad.bgColor}; z-index: 1000; display: none;">
+    <div style="position: relative; width: 100%; height: 100%;">
+        ${ad.image ? `<img src="${ad.image}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${ad.cropPosition};">` : ''}
+        ${ad.text ? `<div style="position: absolute; bottom: 20%; left: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 20px; text-align: center;">${ad.text}</div>` : ''}
+        <button onclick="document.getElementById('myFullscreenAd').style.display = 'none';" 
+                style="position: absolute; bottom: 20px; right: 20px; padding: 8px 15px; background-color: rgba(0,0,0,0.5); color: white; border: none; border-radius: 4px; cursor: pointer;">Skip Ad</button>
+    </div>
+</div>
+
 <script>
-    function showFullscreenAd() {
-        const overlay = document.createElement('div');
-        overlay.style.position = 'fixed';
-        overlay.style.top = '0';
-        overlay.style.left = '0';
-        overlay.style.width = '100%';
-        overlay.style.height = '100vh';
-        overlay.style.backgroundColor = '${ad.bgColor}';
-        overlay.style.zIndex = '10000';
-        
-        ${ad.image ? `const img = document.createElement('img');
-        img.src = '${ad.image}';
-        img.style.width = '100%';
-        img.style.height = '100%';
-        img.style.objectFit = 'cover';
-        img.style.objectPosition = '${ad.cropPosition}';
-        overlay.appendChild(img);` : ''}
-        
-        ${ad.text ? `const textDiv = document.createElement('div');
-        textDiv.textContent = '${ad.text.replace(/'/g, "\\'")}';
-        textDiv.style.position = 'absolute';
-        textDiv.style.bottom = '20%';
-        textDiv.style.left = '0';
-        textDiv.style.right = '0';
-        textDiv.style.backgroundColor = 'rgba(0,0,0,0.7)';
-        textDiv.style.color = 'white';
-        textDiv.style.padding = '20px';
-        textDiv.style.textAlign = 'center';
-        overlay.appendChild(textDiv);` : ''}
-        
-        const skipButton = document.createElement('button');
-        skipButton.textContent = 'Skip Ad';
-        skipButton.style.position = 'absolute';
-        skipButton.style.bottom = '20px';
-        skipButton.style.right = '20px';
-        skipButton.style.padding = '8px 15px';
-        skipButton.style.backgroundColor = 'rgba(0,0,0,0.5)';
-        skipButton.style.color = 'white';
-        skipButton.style.border = 'none';
-        skipButton.style.borderRadius = '4px';
-        skipButton.style.cursor = 'pointer';
-        skipButton.onclick = function() {
-            document.body.removeChild(overlay);
-        };
-        overlay.appendChild(skipButton);
-        
-        overlay.style.cursor = 'pointer';
-        overlay.onclick = function() {
-            window.open('${ad.link}', '_blank');
-        };
-        
-        document.body.appendChild(overlay);
-        
-        setTimeout(function() {
-            if (document.body.contains(overlay)) {
-                document.body.removeChild(overlay);
-            }
-        }, ${ad.duration * 1000});
-    }
-    
-    // Show fullscreen ad immediately
-    showFullscreenAd();
-</script>`;
+    setTimeout(function() {
+        document.getElementById('myFullscreenAd').style.display = 'block';
+    }, 1000);
+</script>
+            `;
             break;
     }
     
-    document.getElementById('embed-code').textContent = embedCode.trim();
+    return code.trim();
 }
 
-// Generate shareable link for the ad
-function generateShareableLink(ad) {
-    // Create a data URL with the ad information
-    const adData = {
-        id: ad.id,
-        name: ad.name,
-        type: ad.type,
-        width: ad.width,
-        height: ad.height,
-        image: ad.image,
-        video: ad.video,
-        link: ad.link,
-        text: ad.text,
-        bgColor: ad.bgColor,
-        duration: ad.duration,
-        position: ad.position,
-        cropPosition: ad.cropPosition
-    };
+// Generate a short link for the ad
+function generateShortLink(adId) {
+    return `${window.location.origin}${window.location.pathname}#ad=${adId}`;
+}
+
+// Display the ad in preview
+function displayAd(ad) {
+    // Set form values
+    document.getElementById('ad-name').value = ad.name;
+    document.getElementById('ad-type').value = ad.type;
+    document.getElementById('bg-color').value = ad.bgColor;
+    document.getElementById('ad-text').value = ad.text;
+    document.getElementById('ad-link').value = ad.link;
+    document.getElementById('ad-image').value = ad.image || '';
+    document.getElementById('ad-video').value = ad.video || '';
+    document.getElementById('ad-position').value = ad.position;
+    document.getElementById('crop-position').value = ad.cropPosition;
+    document.getElementById('ad-duration').value = ad.duration;
     
-    // Convert to base64
-    const jsonData = JSON.stringify(adData);
-    const base64Data = btoa(encodeURIComponent(jsonData));
+    if (ad.audioControl) {
+        document.getElementById('audio-control').value = ad.audioControl;
+    }
     
-    // Create shareable URL
-    const shareableUrl = `${window.location.origin}${window.location.pathname}#/ad/${base64Data}`;
+    // Set size
+    if (ad.width && ad.height) {
+        const sizeOptions = document.querySelectorAll('.ad-size-option');
+        let foundSize = false;
+        
+        sizeOptions.forEach(option => {
+            if (option.dataset.size === `${ad.width}x${ad.height}`) {
+                option.click();
+                foundSize = true;
+            }
+        });
+        
+        if (!foundSize) {
+            document.querySelector('.ad-size-option[data-size="custom"]').click();
+            document.getElementById('custom-width').value = ad.width;
+            document.getElementById('custom-height').value = ad.height;
+            document.getElementById('ad-preview').style.width = `${ad.width}px`;
+            document.getElementById('ad-preview').style.height = `${ad.height}px`;
+        }
+    }
     
-    document.getElementById('shareable-link').textContent = shareableUrl;
+    // Update preview
+    updatePreview();
+}
+
+// Save ad to local storage
+function saveAd(ad) {
+    // Check if this is an update
+    const existingIndex = ads.findIndex(a => a.id === ad.id);
+    
+    if (existingIndex >= 0) {
+        ads[existingIndex] = ad;
+    } else {
+        ads.push(ad);
+    }
+    
+    localStorage.setItem('makeMyAds', JSON.stringify(ads));
+    loadSavedAds();
 }
 
 // Load saved ads
@@ -971,13 +887,12 @@ function loadSavedAds() {
         const adItem = document.createElement('div');
         adItem.className = 'ad-item';
         adItem.innerHTML = `
-            <div class="ad-item-info">
+            <div>
                 <h3>${ad.name}</h3>
                 <p>Type: ${ad.type} | Size: ${ad.width}x${ad.height} | Created: ${new Date(ad.createdAt).toLocaleDateString()}</p>
             </div>
             <div class="ad-item-actions">
                 <button onclick="editAd('${ad.id}')">Edit</button>
-                <button onclick="viewAd('${ad.id}')">View</button>
                 <button class="delete-btn" onclick="deleteAd('${ad.id}')">Delete</button>
             </div>
         `;
@@ -988,316 +903,11 @@ function loadSavedAds() {
 // Edit an existing ad
 function editAd(adId) {
     const ad = ads.find(a => a.id === adId);
-    if (!ad) return;
-    
-    currentAdId = adId;
-    
-    // Fill the form with ad data
-    document.getElementById('ad-name').value = ad.name;
-    document.getElementById('ad-type').value = ad.type;
-    document.getElementById('ad-image').value = ad.image || '';
-    document.getElementById('ad-video').value = ad.video || '';
-    document.getElementById('ad-link').value = ad.link;
-    document.getElementById('ad-text').value = ad.text || '';
-    document.getElementById('bg-color').value = ad.bgColor;
-    document.getElementById('ad-duration').value = ad.duration || 5;
-    document.getElementById('ad-position').value = ad.position || 'center';
-    document.getElementById('crop-position').value = ad.cropPosition || 'center';
-    
-    // Update form fields
-    updateFormFields();
-    
-    // Set color picker
-    document.querySelectorAll('.color-option').forEach(opt => {
-        opt.classList.remove('selected');
-        if (opt.dataset.color === ad.bgColor) {
-            opt.classList.add('selected');
-        }
-    });
-    
-    // Set size options
-    const sizeStr = `${ad.width}x${ad.height}`;
-    const standardSizes = ['300x250', '728x90', '160x600', '320x50', '468x60'];
-    
-    if (standardSizes.includes(sizeStr)) {
-        document.querySelectorAll('.ad-size-option').forEach(opt => {
-            opt.classList.remove('selected');
-            if (opt.dataset.size === sizeStr) {
-                opt.classList.add('selected');
-            }
-        });
-        document.getElementById('custom-size-container').style.display = 'none';
-    } else {
-        document.querySelector('.ad-size-option[data-size="custom"]').classList.add('selected');
-        document.getElementById('custom-size-container').style.display = 'block';
-        document.getElementById('custom-width').value = ad.width;
-        document.getElementById('custom-height').value = ad.height;
+    if (ad) {
+        currentAdId = ad.id;
+        displayAd(ad);
+        document.querySelector('.tab[onclick*="create-tab"]').click();
     }
-    
-    // Update preview
-    updatePreview();
-    
-    // Generate embed code and shareable link
-    generateEmbedCode(ad);
-    generateShareableLink(ad);
-    
-    // Switch to create tab
-    document.querySelector('.tab').click();
-}
-
-// View an ad (render it in preview)
-function viewAd(adId) {
-    const ad = ads.find(a => a.id === adId);
-    if (!ad) return;
-    
-    // Create a temporary preview container
-    const preview = document.createElement('div');
-    preview.style.position = 'fixed';
-    preview.style.top = '0';
-    preview.style.left = '0';
-    preview.style.width = '100%';
-    preview.style.height = '100%';
-    preview.style.backgroundColor = 'rgba(0,0,0,0.8)';
-    preview.style.zIndex = '1000';
-    preview.style.display = 'flex';
-    preview.style.justifyContent = 'center';
-    preview.style.alignItems = 'center';
-    
-    // Create close button
-    const closeButton = document.createElement('button');
-    closeButton.textContent = 'X';
-    closeButton.style.position = 'absolute';
-    closeButton.style.top = '20px';
-    closeButton.style.right = '20px';
-    closeButton.style.backgroundColor = 'white';
-    closeButton.style.border = 'none';
-    closeButton.style.borderRadius = '50%';
-    closeButton.style.width = '40px';
-    closeButton.style.height = '40px';
-    closeButton.style.fontSize = '20px';
-    closeButton.style.cursor = 'pointer';
-    closeButton.onclick = function() {
-        document.body.removeChild(preview);
-    };
-    preview.appendChild(closeButton);
-    
-    // Create ad container
-    const adContainer = document.createElement('div');
-    adContainer.style.width = ad.type === 'fullscreen' ? '100%' : `${ad.width}${typeof ad.width === 'string' ? '' : 'px'}`;
-    adContainer.style.height = ad.type === 'fullscreen' ? '100vh' : `${ad.height}${typeof ad.height === 'string' ? '' : 'px'}`;
-    adContainer.style.backgroundColor = ad.bgColor;
-    adContainer.style.position = 'relative';
-    adContainer.style.overflow = 'hidden';
-    adContainer.style.cursor = 'pointer';
-    adContainer.onclick = function() {
-        window.open(ad.link, '_blank');
-    };
-    
-    // Render ad based on type
-    switch(ad.type) {
-        case 'banner':
-            if (ad.image) {
-                const img = document.createElement('img');
-                img.src = ad.image;
-                img.style.width = '100%';
-                img.style.height = '100%';
-                img.style.objectFit = 'cover';
-                img.style.objectPosition = ad.cropPosition;
-                adContainer.appendChild(img);
-            }
-            
-            if (ad.text) {
-                const textDiv = document.createElement('div');
-                textDiv.textContent = ad.text;
-                textDiv.style.position = 'absolute';
-                textDiv.style.bottom = '0';
-                textDiv.style.left = '0';
-                textDiv.style.right = '0';
-                textDiv.style.backgroundColor = 'rgba(0,0,0,0.7)';
-                textDiv.style.color = 'white';
-                textDiv.style.padding = '10px';
-                textDiv.style.textAlign = 'center';
-                adContainer.appendChild(textDiv);
-            }
-            break;
-            
-        case 'video':
-            if (ad.video) {
-                if (ad.video.includes('youtube.com') || ad.video.includes('youtu.be')) {
-                    // Handle YouTube URLs
-                    let videoId = '';
-                    if (ad.video.includes('youtube.com/watch?v=')) {
-                        videoId = ad.video.split('v=')[1].split('&')[0];
-                    } else if (ad.video.includes('youtu.be/')) {
-                        videoId = ad.video.split('youtu.be/')[1].split('?')[0];
-                    }
-                    
-                    if (videoId) {
-                        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}&controls=0`;
-                        const iframe = document.createElement('iframe');
-                        iframe.src = embedUrl;
-                        iframe.style.width = '100%';
-                        iframe.style.height = '100%';
-                        iframe.frameBorder = '0';
-                        iframe.allow = 'autoplay; encrypted-media';
-                        iframe.allowFullscreen = true;
-                        
-                        // Add clickable overlay
-                        const overlay = document.createElement('div');
-                        overlay.style.position = 'absolute';
-                        overlay.style.top = '0';
-                        overlay.style.left = '0';
-                        overlay.style.width = '100%';
-                        overlay.style.height = '100%';
-                        overlay.style.cursor = 'pointer';
-                        overlay.onclick = function() {
-                            window.open(ad.link, '_blank');
-                        };
-                        
-                        adContainer.appendChild(iframe);
-                        adContainer.appendChild(overlay);
-                    }
-                } else {
-                    // Handle direct video URLs
-                    const video = document.createElement('video');
-                    video.src = ad.video;
-                    video.style.width = '100%';
-                    video.style.height = '100%';
-                    video.autoplay = true;
-                    video.muted = false;
-                    video.loop = true;
-                    video.playsInline = true;
-                    video.controls = true;
-                    video.style.cursor = 'pointer';
-                    video.onclick = function() {
-                        window.open(ad.link, '_blank');
-                    };
-                    
-                    adContainer.appendChild(video);
-                }
-            }
-            break;
-            
-        case 'social':
-            const isVertical = ad.position === 'left' || ad.position === 'right';
-            const socialBar = document.createElement('div');
-            socialBar.style.position = 'absolute';
-            socialBar.style.width = isVertical ? '50px' : '100%';
-            socialBar.style.height = isVertical ? '100%' : '50px';
-            socialBar.style.backgroundColor = ad.bgColor;
-            socialBar.style.display = 'flex';
-            socialBar.style.flexDirection = isVertical ? 'column' : 'row';
-            socialBar.style.alignItems = 'center';
-            socialBar.style.justifyContent = 'center';
-            
-            if (ad.position === 'top') {
-                socialBar.style.top = '0';
-            } else if (ad.position === 'bottom') {
-                socialBar.style.bottom = '0';
-            } else if (ad.position === 'left') {
-                socialBar.style.left = '0';
-            } else if (ad.position === 'right') {
-                socialBar.style.right = '0';
-            }
-            
-            const ctaButton = document.createElement('button');
-            ctaButton.textContent = ad.text || 'Click Here';
-            ctaButton.style.padding = '8px 15px';
-            ctaButton.style.backgroundColor = '#4361ee';
-            ctaButton.style.color = 'white';
-            ctaButton.style.border = 'none';
-            ctaButton.style.borderRadius = '4px';
-            ctaButton.style.cursor = 'pointer';
-            ctaButton.onclick = function() {
-                window.open(ad.link, '_blank');
-            };
-            
-            socialBar.appendChild(ctaButton);
-            adContainer.appendChild(socialBar);
-            break;
-            
-        case 'popup':
-            const popupContent = document.createElement('div');
-            popupContent.style.width = '80%';
-            popupContent.style.height = '80%';
-            popupContent.style.backgroundColor = ad.bgColor;
-            popupContent.style.padding = '20px';
-            popupContent.style.position = 'relative';
-            
-            if (ad.image) {
-                const img = document.createElement('img');
-                img.src = ad.image;
-                img.style.maxWidth = '100%';
-                img.style.maxHeight = '70%';
-                img.style.display = 'block';
-                img.style.margin = '0 auto';
-                img.style.objectPosition = ad.cropPosition;
-                popupContent.appendChild(img);
-            }
-            
-            if (ad.text) {
-                const textDiv = document.createElement('div');
-                textDiv.textContent = ad.text;
-                textDiv.style.marginTop = '15px';
-                textDiv.style.textAlign = 'center';
-                popupContent.appendChild(textDiv);
-            }
-            
-            adContainer.style.width = '100%';
-            adContainer.style.height = '100%';
-            adContainer.style.display = 'flex';
-            adContainer.style.justifyContent = 'center';
-            adContainer.style.alignItems = 'center';
-            adContainer.appendChild(popupContent);
-            break;
-            
-        case 'fullscreen':
-            if (ad.image) {
-                const img = document.createElement('img');
-                img.src = ad.image;
-                img.style.width = '100%';
-                img.style.height = '100%';
-                img.style.objectFit = 'cover';
-                img.style.objectPosition = ad.cropPosition;
-                adContainer.appendChild(img);
-            }
-            
-            if (ad.text) {
-                const textDiv = document.createElement('div');
-                textDiv.textContent = ad.text;
-                textDiv.style.position = 'absolute';
-                textDiv.style.bottom = '20%';
-                textDiv.style.left = '0';
-                textDiv.style.right = '0';
-                textDiv.style.backgroundColor = 'rgba(0,0,0,0.7)';
-                textDiv.style.color = 'white';
-                textDiv.style.padding = '20px';
-                textDiv.style.textAlign = 'center';
-                adContainer.appendChild(textDiv);
-            }
-            
-            const skipButton = document.createElement('button');
-            skipButton.textContent = 'Skip Ad';
-            skipButton.style.position = 'absolute';
-            skipButton.style.bottom = '20px';
-            skipButton.style.right = '20px';
-            skipButton.style.padding = '8px 15px';
-            skipButton.style.backgroundColor = 'rgba(0,0,0,0.5)';
-            skipButton.style.color = 'white';
-            skipButton.style.border = 'none';
-            skipButton.style.borderRadius = '4px';
-            skipButton.style.cursor = 'pointer';
-            skipButton.onclick = function(e) {
-                e.stopPropagation();
-                document.body.removeChild(preview);
-            };
-            
-            adContainer.appendChild(skipButton);
-            break;
-    }
-    
-    preview.appendChild(adContainer);
-    document.body.appendChild(preview);
 }
 
 // Delete an ad
@@ -1305,16 +915,28 @@ function deleteAd(adId) {
     if (confirm('Are you sure you want to delete this ad?')) {
         ads = ads.filter(a => a.id !== adId);
         localStorage.setItem('makeMyAds', JSON.stringify(ads));
+        loadSavedAds();
         
         if (currentAdId === adId) {
+            clearPreview();
             currentAdId = null;
-            document.getElementById('ad-form').reset();
-            document.getElementById('embed-code').textContent = '';
-            document.getElementById('shareable-link').textContent = '';
         }
-        
-        loadSavedAds();
     }
+}
+
+// Generate a unique ID
+function generateId() {
+    return currentAdId || Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+}
+
+// Escape HTML for code display
+function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 // Copy to clipboard
@@ -1327,313 +949,12 @@ function copyToClipboard(elementId) {
     document.execCommand('copy');
     window.getSelection().removeAllRanges();
     
-    // Show feedback
-    const originalText = elementId === 'embed-code' ? 'Copy Code' : 'Copy Link';
-    const button = elementId === 'embed-code' ? document.querySelector('.copy-btn') : document.querySelectorAll('.copy-btn')[1];
-    button.textContent = 'Copied!';
-    setTimeout(() => {
-        button.textContent = originalText;
-    }, 2000);
+    alert('Copied to clipboard!');
 }
 
-// Check for hash routing
+// Check hash routing
 function checkHashRouting() {
-    const hash = window.location.hash;
-    
-    if (hash.startsWith('#/ad/')) {
-        // This is a shareable link with base64 data
-        const base64Data = hash.replace('#/ad/', '');
-        try {
-            const jsonData = decodeURIComponent(atob(base64Data));
-            const adData = JSON.parse(jsonData);
-            
-            // Create a temporary preview container
-            const preview = document.createElement('div');
-            preview.style.position = 'fixed';
-            preview.style.top = '0';
-            preview.style.left = '0';
-            preview.style.width = '100%';
-            preview.style.height = '100%';
-            preview.style.backgroundColor = 'rgba(0,0,0,0.8)';
-            preview.style.zIndex = '1000';
-            preview.style.display = 'flex';
-            preview.style.justifyContent = 'center';
-            preview.style.alignItems = 'center';
-            
-            // Create close button
-            const closeButton = document.createElement('button');
-            closeButton.textContent = 'X';
-            closeButton.style.position = 'absolute';
-            closeButton.style.top = '20px';
-            closeButton.style.right = '20px';
-            closeButton.style.backgroundColor = 'white';
-            closeButton.style.border = 'none';
-            closeButton.style.borderRadius = '50%';
-            closeButton.style.width = '40px';
-            closeButton.style.height = '40px';
-            closeButton.style.fontSize = '20px';
-            closeButton.style.cursor = 'pointer';
-            closeButton.onclick = function() {
-                document.body.removeChild(preview);
-                window.location.hash = '';
-            };
-            preview.appendChild(closeButton);
-            
-            // Create ad container
-            const adContainer = document.createElement('div');
-            adContainer.style.width = adData.type === 'fullscreen' ? '100%' : `${adData.width}${typeof adData.width === 'string' ? '' : 'px'}`;
-            adContainer.style.height = adData.type === 'fullscreen' ? '100vh' : `${adData.height}${typeof adData.height === 'string' ? '' : 'px'}`;
-            adContainer.style.backgroundColor = adData.bgColor;
-            adContainer.style.position = 'relative';
-            adContainer.style.overflow = 'hidden';
-            adContainer.style.cursor = 'pointer';
-            adContainer.onclick = function() {
-                window.open(adData.link, '_blank');
-            };
-            
-            // Render ad based on type
-            switch(adData.type) {
-                case 'banner':
-                    if (adData.image) {
-                        const img = document.createElement('img');
-                        img.src = adData.image;
-                        img.style.width = '100%';
-                        img.style.height = '100%';
-                        img.style.objectFit = 'cover';
-                        img.style.objectPosition = adData.cropPosition;
-                        adContainer.appendChild(img);
-                    }
-                    
-                    if (adData.text) {
-                        const textDiv = document.createElement('div');
-                        textDiv.textContent = adData.text;
-                        textDiv.style.position = 'absolute';
-                        textDiv.style.bottom = '0';
-                        textDiv.style.left = '0';
-                        textDiv.style.right = '0';
-                        textDiv.style.backgroundColor = 'rgba(0,0,0,0.7)';
-                        textDiv.style.color = 'white';
-                        textDiv.style.padding = '10px';
-                        textDiv.style.textAlign = 'center';
-                        adContainer.appendChild(textDiv);
-                    }
-                    break;
-                    
-                case 'video':
-                    if (adData.video) {
-                        if (adData.video.includes('youtube.com') || adData.video.includes('youtu.be')) {
-                            // Handle YouTube URLs
-                            let videoId = '';
-                            if (adData.video.includes('youtube.com/watch?v=')) {
-                                videoId = adData.video.split('v=')[1].split('&')[0];
-                            } else if (adData.video.includes('youtu.be/')) {
-                                videoId = adData.video.split('youtu.be/')[1].split('?')[0];
-                            }
-                            
-                            if (videoId) {
-                                const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}&controls=0`;
-                                const iframe = document.createElement('iframe');
-                                iframe.src = embedUrl;
-                                iframe.style.width = '100%';
-                                iframe.style.height = '100%';
-                                iframe.frameBorder = '0';
-                                iframe.allow = 'autoplay; encrypted-media';
-                                iframe.allowFullscreen = true;
-                                
-                                // Add clickable overlay
-                                const overlay = document.createElement('div');
-                                overlay.style.position = 'absolute';
-                                overlay.style.top = '0';
-                                overlay.style.left = '0';
-                                overlay.style.width = '100%';
-                                overlay.style.height = '100%';
-                                overlay.style.cursor = 'pointer';
-                                overlay.onclick = function() {
-                                    window.open(adData.link, '_blank');
-                                };
-                                
-                                adContainer.appendChild(iframe);
-                                adContainer.appendChild(overlay);
-                            }
-                        } else {
-                            // Handle direct video URLs
-                            const video = document.createElement('video');
-                            video.src = adData.video;
-                            video.style.width = '100%';
-                            video.style.height = '100%';
-                            video.autoplay = true;
-                            video.muted = false;
-                            video.loop = true;
-                            video.playsInline = true;
-                            video.controls = true;
-                            video.style.cursor = 'pointer';
-                            video.onclick = function() {
-                                window.open(adData.link, '_blank');
-                            };
-                            
-                            adContainer.appendChild(video);
-                        }
-                    }
-                    break;
-                    
-                case 'social':
-                    const isVertical = adData.position === 'left' || adData.position === 'right';
-                    const socialBar = document.createElement('div');
-                    socialBar.style.position = 'absolute';
-                    socialBar.style.width = isVertical ? '50px' : '100%';
-                    socialBar.style.height = isVertical ? '100%' : '50px';
-                    socialBar.style.backgroundColor = adData.bgColor;
-                    socialBar.style.display = 'flex';
-                    socialBar.style.flexDirection = isVertical ? 'column' : 'row';
-                    socialBar.style.alignItems = 'center';
-                    socialBar.style.justifyContent = 'center';
-                    
-                    if (adData.position === 'top') {
-                        socialBar.style.top = '0';
-                    } else if (adData.position === 'bottom') {
-                        socialBar.style.bottom = '0';
-                    } else if (adData.position === 'left') {
-                        socialBar.style.left = '0';
-                    } else if (adData.position === 'right') {
-                        socialBar.style.right = '0';
-                    }
-                    
-                    const ctaButton = document.createElement('button');
-                    ctaButton.textContent = adData.text || 'Click Here';
-                    ctaButton.style.padding = '8px 15px';
-                    ctaButton.style.backgroundColor = '#4361ee';
-                    ctaButton.style.color = 'white';
-                    ctaButton.style.border = 'none';
-                    ctaButton.style.borderRadius = '4px';
-                    ctaButton.style.cursor = 'pointer';
-                    ctaButton.onclick = function() {
-                        window.open(adData.link, '_blank');
-                    };
-                    
-                    socialBar.appendChild(ctaButton);
-                    adContainer.appendChild(socialBar);
-                    break;
-                    
-                case 'popup':
-                    const popupContent = document.createElement('div');
-                    popupContent.style.width = '80%';
-                    popupContent.style.height = '80%';
-                    popupContent.style.backgroundColor = adData.bgColor;
-                    popupContent.style.padding = '20px';
-                    popupContent.style.position = 'relative';
-                    
-                    if (adData.image) {
-                        const img = document.createElement('img');
-                        img.src = adData.image;
-                        img.style.maxWidth = '100%';
-                        img.style.maxHeight = '70%';
-                        img.style.display = 'block';
-                        img.style.margin = '0 auto';
-                        img.style.objectPosition = adData.cropPosition;
-                        popupContent.appendChild(img);
-                    }
-                    
-                    if (adData.text) {
-                        const textDiv = document.createElement('div');
-                        textDiv.textContent = adData.text;
-                        textDiv.style.marginTop = '15px';
-                        textDiv.style.textAlign = 'center';
-                        popupContent.appendChild(textDiv);
-                    }
-                    
-                    const closeButtonPopup = document.createElement('button');
-                    closeButtonPopup.textContent = 'X';
-                    closeButtonPopup.style.position = 'absolute';
-                    closeButtonPopup.style.top = '5px';
-                    closeButtonPopup.style.right = '5px';
-                    closeButtonPopup.style.backgroundColor = '#000';
-                    closeButtonPopup.style.color = '#fff';
-                    closeButtonPopup.style.border = 'none';
-                    closeButtonPopup.style.fontSize = '16px';
-                    closeButtonPopup.style.cursor = 'pointer';
-                    closeButtonPopup.onclick = function(e) {
-                        e.stopPropagation();
-                        document.body.removeChild(preview);
-                        window.location.hash = '';
-                    };
-                    
-                    popupContent.appendChild(closeButtonPopup);
-                    popupContent.style.cursor = 'pointer';
-                    popupContent.onclick = function() {
-                        window.open(adData.link, '_blank');
-                    };
-                    
-                    adContainer.style.width = '100%';
-                    adContainer.style.height = '100%';
-                    adContainer.style.display = 'flex';
-                    adContainer.style.justifyContent = 'center';
-                    adContainer.style.alignItems = 'center';
-                    adContainer.appendChild(popupContent);
-                    break;
-                    
-                case 'fullscreen':
-                    if (adData.image) {
-                        const img = document.createElement('img');
-                        img.src = adData.image;
-                        img.style.width = '100%';
-                        img.style.height = '100%';
-                        img.style.objectFit = 'cover';
-                        img.style.objectPosition = adData.cropPosition;
-                        adContainer.appendChild(img);
-                    }
-                    
-                    if (adData.text) {
-                        const textDiv = document.createElement('div');
-                        textDiv.textContent = adData.text;
-                        textDiv.style.position = 'absolute';
-                        textDiv.style.bottom = '20%';
-                        textDiv.style.left = '0';
-                        textDiv.style.right = '0';
-                        textDiv.style.backgroundColor = 'rgba(0,0,0,0.7)';
-                        textDiv.style.color = 'white';
-                        textDiv.style.padding = '20px';
-                        textDiv.style.textAlign = 'center';
-                        adContainer.appendChild(textDiv);
-                    }
-                    
-                    const skipButton = document.createElement('button');
-                    skipButton.textContent = 'Skip Ad';
-                    skipButton.style.position = 'absolute';
-                    skipButton.style.bottom = '20px';
-                    skipButton.style.right = '20px';
-                    skipButton.style.padding = '8px 15px';
-                    skipButton.style.backgroundColor = 'rgba(0,0,0,0.5)';
-                    skipButton.style.color = 'white';
-                    skipButton.style.border = 'none';
-                    skipButton.style.borderRadius = '4px';
-                    skipButton.style.cursor = 'pointer';
-                    skipButton.onclick = function(e) {
-                        e.stopPropagation();
-                        document.body.removeChild(preview);
-                        window.location.hash = '';
-                    };
-                    
-                    adContainer.appendChild(skipButton);
-                    break;
-            }
-            
-            preview.appendChild(adContainer);
-            document.body.appendChild(preview);
-        } catch (e) {
-            console.error('Error parsing shareable link:', e);
-            window.location.hash = '';
-        }
-    } else if (hash.startsWith('#/ad')) {
-        // This is a link to a saved ad
-        const adId = hash.replace('#/ad', '');
-        const ad = ads.find(a => a.id === adId);
-        
-        if (ad) {
-            // Show the ad
-            viewAd(adId);
-        } else {
-            // Redirect to home if ad not found
-            window.location.hash = '';
-        }
+    if (window.location.hash.includes('ad=')) {
+        document.querySelector('.tab[onclick*="create-tab"]').click();
     }
 }
