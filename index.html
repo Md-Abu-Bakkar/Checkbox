@@ -10,6 +10,7 @@
     <meta property="og:url" content="https://example.com">
     <meta property="og:type" content="website">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <!-- Fixed Header Ad -->
@@ -22,36 +23,40 @@
 
     <header>
         <div class="container">
-            <h1>MakeMyAd</h1>
+            <h1><i class="fas fa-ad"></i> MakeMyAd Pro</h1>
+            <p class="tagline">Professional Ad Generator for Marketers</p>
         </div>
     </header>
 
     <div class="container">
         <div class="tabs">
-            <button class="tab active" onclick="openTab(event, 'create-tab')">Create Ad</button>
-            <button class="tab" onclick="openTab(event, 'my-ads-tab')">My Ads</button>
-            <button class="tab" onclick="openTab(event, 'help-tab')">Help</button>
+            <button class="tab active" onclick="openTab(event, 'create-tab')"><i class="fas fa-plus-circle"></i> Create Ad</button>
+            <button class="tab" onclick="openTab(event, 'my-ads-tab')"><i class="fas fa-folder"></i> My Ads</button>
+            <button class="tab" onclick="openTab(event, 'help-tab')"><i class="fas fa-question-circle"></i> Help</button>
         </div>
 
         <!-- Create Ad Tab -->
         <div id="create-tab" class="tab-content active">
             <form id="ad-form">
-                <div class="form-group">
-                    <label for="ad-name">Ad Name</label>
-                    <input type="text" id="ad-name" required placeholder="My Awesome Ad">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="ad-name"><i class="fas fa-tag"></i> Ad Name</label>
+                        <input type="text" id="ad-name" required placeholder="My Awesome Ad">
+                    </div>
+                    <div class="form-group">
+                        <label for="ad-type"><i class="fas fa-list-alt"></i> Ad Type</label>
+                        <select id="ad-type" onchange="updateFormFields()">
+                            <option value="banner">Banner Ad</option>
+                            <option value="video">Video Ad</option>
+                            <option value="social">Social Bar</option>
+                            <option value="popup">Popup Ad</option>
+                            <option value="fullscreen">Fullscreen Ad</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="ad-type">Ad Type</label>
-                    <select id="ad-type" onchange="updateFormFields()">
-                        <option value="banner">Banner Ad</option>
-                        <option value="video">Video Ad</option>
-                        <option value="social">Social Bar</option>
-                        <option value="popup">Popup Ad</option>
-                        <option value="fullscreen">Fullscreen Ad</option>
-                    </select>
-                </div>
+
                 <div class="form-group" id="size-container">
-                    <label>Ad Size</label>
+                    <label><i class="fas fa-expand"></i> Ad Size</label>
                     <div class="ad-size-options">
                         <div class="ad-size-option selected" data-size="300x250">300x250 (Medium Rectangle)</div>
                         <div class="ad-size-option" data-size="728x90">728x90 (Leaderboard)</div>
@@ -61,61 +66,77 @@
                         <div class="ad-size-option" data-size="custom">Custom Size</div>
                     </div>
                     <div id="custom-size-container">
-                        <div class="custom-size-inputs">
+                        <div class="size-inputs">
                             <input type="number" id="custom-width" placeholder="Width" min="50">
                             <input type="number" id="custom-height" placeholder="Height" min="50">
                         </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="ad-image">Image URL</label>
-                    <input type="url" id="ad-image" placeholder="https://example.com/image.jpg">
-                    <small>For banner, popup, and fullscreen ads</small>
+
+                <div class="form-row">
+                    <div class="form-group" id="media-url-container">
+                        <label for="ad-image"><i class="fas fa-image"></i> Media URL</label>
+                        <input type="url" id="ad-image" placeholder="https://example.com/image.jpg or video URL">
+                        <small>Supports: JPG, PNG, GIF, MP4, YouTube, Streamable</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="ad-link"><i class="fas fa-link"></i> Destination URL</label>
+                        <input type="url" id="ad-link" required placeholder="https://example.com">
+                    </div>
                 </div>
-                <div class="form-group" id="video-url-container">
-                    <label for="ad-video">Video URL</label>
-                    <input type="url" id="ad-video" placeholder="https://example.com/video.mp4 or YouTube embed URL">
-                    <small>For video ads (MP4, YouTube, Google Drive etc.)</small>
-                    <button type="button" id="upload-video-btn" class="upload-btn">Upload to Streamable</button>
-                </div>
+
                 <div class="form-group">
-                    <label for="ad-link">Destination URL</label>
-                    <input type="url" id="ad-link" required placeholder="https://example.com">
-                </div>
-                <div class="form-group">
-                    <label for="ad-text">Ad Text</label>
+                    <label for="ad-text"><i class="fas fa-align-left"></i> Ad Text</label>
                     <textarea id="ad-text" rows="3" placeholder="Enter your ad text here..."></textarea>
                 </div>
-                <div class="form-group">
-                    <label>Background Color</label>
-                    <div class="color-picker">
-                        <div class="color-option selected" style="background-color: #ffffff;" data-color="#ffffff"></div>
-                        <div class="color-option" style="background-color: #000000;" data-color="#000000"></div>
-                        <div class="color-option" style="background-color: #4361ee;" data-color="#4361ee"></div>
-                        <div class="color-option" style="background-color: #3a0ca3;" data-color="#3a0ca3"></div>
-                        <div class="color-option" style="background-color: #f72585;" data-color="#f72585"></div>
-                        <input type="color" id="custom-color">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-palette"></i> Background Color</label>
+                        <div class="color-picker">
+                            <div class="color-option selected" style="background-color: #1a237e;" data-color="#1a237e"></div>
+                            <div class="color-option" style="background-color: #0d47a1;" data-color="#0d47a1"></div>
+                            <div class="color-option" style="background-color: #1565c0;" data-color="#1565c0"></div>
+                            <div class="color-option" style="background-color: #1976d2;" data-color="#1976d2"></div>
+                            <div class="color-option" style="background-color: #2196f3;" data-color="#2196f3"></div>
+                            <input type="color" id="custom-color">
+                        </div>
+                        <input type="hidden" id="bg-color" value="#1a237e">
                     </div>
-                    <input type="hidden" id="bg-color" value="#ffffff">
+
+                    <div class="form-group">
+                        <label for="text-color"><i class="fas fa-font"></i> Text Color</label>
+                        <div class="color-picker">
+                            <div class="color-option selected" style="background-color: #ffffff;" data-color="#ffffff"></div>
+                            <div class="color-option" style="background-color: #000000;" data-color="#000000"></div>
+                            <div class="color-option" style="background-color: #f5f5f5;" data-color="#f5f5f5"></div>
+                            <div class="color-option" style="background-color: #ffeb3b;" data-color="#ffeb3b"></div>
+                            <div class="color-option" style="background-color: #4caf50;" data-color="#4caf50"></div>
+                            <input type="color" id="custom-text-color" value="#ffffff">
+                        </div>
+                        <input type="hidden" id="text-color" value="#ffffff">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="ad-duration">Display Duration (seconds)</label>
-                    <input type="number" id="ad-duration" min="1" value="5">
-                    <small>For popup and fullscreen ads</small>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="ad-duration"><i class="fas fa-clock"></i> Display Duration (seconds)</label>
+                        <input type="number" id="ad-duration" min="1" value="5">
+                    </div>
+                    <div class="form-group">
+                        <label for="ad-position"><i class="fas fa-arrows-alt"></i> Position</label>
+                        <select id="ad-position">
+                            <option value="center">Center</option>
+                            <option value="top">Top</option>
+                            <option value="bottom">Bottom</option>
+                            <option value="left">Left</option>
+                            <option value="right">Right</option>
+                        </select>
+                    </div>
                 </div>
+
                 <div class="form-group">
-                    <label for="ad-position">Position</label>
-                    <select id="ad-position">
-                        <option value="center">Center</option>
-                        <option value="top">Top</option>
-                        <option value="bottom">Bottom</option>
-                        <option value="left">Left</option>
-                        <option value="right">Right</option>
-                    </select>
-                    <small>For social bar and popup ads</small>
-                </div>
-                <div class="form-group">
-                    <label for="crop-position">Crop Position</label>
+                    <label for="crop-position"><i class="fas fa-crop"></i> Crop Position</label>
                     <select id="crop-position">
                         <option value="center">Center</option>
                         <option value="top">Top</option>
@@ -123,59 +144,85 @@
                         <option value="left">Left</option>
                         <option value="right">Right</option>
                     </select>
-                    <small>For image cropping</small>
                 </div>
-                <div class="form-group" id="audio-control-container" style="display: none;">
-                    <label for="audio-control">Audio Control</label>
-                    <select id="audio-control">
-                        <option value="muted">Muted</option>
-                        <option value="unmuted">Unmuted</option>
-                    </select>
-                    <small>For video ads</small>
+
+                <div id="video-options" class="form-group" style="display: none;">
+                    <label><i class="fas fa-video"></i> Video Options</label>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="autoplay-video" checked> Autoplay
+                        </label>
+                        <label>
+                            <input type="checkbox" id="mute-video"> Mute
+                        </label>
+                        <label>
+                            <input type="checkbox" id="loop-video" checked> Loop
+                        </label>
+                    </div>
+                    <button type="button" class="secondary-btn" onclick="window.open('https://streamable.com', '_blank')">
+                        <i class="fas fa-external-link-alt"></i> Get Video from Streamable
+                    </button>
                 </div>
-                <button type="button" onclick="generateAd()">Generate Ad</button>
+
+                <div class="form-actions">
+                    <button type="button" class="primary-btn" onclick="generateAd()">
+                        <i class="fas fa-magic"></i> Generate Ad
+                    </button>
+                    <button type="button" class="secondary-btn" onclick="saveAd()">
+                        <i class="fas fa-save"></i> Save Ad
+                    </button>
+                    <button type="button" class="danger-btn" onclick="clearPreview()">
+                        <i class="fas fa-trash"></i> Clear
+                    </button>
+                </div>
             </form>
 
-            <div class="preview-container">
-                <div class="preview-title">Preview</div>
-                <div id="ad-preview" class="ad-preview">
-                    <div id="demo-ad-placeholder">
-                        <p>Your ad preview will appear here</p>
+            <div class="preview-section">
+                <div class="preview-container">
+                    <div class="preview-title">Preview</div>
+                    <div id="ad-preview" class="ad-preview">
+                        <div id="demo-ad-placeholder">
+                            <i class="fas fa-ad"></i>
+                            <p>Your ad preview will appear here</p>
+                        </div>
+                    </div>
+                    <div class="preview-actions">
+                        <button class="crop-btn" onclick="showCropTool()">
+                            <i class="fas fa-crop"></i> Crop Image
+                        </button>
+                        <button class="secondary-btn" onclick="testAd()">
+                            <i class="fas fa-play"></i> Test Ad
+                        </button>
                     </div>
                 </div>
-                <div class="preview-actions">
-                    <button class="crop-btn" onclick="showCropTool()">Crop Image</button>
-                    <button class="clear-btn" onclick="clearPreview()">Clear Preview</button>
-                </div>
-            </div>
 
-            <div class="ad-code">
-                <label>Embed Code</label>
-                <div class="code-block" id="embed-code">
-                    <p>Your ad code will appear here after generation</p>
-                </div>
-                <button class="copy-btn" onclick="copyToClipboard('embed-code')">Copy Code</button>
-            </div>
+                <div class="code-section">
+                    <div class="ad-code">
+                        <label><i class="fas fa-code"></i> Embed Code</label>
+                        <div class="code-block" id="embed-code">
+                            <p>Your ad code will appear here after generation</p>
+                        </div>
+                        <button class="copy-btn" onclick="copyToClipboard('embed-code')">
+                            <i class="fas fa-copy"></i> Copy Code
+                        </button>
+                    </div>
 
-            <div class="ad-code">
-                <label>Shareable Link</label>
-                <div class="code-block" id="short-link">
-                    <p>Your shareable link will appear here after generation</p>
+                    <div class="ad-code">
+                        <label><i class="fas fa-share-alt"></i> Shareable Link</label>
+                        <div class="code-block" id="short-link">
+                            <p>Your shareable link will appear here after generation</p>
+                        </div>
+                        <button class="copy-btn" onclick="copyToClipboard('short-link')">
+                            <i class="fas fa-copy"></i> Copy Link
+                        </button>
+                    </div>
                 </div>
-                <button class="copy-btn" onclick="copyToClipboard('short-link')">Copy Link</button>
-            </div>
-            
-            <div id="ad-script-container" style="display: none; margin-top: 20px;">
-                <div class="code-block" id="ad-script-code">
-                    <p>Ad script will appear here</p>
-                </div>
-                <button class="copy-btn" onclick="copyToClipboard('ad-script-code')">Copy Ad Script</button>
             </div>
         </div>
 
         <!-- My Ads Tab -->
         <div id="my-ads-tab" class="tab-content">
-            <h2>My Saved Ads</h2>
+            <h2><i class="fas fa-folder-open"></i> My Saved Ads</h2>
             <div id="ads-list" class="ads-list">
                 <p>No ads saved yet. Create your first ad!</p>
             </div>
@@ -183,40 +230,51 @@
 
         <!-- Help Tab -->
         <div id="help-tab" class="tab-content">
-            <h2>Help & Instructions</h2>
-            <div class="form-group">
-                <h3>How to Use</h3>
-                <ol>
-                    <li>Select the type of ad you want to create</li>
-                    <li>Fill in the required details (image/video URL, destination URL, etc.)</li>
-                    <li>Customize the appearance (size, color, position)</li>
-                    <li>Use the crop tool to adjust image positioning</li>
-                    <li>Click "Generate Ad" to create your ad</li>
-                    <li>Copy the embed code or shareable link to use your ad</li>
-                </ol>
-                <h3>Ad Types</h3>
-                <ul>
-                    <li><strong>Banner Ad:</strong> Standard display ad in various sizes</li>
-                    <li><strong>Video Ad:</strong> Auto-play video ad (supports YouTube, MP4, Google Drive, Streamable)</li>
-                    <li><strong>Social Bar:</strong> Floating bar with call-to-action</li>
-                    <li><strong>Popup Ad:</strong> Appears after a delay or user action</li>
-                    <li><strong>Fullscreen Ad:</strong> Covers the entire viewport</li>
-                </ul>
-                <h3>Video Ad Features</h3>
-                <ul>
-                    <li>Supports Streamable.com for easy video hosting</li>
-                    <li>Audio control (muted/unmuted)</li>
-                    <li>Automatic ad display below the video when opened via link</li>
-                    <li>One-click upload button for Streamable</li>
-                </ul>
-                <h3>Tips</h3>
-                <ul>
-                    <li>Use high-quality images for best results</li>
-                    <li>Keep video ads short (5-15 seconds recommended)</li>
-                    <li>Test your ads on different devices</li>
-                    <li>Use the crop tool to perfect image positioning</li>
-                    <li>Save your ads for future editing</li>
-                </ul>
+            <h2><i class="fas fa-question-circle"></i> Help & Instructions</h2>
+            <div class="help-content">
+                <div class="help-section">
+                    <h3><i class="fas fa-play-circle"></i> Video Ad Features</h3>
+                    <ul>
+                        <li><strong>Autoplay with Sound:</strong> Videos play automatically with sound (unless muted)</li>
+                        <li><strong>Streamable Support:</strong> Use videos from Streamable.com with direct embedding</li>
+                        <li><strong>YouTube Integration:</strong> Supports YouTube videos with autoplay</li>
+                        <li><strong>MP4 Videos:</strong> Direct MP4 links are supported for custom videos</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h3><i class="fas fa-cogs"></i> How to Use</h3>
+                    <ol>
+                        <li>Select the type of ad you want to create</li>
+                        <li>Fill in the required details (image/video URL, destination URL, etc.)</li>
+                        <li>Customize the appearance (size, color, position)</li>
+                        <li>Use the crop tool to adjust image positioning</li>
+                        <li>Click "Generate Ad" to create your ad</li>
+                        <li>Copy the embed code or shareable link to use your ad</li>
+                    </ol>
+                </div>
+
+                <div class="help-section">
+                    <h3><i class="fas fa-ad"></i> Ad Types</h3>
+                    <ul>
+                        <li><strong>Banner Ad:</strong> Standard display ad in various sizes</li>
+                        <li><strong>Video Ad:</strong> Auto-play video ad with sound (supports YouTube, MP4, Streamable)</li>
+                        <li><strong>Social Bar:</strong> Floating bar with call-to-action</li>
+                        <li><strong>Popup Ad:</strong> Appears after a delay or user action</li>
+                        <li><strong>Fullscreen Ad:</strong> Covers the entire viewport</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h3><i class="fas fa-lightbulb"></i> Tips</h3>
+                    <ul>
+                        <li>Use high-quality images (minimum 72 DPI)</li>
+                        <li>Keep video ads short (5-15 seconds recommended)</li>
+                        <li>Test your ads on different devices before publishing</li>
+                        <li>Use contrasting colors for text and background</li>
+                        <li>Save your ads for future editing and reuse</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -225,44 +283,28 @@
     <div id="crop-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="hideCropTool()">&times;</span>
-            <h2>Crop Image</h2>
+            <h2><i class="fas fa-crop"></i> Crop Image</h2>
             <div class="crop-container">
                 <div id="crop-preview">
                     <img id="crop-image" src="">
                 </div>
                 <div class="crop-controls">
-                    <label for="crop-zoom">Zoom:</label>
+                    <label for="crop-zoom"><i class="fas fa-search"></i> Zoom:</label>
                     <input type="range" id="crop-zoom" min="1" max="3" step="0.1" value="1">
-                    <button onclick="applyCrop()">Apply Crop</button>
+                    <button class="primary-btn" onclick="applyCrop()">
+                        <i class="fas fa-check"></i> Apply Crop
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Streamable Upload Modal -->
-    <div id="streamable-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="hideStreamableModal()">&times;</span>
-            <h2>Upload Video to Streamable</h2>
-            <div class="form-group">
-                <label for="video-file">Select Video File</label>
-                <input type="file" id="video-file" accept="video/*">
-                <small>Max file size: 250MB</small>
-            </div>
-            <div class="form-group">
-                <label for="streamable-title">Video Title (optional)</label>
-                <input type="text" id="streamable-title" placeholder="My Video Ad">
-            </div>
-            <button id="upload-streamable-btn" onclick="uploadToStreamable()">Upload Video</button>
-            <div id="streamable-progress" style="margin-top: 15px; display: none;">
-                <progress id="upload-progress" value="0" max="100"></progress>
-                <p id="upload-status">Uploading...</p>
-            </div>
-            <div id="streamable-result" style="margin-top: 15px; display: none;">
-                <p>Upload successful! Your video URL:</p>
-                <input type="text" id="streamable-url" readonly>
-                <button onclick="useStreamableUrl()">Use This URL</button>
-            </div>
+    <!-- Ad Test Modal -->
+    <div id="test-modal" class="modal">
+        <div class="modal-content" style="max-width: 90%; max-height: 90%;">
+            <span class="close-btn" onclick="hideTestModal()">&times;</span>
+            <h2><i class="fas fa-play-circle"></i> Testing Your Ad</h2>
+            <div id="test-ad-container" style="width: 100%; height: 80%;"></div>
         </div>
     </div>
 
