@@ -3,6 +3,60 @@ let ads = JSON.parse(localStorage.getItem('makeMyAds')) || [];
 let currentAdId = null;
 let currentCropSettings = { x: 0, y: 0, zoom: 1 };
 
+// Demo ad scripts for preview
+const demoAds = {
+    '300x250': `<script type="text/javascript">
+        atOptions = {
+            'key': '03e7c2c2519ccd98f477369bfbbb04d2',
+            'format': 'iframe',
+            'height': 250,
+            'width': 300,
+            'params': {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/03e7c2c2519ccd98f477369bfbbb04d2/invoke.js"></script>`,
+    '728x90': `<script type="text/javascript">
+        atOptions = {
+            'key': 'c949739cfbc90099b78fd03e56e0c06f',
+            'format': 'iframe',
+            'height': 90,
+            'width': 728,
+            'params': {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/c949739cfbc90099b78fd03e56e0c06f/invoke.js"></script>`,
+    '160x600': `<script type="text/javascript">
+        atOptions = {
+            'key': '8fff0980e1aa6080d86d59920876bf50',
+            'format': 'iframe',
+            'height': 600,
+            'width': 160,
+            'params': {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/8fff0980e1aa6080d86d59920876bf50/invoke.js"></script>`,
+    '320x50': `<script type="text/javascript">
+        atOptions = {
+            'key': 'a481763decb23c81da5296aea54b0fd9',
+            'format': 'iframe',
+            'height': 50,
+            'width': 320,
+            'params': {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/a481763decb23c81da5296aea54b0fd9/invoke.js"></script>`,
+    '468x60': `<script type="text/javascript">
+        atOptions = {
+            'key': 'dafe8afc0b0266d5b95a198608249118',
+            'format': 'iframe',
+            'height': 60,
+            'width': 468,
+            'params': {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/dafe8afc0b0266d5b95a198608249118/invoke.js"></script>`
+};
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     // Load saved ads
@@ -20,11 +74,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize size options
     initSizeOptions();
     
-    // Show demo ad in preview
-    showDemoAd();
-    
-    // Load demo ads in help section
+    // Load demo ads in preview and help section
     loadDemoAds();
+    
+    // Set up demo ad in preview based on selected size
+    updateDemoAdInPreview();
 });
 
 // Set up event listeners
@@ -52,6 +106,13 @@ function setupEventListeners() {
         document.getElementById(id).addEventListener('input', updatePreview);
         document.getElementById(id).addEventListener('change', updatePreview);
     });
+    
+    // Size change should update demo ad in preview
+    document.querySelectorAll('.ad-size-option').forEach(option => {
+        option.addEventListener('click', function() {
+            updateDemoAdInPreview();
+        });
+    });
 }
 
 // Initialize color picker
@@ -75,81 +136,82 @@ function initSizeOptions() {
                 const [width, height] = this.dataset.size.split('x');
                 document.getElementById('ad-preview').style.width = `${width}px`;
                 document.getElementById('ad-preview').style.height = `${height}px`;
-                updatePreview();
             }
+            
+            updateDemoAdInPreview();
         });
     });
     
     // Custom size inputs
     document.getElementById('custom-width').addEventListener('input', function() {
         document.getElementById('ad-preview').style.width = `${this.value}px`;
-        updatePreview();
+        updateDemoAdInPreview();
     });
     
     document.getElementById('custom-height').addEventListener('input', function() {
         document.getElementById('ad-preview').style.height = `${this.value}px`;
-        updatePreview();
+        updateDemoAdInPreview();
     });
 }
 
-// Load demo ads in help section
+// Load demo ads in help section and preview
 function loadDemoAds() {
-    // 300x250 Demo Ad
-    document.getElementById('demo-ad-300x250').innerHTML = `
-<div style="width: 300px; height: 250px; background-color: #000000; position: relative; overflow: hidden; cursor: pointer;" onclick="window.open('https://example.com', '_blank')">
-    <img src="https://via.placeholder.com/300x250" style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
-    <div style="position: absolute; bottom: 0; left: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 10px; text-align: center;">
-        Demo Ad - 300x250
-    </div>
-</div>`.trim();
-
-    // 728x90 Demo Ad
-    document.getElementById('demo-ad-728x90').innerHTML = `
-<div style="width: 728px; height: 90px; background-color: #000000; position: relative; overflow: hidden; cursor: pointer;" onclick="window.open('https://example.com', '_blank')">
-    <img src="https://via.placeholder.com/728x90" style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
-    <div style="position: absolute; bottom: 0; left: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 5px; text-align: center;">
-        Demo Ad - 728x90
-    </div>
-</div>`.trim();
-
-    // 320x50 Demo Ad
-    document.getElementById('demo-ad-320x50').innerHTML = `
-<div style="width: 320px; height: 50px; background-color: #000000; position: relative; overflow: hidden; cursor: pointer;" onclick="window.open('https://example.com', '_blank')">
-    <img src="https://via.placeholder.com/320x50" style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
-    <div style="position: absolute; bottom: 0; left: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 3px; text-align: center; font-size: 12px;">
-        Demo Ad - 320x50
-    </div>
-</div>`.trim();
-
-    // 468x60 Demo Ad
-    document.getElementById('demo-ad-468x60').innerHTML = `
-<div style="width: 468px; height: 60px; background-color: #000000; position: relative; overflow: hidden; cursor: pointer;" onclick="window.open('https://example.com', '_blank')">
-    <img src="https://via.placeholder.com/468x60" style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
-    <div style="position: absolute; bottom: 0; left: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 5px; text-align: center;">
-        Demo Ad - 468x60
-    </div>
-</div>`.trim();
+    // Load demo ads in help section
+    document.getElementById('demo-ad-300x250').innerHTML = demoAds['300x250'];
+    document.getElementById('demo-ad-728x90').innerHTML = demoAds['728x90'];
+    document.getElementById('demo-ad-320x50').innerHTML = demoAds['320x50'];
+    document.getElementById('demo-ad-468x60').innerHTML = demoAds['468x60'];
 }
 
-// Show demo ad in preview
-function showDemoAd() {
+// Update demo ad in preview based on selected size
+function updateDemoAdInPreview() {
+    const selectedSize = document.querySelector('.ad-size-option.selected').dataset.size;
     const preview = document.getElementById('ad-preview');
-    preview.innerHTML = `
-        <div style="width: 100%; height: 100%; background-color: #f0f0f0; display: flex; justify-content: center; align-items: center; flex-direction: column; padding: 20px; text-align: center;">
-            <h3 style="margin-bottom: 10px; color: #4361ee;">MakeMyAd Preview</h3>
-            <p>Your ad preview will appear here when you add content.</p>
-            <p style="margin-top: 10px; font-size: 12px; color: #666;">Try adding an image or video URL to see the preview.</p>
-        </div>
-    `;
+    const demoPlaceholder = document.getElementById('demo-ad-placeholder');
+    
+    // Only show demo ad if no user content is added
+    if (!document.getElementById('ad-image').value && !document.getElementById('ad-video').value) {
+        if (demoAds[selectedSize]) {
+            preview.innerHTML = `<div style="width:100%;height:100%;">${demoAds[selectedSize]}</div>`;
+            
+            // Execute the demo ad script
+            const scripts = preview.getElementsByTagName('script');
+            for (let i = 0; i < scripts.length; i++) {
+                if (scripts[i].src) {
+                    const script = document.createElement('script');
+                    script.src = scripts[i].src;
+                    preview.appendChild(script);
+                } else {
+                    eval(scripts[i].innerHTML);
+                }
+            }
+        } else {
+            // Default demo content for custom size
+            if (demoPlaceholder) {
+                demoPlaceholder.innerHTML = '<p>Your ad preview will appear here</p>';
+            } else {
+                preview.innerHTML = '<div style="width:100%;height:100%;display:flex;justify-content:center;align-items:center;"><p>Your ad preview will appear here</p></div>';
+            }
+        }
+    }
 }
 
 // Clear preview
 function clearPreview() {
     const preview = document.getElementById('ad-preview');
     preview.innerHTML = '';
-    showDemoAd();
     document.getElementById('embed-code').innerHTML = '<p>Your ad code will appear here after generation</p>';
-    document.getElementById('short-link').innerHTML = '<p>Your short link will appear here after generation</p>';
+    document.getElementById('shareable-link').innerHTML = '<p>Your shareable link will appear here after generation</p>';
+    
+    // Reset form fields
+    document.getElementById('ad-form').reset();
+    document.getElementById('bg-color').value = '#ffffff';
+    document.querySelector('.color-option[data-color="#ffffff"]').classList.add('selected');
+    document.querySelector('.color-option[data-color="#ffffff"]').classList.remove('selected');
+    document.querySelector('.color-option[data-color="#ffffff"]').classList.add('selected');
+    
+    // Show demo ad again
+    updateDemoAdInPreview();
 }
 
 // Tab navigation
@@ -173,12 +235,10 @@ function updateFormFields() {
     const adType = document.getElementById('ad-type').value;
     
     // Show/hide video URL field
-    document.getElementById('video-url-container').style.display = 
-        adType === 'video' ? 'block' : 'none';
+    document.getElementById('video-url-container').style.display = adType === 'video' ? 'block' : 'none';
     
     // Show/hide size options for certain ad types
-    document.getElementById('size-container').style.display = 
-        adType === 'social' || adType === 'fullscreen' ? 'none' : 'block';
+    document.getElementById('size-container').style.display = adType === 'social' || adType === 'fullscreen' ? 'none' : 'block';
     
     // Update preview
     updatePreview();
@@ -195,6 +255,12 @@ function updatePreview() {
     const adVideo = document.getElementById('ad-video').value;
     const position = document.getElementById('ad-position').value;
     const cropPosition = document.getElementById('crop-position').value;
+    
+    // If no user content, show demo ad
+    if (!adImage && !adVideo) {
+        updateDemoAdInPreview();
+        return;
+    }
     
     // Set background color
     preview.style.backgroundColor = bgColor;
@@ -233,7 +299,6 @@ function updatePreview() {
         case 'video':
             if (adVideo) {
                 let videoElement;
-                
                 if (adVideo.includes('youtube.com') || adVideo.includes('youtu.be')) {
                     // Handle YouTube URLs
                     let videoId = '';
@@ -244,7 +309,7 @@ function updatePreview() {
                     }
                     
                     if (videoId) {
-                        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0`;
+                        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}&controls=0`;
                         const iframe = document.createElement('iframe');
                         iframe.src = embedUrl;
                         iframe.style.width = '100%';
@@ -275,9 +340,10 @@ function updatePreview() {
                     videoElement.style.width = '100%';
                     videoElement.style.height = '100%';
                     videoElement.autoplay = true;
-                    videoElement.muted = true;
+                    videoElement.muted = false;
                     videoElement.loop = true;
                     videoElement.playsInline = true;
+                    videoElement.controls = true;
                     
                     // Make the entire video clickable
                     videoElement.style.cursor = 'pointer';
@@ -292,7 +358,6 @@ function updatePreview() {
             
         case 'social':
             const isVertical = position === 'left' || position === 'right';
-            
             const socialBar = document.createElement('div');
             socialBar.style.position = 'absolute';
             socialBar.style.width = isVertical ? '50px' : '100%';
@@ -365,12 +430,18 @@ function updatePreview() {
             closeButton.style.position = 'absolute';
             closeButton.style.top = '5px';
             closeButton.style.right = '5px';
-            closeButton.style.backgroundColor = 'transparent';
+            closeButton.style.backgroundColor = '#000';
+            closeButton.style.color = '#fff';
             closeButton.style.border = 'none';
             closeButton.style.fontSize = '16px';
             closeButton.style.cursor = 'pointer';
-            popup.appendChild(closeButton);
+            closeButton.onclick = function(e) {
+                e.stopPropagation();
+                preview.innerHTML = '';
+                updateDemoAdInPreview();
+            };
             
+            popup.appendChild(closeButton);
             popup.style.cursor = 'pointer';
             popup.onclick = function() {
                 window.open(adLink, '_blank');
@@ -422,9 +493,11 @@ function updatePreview() {
             skipButton.style.cursor = 'pointer';
             skipButton.onclick = function(e) {
                 e.stopPropagation();
+                preview.innerHTML = '';
+                updateDemoAdInPreview();
             };
-            fullscreenContent.appendChild(skipButton);
             
+            fullscreenContent.appendChild(skipButton);
             fullscreenContent.style.cursor = 'pointer';
             fullscreenContent.onclick = function() {
                 window.open(adLink, '_blank');
@@ -453,7 +526,6 @@ function showCropTool() {
     
     const modal = document.getElementById('crop-modal');
     const cropImage = document.getElementById('crop-image');
-    
     cropImage.src = adImage;
     cropImage.style.left = '0';
     cropImage.style.top = '0';
@@ -465,18 +537,10 @@ function showCropTool() {
     let initialX = 0, initialY = 0;
     
     switch(cropPosition) {
-        case 'top':
-            initialY = '-25%';
-            break;
-        case 'bottom':
-            initialY = '25%';
-            break;
-        case 'left':
-            initialX = '-25%';
-            break;
-        case 'right':
-            initialX = '25%';
-            break;
+        case 'top': initialY = '-25%'; break;
+        case 'bottom': initialY = '25%'; break;
+        case 'left': initialX = '-25%'; break;
+        case 'right': initialX = '25%'; break;
     }
     
     cropImage.style.left = initialX;
@@ -505,10 +569,8 @@ function showCropTool() {
     
     document.addEventListener('mousemove', function(e) {
         if (!isDragging) return;
-        
         currentCropSettings.x = e.clientX - startX;
         currentCropSettings.y = e.clientY - startY;
-        
         cropImage.style.left = `${currentCropSettings.x}px`;
         cropImage.style.top = `${currentCropSettings.y}px`;
     });
@@ -527,10 +589,8 @@ function showCropTool() {
     
     document.addEventListener('touchmove', function(e) {
         if (!isDragging) return;
-        
         currentCropSettings.x = e.touches[0].clientX - startX;
         currentCropSettings.y = e.touches[0].clientY - startY;
-        
         cropImage.style.left = `${currentCropSettings.x}px`;
         cropImage.style.top = `${currentCropSettings.y}px`;
         e.preventDefault();
@@ -655,9 +715,9 @@ function generateAd() {
     // Save to localStorage
     localStorage.setItem('makeMyAds', JSON.stringify(ads));
     
-    // Generate embed code and short link
+    // Generate embed code and shareable link
     generateEmbedCode(ad);
-    generateShortLink(ad);
+    generateShareableLink(ad);
     
     // Reload saved ads list
     loadSavedAds();
@@ -693,7 +753,7 @@ function generateEmbedCode(ad) {
                 }
                 
                 if (videoId) {
-                    const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0`;
+                    const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}&controls=0`;
                     embedCode = `
 <div style="width: ${ad.width}px; height: ${ad.height}px; position: relative;">
     <iframe src="${embedUrl}" style="width: 100%; height: 100%; border: none;"></iframe>
@@ -704,7 +764,7 @@ function generateEmbedCode(ad) {
                 // Direct video embed code
                 embedCode = `
 <div style="width: ${ad.width}px; height: ${ad.height}px; position: relative; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')">
-    <video style="width: 100%; height: 100%;" autoplay muted loop playsinline>
+    <video style="width: 100%; height: 100%;" autoplay muted loop playsinline controls>
         <source src="${ad.video}" type="video/mp4">
         Your browser does not support the video tag.
     </video>
@@ -714,7 +774,6 @@ function generateEmbedCode(ad) {
             
         case 'social':
             const isVertical = ad.position === 'left' || ad.position === 'right';
-            
             embedCode = `
 <div style="position: fixed; ${ad.position}: 0; ${isVertical ? 'width: 50px; height: 100%;' : 'width: 100%; height: 50px;'} background-color: ${ad.bgColor}; display: flex; ${isVertical ? 'flex-direction: column;' : ''} align-items: center; justify-content: center; z-index: 1000;">
     <button style="padding: 8px 15px; background-color: #4361ee; color: white; border: none; border-radius: 4px; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')">
@@ -767,7 +826,8 @@ function generateEmbedCode(ad) {
         closeButton.style.position = 'absolute';
         closeButton.style.top = '5px';
         closeButton.style.right = '5px';
-        closeButton.style.backgroundColor = 'transparent';
+        closeButton.style.backgroundColor = '#000';
+        closeButton.style.color = '#fff';
         closeButton.style.border = 'none';
         closeButton.style.fontSize = '16px';
         closeButton.style.cursor = 'pointer';
@@ -868,10 +928,33 @@ function generateEmbedCode(ad) {
     document.getElementById('embed-code').textContent = embedCode.trim();
 }
 
-// Generate short link for the ad
-function generateShortLink(ad) {
-    const shortLink = `${window.location.origin}${window.location.pathname}#/ad${ad.id}`;
-    document.getElementById('short-link').textContent = shortLink;
+// Generate shareable link for the ad
+function generateShareableLink(ad) {
+    // Create a data URL with the ad information
+    const adData = {
+        id: ad.id,
+        name: ad.name,
+        type: ad.type,
+        width: ad.width,
+        height: ad.height,
+        image: ad.image,
+        video: ad.video,
+        link: ad.link,
+        text: ad.text,
+        bgColor: ad.bgColor,
+        duration: ad.duration,
+        position: ad.position,
+        cropPosition: ad.cropPosition
+    };
+    
+    // Convert to base64
+    const jsonData = JSON.stringify(adData);
+    const base64Data = btoa(encodeURIComponent(jsonData));
+    
+    // Create shareable URL
+    const shareableUrl = `${window.location.origin}${window.location.pathname}#/ad/${base64Data}`;
+    
+    document.getElementById('shareable-link').textContent = shareableUrl;
 }
 
 // Load saved ads
@@ -887,7 +970,6 @@ function loadSavedAds() {
     ads.forEach(ad => {
         const adItem = document.createElement('div');
         adItem.className = 'ad-item';
-        
         adItem.innerHTML = `
             <div class="ad-item-info">
                 <h3>${ad.name}</h3>
@@ -899,7 +981,6 @@ function loadSavedAds() {
                 <button class="delete-btn" onclick="deleteAd('${ad.id}')">Delete</button>
             </div>
         `;
-        
         adsList.appendChild(adItem);
     });
 }
@@ -956,9 +1037,9 @@ function editAd(adId) {
     // Update preview
     updatePreview();
     
-    // Generate embed code and short link
+    // Generate embed code and shareable link
     generateEmbedCode(ad);
-    generateShortLink(ad);
+    generateShareableLink(ad);
     
     // Switch to create tab
     document.querySelector('.tab').click();
@@ -1052,7 +1133,7 @@ function viewAd(adId) {
                     }
                     
                     if (videoId) {
-                        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0`;
+                        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}&controls=0`;
                         const iframe = document.createElement('iframe');
                         iframe.src = embedUrl;
                         iframe.style.width = '100%';
@@ -1083,13 +1164,15 @@ function viewAd(adId) {
                     video.style.width = '100%';
                     video.style.height = '100%';
                     video.autoplay = true;
-                    video.muted = true;
+                    video.muted = false;
                     video.loop = true;
                     video.playsInline = true;
+                    video.controls = true;
                     video.style.cursor = 'pointer';
                     video.onclick = function() {
                         window.open(ad.link, '_blank');
                     };
+                    
                     adContainer.appendChild(video);
                 }
             }
@@ -1097,7 +1180,6 @@ function viewAd(adId) {
             
         case 'social':
             const isVertical = ad.position === 'left' || ad.position === 'right';
-            
             const socialBar = document.createElement('div');
             socialBar.style.position = 'absolute';
             socialBar.style.width = isVertical ? '50px' : '100%';
@@ -1209,6 +1291,7 @@ function viewAd(adId) {
                 e.stopPropagation();
                 document.body.removeChild(preview);
             };
+            
             adContainer.appendChild(skipButton);
             break;
     }
@@ -1227,7 +1310,7 @@ function deleteAd(adId) {
             currentAdId = null;
             document.getElementById('ad-form').reset();
             document.getElementById('embed-code').textContent = '';
-            document.getElementById('short-link').textContent = '';
+            document.getElementById('shareable-link').textContent = '';
         }
         
         loadSavedAds();
@@ -1246,10 +1329,7 @@ function copyToClipboard(elementId) {
     
     // Show feedback
     const originalText = elementId === 'embed-code' ? 'Copy Code' : 'Copy Link';
-    const button = elementId === 'embed-code' 
-        ? document.querySelector('.copy-btn') 
-        : document.querySelectorAll('.copy-btn')[1];
-    
+    const button = elementId === 'embed-code' ? document.querySelector('.copy-btn') : document.querySelectorAll('.copy-btn')[1];
     button.textContent = 'Copied!';
     setTimeout(() => {
         button.textContent = originalText;
@@ -1259,7 +1339,292 @@ function copyToClipboard(elementId) {
 // Check for hash routing
 function checkHashRouting() {
     const hash = window.location.hash;
-    if (hash.startsWith('#/ad')) {
+    
+    if (hash.startsWith('#/ad/')) {
+        // This is a shareable link with base64 data
+        const base64Data = hash.replace('#/ad/', '');
+        try {
+            const jsonData = decodeURIComponent(atob(base64Data));
+            const adData = JSON.parse(jsonData);
+            
+            // Create a temporary preview container
+            const preview = document.createElement('div');
+            preview.style.position = 'fixed';
+            preview.style.top = '0';
+            preview.style.left = '0';
+            preview.style.width = '100%';
+            preview.style.height = '100%';
+            preview.style.backgroundColor = 'rgba(0,0,0,0.8)';
+            preview.style.zIndex = '1000';
+            preview.style.display = 'flex';
+            preview.style.justifyContent = 'center';
+            preview.style.alignItems = 'center';
+            
+            // Create close button
+            const closeButton = document.createElement('button');
+            closeButton.textContent = 'X';
+            closeButton.style.position = 'absolute';
+            closeButton.style.top = '20px';
+            closeButton.style.right = '20px';
+            closeButton.style.backgroundColor = 'white';
+            closeButton.style.border = 'none';
+            closeButton.style.borderRadius = '50%';
+            closeButton.style.width = '40px';
+            closeButton.style.height = '40px';
+            closeButton.style.fontSize = '20px';
+            closeButton.style.cursor = 'pointer';
+            closeButton.onclick = function() {
+                document.body.removeChild(preview);
+                window.location.hash = '';
+            };
+            preview.appendChild(closeButton);
+            
+            // Create ad container
+            const adContainer = document.createElement('div');
+            adContainer.style.width = adData.type === 'fullscreen' ? '100%' : `${adData.width}${typeof adData.width === 'string' ? '' : 'px'}`;
+            adContainer.style.height = adData.type === 'fullscreen' ? '100vh' : `${adData.height}${typeof adData.height === 'string' ? '' : 'px'}`;
+            adContainer.style.backgroundColor = adData.bgColor;
+            adContainer.style.position = 'relative';
+            adContainer.style.overflow = 'hidden';
+            adContainer.style.cursor = 'pointer';
+            adContainer.onclick = function() {
+                window.open(adData.link, '_blank');
+            };
+            
+            // Render ad based on type
+            switch(adData.type) {
+                case 'banner':
+                    if (adData.image) {
+                        const img = document.createElement('img');
+                        img.src = adData.image;
+                        img.style.width = '100%';
+                        img.style.height = '100%';
+                        img.style.objectFit = 'cover';
+                        img.style.objectPosition = adData.cropPosition;
+                        adContainer.appendChild(img);
+                    }
+                    
+                    if (adData.text) {
+                        const textDiv = document.createElement('div');
+                        textDiv.textContent = adData.text;
+                        textDiv.style.position = 'absolute';
+                        textDiv.style.bottom = '0';
+                        textDiv.style.left = '0';
+                        textDiv.style.right = '0';
+                        textDiv.style.backgroundColor = 'rgba(0,0,0,0.7)';
+                        textDiv.style.color = 'white';
+                        textDiv.style.padding = '10px';
+                        textDiv.style.textAlign = 'center';
+                        adContainer.appendChild(textDiv);
+                    }
+                    break;
+                    
+                case 'video':
+                    if (adData.video) {
+                        if (adData.video.includes('youtube.com') || adData.video.includes('youtu.be')) {
+                            // Handle YouTube URLs
+                            let videoId = '';
+                            if (adData.video.includes('youtube.com/watch?v=')) {
+                                videoId = adData.video.split('v=')[1].split('&')[0];
+                            } else if (adData.video.includes('youtu.be/')) {
+                                videoId = adData.video.split('youtu.be/')[1].split('?')[0];
+                            }
+                            
+                            if (videoId) {
+                                const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}&controls=0`;
+                                const iframe = document.createElement('iframe');
+                                iframe.src = embedUrl;
+                                iframe.style.width = '100%';
+                                iframe.style.height = '100%';
+                                iframe.frameBorder = '0';
+                                iframe.allow = 'autoplay; encrypted-media';
+                                iframe.allowFullscreen = true;
+                                
+                                // Add clickable overlay
+                                const overlay = document.createElement('div');
+                                overlay.style.position = 'absolute';
+                                overlay.style.top = '0';
+                                overlay.style.left = '0';
+                                overlay.style.width = '100%';
+                                overlay.style.height = '100%';
+                                overlay.style.cursor = 'pointer';
+                                overlay.onclick = function() {
+                                    window.open(adData.link, '_blank');
+                                };
+                                
+                                adContainer.appendChild(iframe);
+                                adContainer.appendChild(overlay);
+                            }
+                        } else {
+                            // Handle direct video URLs
+                            const video = document.createElement('video');
+                            video.src = adData.video;
+                            video.style.width = '100%';
+                            video.style.height = '100%';
+                            video.autoplay = true;
+                            video.muted = false;
+                            video.loop = true;
+                            video.playsInline = true;
+                            video.controls = true;
+                            video.style.cursor = 'pointer';
+                            video.onclick = function() {
+                                window.open(adData.link, '_blank');
+                            };
+                            
+                            adContainer.appendChild(video);
+                        }
+                    }
+                    break;
+                    
+                case 'social':
+                    const isVertical = adData.position === 'left' || adData.position === 'right';
+                    const socialBar = document.createElement('div');
+                    socialBar.style.position = 'absolute';
+                    socialBar.style.width = isVertical ? '50px' : '100%';
+                    socialBar.style.height = isVertical ? '100%' : '50px';
+                    socialBar.style.backgroundColor = adData.bgColor;
+                    socialBar.style.display = 'flex';
+                    socialBar.style.flexDirection = isVertical ? 'column' : 'row';
+                    socialBar.style.alignItems = 'center';
+                    socialBar.style.justifyContent = 'center';
+                    
+                    if (adData.position === 'top') {
+                        socialBar.style.top = '0';
+                    } else if (adData.position === 'bottom') {
+                        socialBar.style.bottom = '0';
+                    } else if (adData.position === 'left') {
+                        socialBar.style.left = '0';
+                    } else if (adData.position === 'right') {
+                        socialBar.style.right = '0';
+                    }
+                    
+                    const ctaButton = document.createElement('button');
+                    ctaButton.textContent = adData.text || 'Click Here';
+                    ctaButton.style.padding = '8px 15px';
+                    ctaButton.style.backgroundColor = '#4361ee';
+                    ctaButton.style.color = 'white';
+                    ctaButton.style.border = 'none';
+                    ctaButton.style.borderRadius = '4px';
+                    ctaButton.style.cursor = 'pointer';
+                    ctaButton.onclick = function() {
+                        window.open(adData.link, '_blank');
+                    };
+                    
+                    socialBar.appendChild(ctaButton);
+                    adContainer.appendChild(socialBar);
+                    break;
+                    
+                case 'popup':
+                    const popupContent = document.createElement('div');
+                    popupContent.style.width = '80%';
+                    popupContent.style.height = '80%';
+                    popupContent.style.backgroundColor = adData.bgColor;
+                    popupContent.style.padding = '20px';
+                    popupContent.style.position = 'relative';
+                    
+                    if (adData.image) {
+                        const img = document.createElement('img');
+                        img.src = adData.image;
+                        img.style.maxWidth = '100%';
+                        img.style.maxHeight = '70%';
+                        img.style.display = 'block';
+                        img.style.margin = '0 auto';
+                        img.style.objectPosition = adData.cropPosition;
+                        popupContent.appendChild(img);
+                    }
+                    
+                    if (adData.text) {
+                        const textDiv = document.createElement('div');
+                        textDiv.textContent = adData.text;
+                        textDiv.style.marginTop = '15px';
+                        textDiv.style.textAlign = 'center';
+                        popupContent.appendChild(textDiv);
+                    }
+                    
+                    const closeButtonPopup = document.createElement('button');
+                    closeButtonPopup.textContent = 'X';
+                    closeButtonPopup.style.position = 'absolute';
+                    closeButtonPopup.style.top = '5px';
+                    closeButtonPopup.style.right = '5px';
+                    closeButtonPopup.style.backgroundColor = '#000';
+                    closeButtonPopup.style.color = '#fff';
+                    closeButtonPopup.style.border = 'none';
+                    closeButtonPopup.style.fontSize = '16px';
+                    closeButtonPopup.style.cursor = 'pointer';
+                    closeButtonPopup.onclick = function(e) {
+                        e.stopPropagation();
+                        document.body.removeChild(preview);
+                        window.location.hash = '';
+                    };
+                    
+                    popupContent.appendChild(closeButtonPopup);
+                    popupContent.style.cursor = 'pointer';
+                    popupContent.onclick = function() {
+                        window.open(adData.link, '_blank');
+                    };
+                    
+                    adContainer.style.width = '100%';
+                    adContainer.style.height = '100%';
+                    adContainer.style.display = 'flex';
+                    adContainer.style.justifyContent = 'center';
+                    adContainer.style.alignItems = 'center';
+                    adContainer.appendChild(popupContent);
+                    break;
+                    
+                case 'fullscreen':
+                    if (adData.image) {
+                        const img = document.createElement('img');
+                        img.src = adData.image;
+                        img.style.width = '100%';
+                        img.style.height = '100%';
+                        img.style.objectFit = 'cover';
+                        img.style.objectPosition = adData.cropPosition;
+                        adContainer.appendChild(img);
+                    }
+                    
+                    if (adData.text) {
+                        const textDiv = document.createElement('div');
+                        textDiv.textContent = adData.text;
+                        textDiv.style.position = 'absolute';
+                        textDiv.style.bottom = '20%';
+                        textDiv.style.left = '0';
+                        textDiv.style.right = '0';
+                        textDiv.style.backgroundColor = 'rgba(0,0,0,0.7)';
+                        textDiv.style.color = 'white';
+                        textDiv.style.padding = '20px';
+                        textDiv.style.textAlign = 'center';
+                        adContainer.appendChild(textDiv);
+                    }
+                    
+                    const skipButton = document.createElement('button');
+                    skipButton.textContent = 'Skip Ad';
+                    skipButton.style.position = 'absolute';
+                    skipButton.style.bottom = '20px';
+                    skipButton.style.right = '20px';
+                    skipButton.style.padding = '8px 15px';
+                    skipButton.style.backgroundColor = 'rgba(0,0,0,0.5)';
+                    skipButton.style.color = 'white';
+                    skipButton.style.border = 'none';
+                    skipButton.style.borderRadius = '4px';
+                    skipButton.style.cursor = 'pointer';
+                    skipButton.onclick = function(e) {
+                        e.stopPropagation();
+                        document.body.removeChild(preview);
+                        window.location.hash = '';
+                    };
+                    
+                    adContainer.appendChild(skipButton);
+                    break;
+            }
+            
+            preview.appendChild(adContainer);
+            document.body.appendChild(preview);
+        } catch (e) {
+            console.error('Error parsing shareable link:', e);
+            window.location.hash = '';
+        }
+    } else if (hash.startsWith('#/ad')) {
+        // This is a link to a saved ad
         const adId = hash.replace('#/ad', '');
         const ad = ads.find(a => a.id === adId);
         
