@@ -2,7 +2,6 @@
 let ads = JSON.parse(localStorage.getItem('makeMyAds')) || [];
 let currentAdId = null;
 let currentCropSettings = { x: 0, y: 0, zoom: 1 };
-let isAudioEnabled = false;
 
 // Demo ad scripts for preview
 const demoAds = {
@@ -78,28 +77,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show demo ad in preview
     showDemoAd();
     
-    // Check if this is an ad view via link
-    if (window.location.hash.includes('ad=')) {
-        showAdFromLink();
-    }
-});
-
-// Show ad when opened via link
-function showAdFromLink() {
-    const adId = window.location.hash.split('ad=')[1];
-    const ad = ads.find(a => a.id === adId);
+    // Set up header ad click event
+    document.getElementById('header-ad').addEventListener('click', function() {
+        window.open('https://control.putulhost.com/aff.php?aff=3958', '_blank');
+    });
     
-    if (ad) {
-        // Show the ad in preview
-        displayAd(ad);
-        
-        // Show the ad code container
-        document.getElementById('ad-code-container').style.display = 'block';
-        
-        // Scroll to the preview
-        document.getElementById('ad-preview').scrollIntoView();
-    }
-}
+    // Set up Streamable upload button
+    document.getElementById('upload-video-btn').addEventListener('click', showStreamableModal);
+});
 
 // Set up event listeners
 function setupEventListeners() {
@@ -228,7 +213,7 @@ function clearPreview() {
     document.querySelector('.ad-size-option[data-size="300x250"]').click();
     document.getElementById('embed-code').innerHTML = '<p>Your ad code will appear here after generation</p>';
     document.getElementById('short-link').innerHTML = '<p>Your shareable link will appear here after generation</p>';
-    document.getElementById('ad-code-container').style.display = 'none';
+    document.getElementById('ad-script-container').style.display = 'none';
     showDemoAd();
 }
 
@@ -263,17 +248,6 @@ function updateFormFields() {
     
     // Update preview
     updatePreview();
-}
-
-// Toggle audio for video ads
-function toggleAudio(videoElement) {
-    isAudioEnabled = !isAudioEnabled;
-    videoElement.muted = !isAudioEnabled;
-    
-    const audioBtn = videoElement.parentElement.querySelector('.audio-control-btn');
-    if (audioBtn) {
-        audioBtn.innerHTML = isAudioEnabled ? '🔊' : '🔇';
-    }
 }
 
 // Update the preview based on current form values
@@ -343,7 +317,11 @@ function updatePreview() {
                     }
                     
                     if (videoId) {
-                        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${audioControl === 'muted' ? 1 : 0}&loop=1&playlist=${videoId}&controls=0`;
+                        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}&controls=0`;
+                        if (audioControl === 'muted') {
+                            embedUrl += '&mute=1';
+                        }
+                        
                         const iframe = document.createElement('iframe');
                         iframe.src = embedUrl;
                         iframe.style.width = '100%';
@@ -367,6 +345,30 @@ function updatePreview() {
                         preview.appendChild(iframe);
                         preview.appendChild(clickOverlay);
                     }
+                } else if (adVideo.includes('streamable.com')) {
+                    // Handle Streamable URLs
+                    const videoId = adVideo.split('streamable.com/')[1];
+                    const iframe = document.createElement('iframe');
+                    iframe.src = `https://streamable.com/e/${videoId}?autoplay=1&loop=1&controls=0`;
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%';
+                    iframe.frameBorder = '0';
+                    iframe.allowFullscreen = true;
+                    
+                    // Add clickable overlay for Streamable videos
+                    const clickOverlay = document.createElement('div');
+                    clickOverlay.style.position = 'absolute';
+                    clickOverlay.style.top = '0';
+                    clickOverlay.style.left = '0';
+                    clickOverlay.style.width = '100%';
+                    clickOverlay.style.height = '100%';
+                    clickOverlay.style.cursor = 'pointer';
+                    clickOverlay.onclick = function() {
+                        window.open(adLink, '_blank');
+                    };
+                    
+                    preview.appendChild(iframe);
+                    preview.appendChild(clickOverlay);
                 } else {
                     // Handle direct video URLs
                     videoElement = document.createElement('video');
@@ -374,9 +376,9 @@ function updatePreview() {
                     videoElement.style.width = '100%';
                     videoElement.style.height = '100%';
                     videoElement.autoplay = true;
-                    videoElement.muted = audioControl === 'muted';
                     videoElement.loop = true;
                     videoElement.playsInline = true;
+                    videoElement.muted = audioControl === 'muted';
                     
                     // Make the entire video clickable
                     videoElement.style.cursor = 'pointer';
@@ -384,23 +386,7 @@ function updatePreview() {
                         window.open(adLink, '_blank');
                     };
                     
-                    // Add audio control button
-                    const audioBtn = document.createElement('button');
-                    audioBtn.className = 'audio-control-btn';
-                    audioBtn.innerHTML = audioControl === 'muted' ? '🔇' : '🔊';
-                    audioBtn.onclick = function(e) {
-                        e.stopPropagation();
-                        toggleAudio(videoElement);
-                    };
-                    
-                    const videoContainer = document.createElement('div');
-                    videoContainer.style.position = 'relative';
-                    videoContainer.style.width = '100%';
-                    videoContainer.style.height = '100%';
-                    videoContainer.appendChild(videoElement);
-                    videoContainer.appendChild(audioBtn);
-                    
-                    preview.appendChild(videoContainer);
+                    preview.appendChild(videoElement);
                 }
             }
             break;
@@ -565,53 +551,12 @@ function showCropTool() {
         return;
     }
     
-    const modal = document.getElementById('crop-modal');
-    const cropImage = document.getElementById('crop-image');
-    
-    cropImage.src = adImage;
-    cropImage.style.left = '0';
-    cropImage.style.top = '0';
+    document.getElementById('crop-image').src = adImage;
+    document.getElementById('crop-modal').style.display = 'block';
     
     // Initialize crop settings
     currentCropSettings = { x: 0, y: 0, zoom: 1 };
     updateCropImage();
-    
-    // Set up drag functionality
-    let isDragging = false;
-    let startX, startY;
-    
-    cropImage.addEventListener('mousedown', function(e) {
-        isDragging = true;
-        startX = e.clientX - currentCropSettings.x;
-        startY = e.clientY - currentCropSettings.y;
-    });
-    
-    document.addEventListener('mousemove', function(e) {
-        if (!isDragging) return;
-        currentCropSettings.x = e.clientX - startX;
-        currentCropSettings.y = e.clientY - startY;
-        updateCropImage();
-    });
-    
-    document.addEventListener('mouseup', function() {
-        isDragging = false;
-    });
-    
-    // Set up zoom functionality
-    document.getElementById('crop-zoom').addEventListener('input', function() {
-        currentCropSettings.zoom = parseFloat(this.value);
-        updateCropImage();
-    });
-    
-    modal.style.display = 'block';
-}
-
-// Update crop image position and zoom
-function updateCropImage() {
-    const cropImage = document.getElementById('crop-image');
-    cropImage.style.left = `${currentCropSettings.x}px`;
-    cropImage.style.top = `${currentCropSettings.y}px`;
-    cropImage.style.transform = `scale(${currentCropSettings.zoom})`;
 }
 
 // Hide crop tool
@@ -619,26 +564,110 @@ function hideCropTool() {
     document.getElementById('crop-modal').style.display = 'none';
 }
 
-// Apply crop settings to preview
+// Update crop image based on current settings
+function updateCropImage() {
+    const img = document.getElementById('crop-image');
+    img.style.transform = `translate(${currentCropSettings.x}px, ${currentCropSettings.y}px) scale(${currentCropSettings.zoom})`;
+}
+
+// Apply crop settings
 function applyCrop() {
-    const cropPositionSelect = document.getElementById('crop-position');
+    const cropPosition = document.getElementById('crop-position');
     
-    // Determine crop position based on current settings
+    // Convert zoom and position to crop position
     if (currentCropSettings.zoom > 1) {
-        if (currentCropSettings.x < 0 && Math.abs(currentCropSettings.x) > currentCropSettings.y) {
-            cropPositionSelect.value = 'left';
-        } else if (currentCropSettings.x > 0 && currentCropSettings.x > Math.abs(currentCropSettings.y)) {
-            cropPositionSelect.value = 'right';
+        if (currentCropSettings.x < 0) {
+            cropPosition.value = 'left';
+        } else if (currentCropSettings.x > 0) {
+            cropPosition.value = 'right';
         } else if (currentCropSettings.y < 0) {
-            cropPositionSelect.value = 'top';
+            cropPosition.value = 'top';
+        } else if (currentCropSettings.y > 0) {
+            cropPosition.value = 'bottom';
         } else {
-            cropPositionSelect.value = 'bottom';
+            cropPosition.value = 'center';
         }
     } else {
-        cropPositionSelect.value = 'center';
+        cropPosition.value = 'center';
     }
     
     hideCropTool();
+    updatePreview();
+}
+
+// Show Streamable upload modal
+function showStreamableModal() {
+    document.getElementById('streamable-modal').style.display = 'block';
+    document.getElementById('streamable-result').style.display = 'none';
+    document.getElementById('streamable-progress').style.display = 'none';
+    document.getElementById('video-file').value = '';
+    document.getElementById('streamable-title').value = '';
+}
+
+// Hide Streamable upload modal
+function hideStreamableModal() {
+    document.getElementById('streamable-modal').style.display = 'none';
+}
+
+// Upload video to Streamable
+function uploadToStreamable() {
+    const fileInput = document.getElementById('video-file');
+    const titleInput = document.getElementById('streamable-title');
+    
+    if (!fileInput.files || fileInput.files.length === 0) {
+        alert('Please select a video file first');
+        return;
+    }
+    
+    const file = fileInput.files[0];
+    const title = titleInput.value || 'My Video Ad';
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('title', title);
+    
+    document.getElementById('upload-streamable-btn').disabled = true;
+    document.getElementById('streamable-progress').style.display = 'block';
+    
+    // Note: In a real implementation, you would need a server-side component to handle the upload
+    // to Streamable since it requires authentication. This is just a mock implementation.
+    
+    // Mock upload progress
+    let progress = 0;
+    const progressInterval = setInterval(() => {
+        progress += 5;
+        if (progress > 90) {
+            clearInterval(progressInterval);
+            return;
+        }
+        document.getElementById('upload-progress').value = progress;
+        document.getElementById('upload-status').textContent = `Uploading... ${progress}%`;
+    }, 300);
+    
+    // Simulate successful upload after delay
+    setTimeout(() => {
+        clearInterval(progressInterval);
+        document.getElementById('upload-progress').value = 100;
+        document.getElementById('upload-status').textContent = 'Processing video...';
+        
+        // Simulate processing delay
+        setTimeout(() => {
+            // Generate a mock Streamable URL
+            const randomId = Math.random().toString(36).substring(2, 8);
+            const mockUrl = `https://streamable.com/${randomId}`;
+            
+            document.getElementById('streamable-url').value = mockUrl;
+            document.getElementById('streamable-result').style.display = 'block';
+            document.getElementById('streamable-progress').style.display = 'none';
+            document.getElementById('upload-streamable-btn').disabled = false;
+        }, 2000);
+    }, 3000);
+}
+
+// Use the Streamable URL in the form
+function useStreamableUrl() {
+    const url = document.getElementById('streamable-url').value;
+    document.getElementById('ad-video').value = url;
+    hideStreamableModal();
     updatePreview();
 }
 
@@ -656,10 +685,9 @@ function generateAd() {
     const duration = document.getElementById('ad-duration').value;
     const audioControl = document.getElementById('audio-control') ? document.getElementById('audio-control').value : 'muted';
     
-    // Get selected size
+    // Get size
     let width, height;
     const selectedSize = document.querySelector('.ad-size-option.selected').dataset.size;
-    
     if (selectedSize === 'custom') {
         width = document.getElementById('custom-width').value || '300';
         height = document.getElementById('custom-height').value || '250';
@@ -669,7 +697,7 @@ function generateAd() {
     
     // Create ad object
     const ad = {
-        id: generateId(),
+        id: Date.now().toString(),
         name: adName,
         type: adType,
         width: width,
@@ -686,138 +714,204 @@ function generateAd() {
         createdAt: new Date().toISOString()
     };
     
-    // Save the ad
-    saveAd(ad);
-    
     // Generate embed code
-    const embedCode = generateEmbedCode(ad);
-    document.getElementById('embed-code').innerHTML = escapeHtml(embedCode);
+    let embedCode = '';
+    let shareableLink = '';
+    let adScript = '';
     
-    // Generate short link
-    const shortLink = generateShortLink(ad.id);
-    document.getElementById('short-link').innerHTML = shortLink;
-    
-    // Display the ad
-    displayAd(ad);
-    
-    // Show success message
-    alert('Ad generated successfully!');
-}
-
-// Generate embed code for the ad
-function generateEmbedCode(ad) {
-    let code = '';
-    
-    switch(ad.type) {
-        case 'banner':
-            code = `
-<div style="width: ${ad.width}px; height: ${ad.height}px; background-color: ${ad.bgColor}; position: relative; overflow: hidden; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')">
-    ${ad.image ? `<img src="${ad.image}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${ad.cropPosition};">` : ''}
-    ${ad.text ? `<div style="position: absolute; bottom: 0; left: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 10px; text-align: center;">${ad.text}</div>` : ''}
-</div>
-            `;
-            break;
-            
-        case 'video':
-            if (ad.video.includes('youtube.com') || ad.video.includes('youtu.be')) {
-                let videoId = '';
-                if (ad.video.includes('youtube.com/watch?v=')) {
-                    videoId = ad.video.split('v=')[1].split('&')[0];
-                } else if (ad.video.includes('youtu.be/')) {
-                    videoId = ad.video.split('youtu.be/')[1].split('?')[0];
-                }
-                
-                if (videoId) {
-                    code = `
-<div style="width: ${ad.width}px; height: ${ad.height}px; position: relative;">
-    <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${ad.audioControl === 'muted' ? 1 : 0}&loop=1&playlist=${videoId}&controls=0" 
-            style="width: 100%; height: 100%; border: none;"></iframe>
-    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')"></div>
-</div>
-                    `;
-                }
-            } else {
-                code = `
-<div style="width: ${ad.width}px; height: ${ad.height}px; position: relative;">
-    <video src="${ad.video}" autoplay ${ad.audioControl === 'muted' ? 'muted' : ''} loop playsinline 
-           style="width: 100%; height: 100%; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')"></video>
-    <button class="audio-control-btn" onclick="this.previousElementSibling.muted = !this.previousElementSibling.muted; this.innerHTML = this.previousElementSibling.muted ? '🔇' : '🔊'" 
-            style="position: absolute; bottom: 10px; left: 10px; background-color: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10;">
-        ${ad.audioControl === 'muted' ? '🔇' : '🔊'}
-    </button>
-</div>
-                `;
-            }
-            break;
-            
-        case 'social':
-            const isVertical = ad.position === 'left' || ad.position === 'right';
-            code = `
-<div style="width: ${ad.width}px; height: ${ad.height}px; position: relative; overflow: hidden; background-color: ${ad.bgColor};">
-    <div style="position: absolute; width: ${isVertical ? '50px' : '100%'}; height: ${isVertical ? '100%' : '50px'}; 
-                background-color: ${ad.bgColor}; display: flex; flex-direction: ${isVertical ? 'column' : 'row'}; 
-                align-items: center; justify-content: center; ${ad.position}: 0;">
-        <button onclick="window.open('${ad.link}', '_blank')" 
-                style="padding: 8px 15px; background-color: #4361ee; color: white; border: none; border-radius: 4px; cursor: pointer;">
-            ${ad.text || 'Click Here'}
-        </button>
-    </div>
-</div>
-            `;
-            break;
-            
-        case 'popup':
-            code = `
-<div id="myAdPopup" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 1000; display: none;">
-    <div style="position: absolute; width: 80%; height: 80%; background-color: ${ad.bgColor}; top: 50%; left: 50%; 
-                transform: translate(-50%, -50%); padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.5); cursor: pointer;" 
-         onclick="window.open('${ad.link}', '_blank')">
-        ${ad.image ? `<img src="${ad.image}" style="max-width: 100%; max-height: 70%; display: block; margin: 0 auto; object-position: ${ad.cropPosition};">` : ''}
-        ${ad.text ? `<div style="margin-top: 15px; text-align: center;">${ad.text}</div>` : ''}
-        <button onclick="document.getElementById('myAdPopup').style.display = 'none';" 
-                style="position: absolute; top: 5px; right: 5px; background-color: transparent; border: none; font-size: 16px; cursor: pointer;">X</button>
-    </div>
-</div>
-
-<script>
-    setTimeout(function() {
-        document.getElementById('myAdPopup').style.display = 'block';
-    }, ${ad.duration * 1000});
-</script>
-            `;
-            break;
-            
-        case 'fullscreen':
-            code = `
-<div id="myFullscreenAd" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: ${ad.bgColor}; z-index: 1000; display: none;">
-    <div style="position: relative; width: 100%; height: 100%;">
-        ${ad.image ? `<img src="${ad.image}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${ad.cropPosition};">` : ''}
-        ${ad.text ? `<div style="position: absolute; bottom: 20%; left: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 20px; text-align: center;">${ad.text}</div>` : ''}
-        <button onclick="document.getElementById('myFullscreenAd').style.display = 'none';" 
-                style="position: absolute; bottom: 20px; right: 20px; padding: 8px 15px; background-color: rgba(0,0,0,0.5); color: white; border: none; border-radius: 4px; cursor: pointer;">Skip Ad</button>
-    </div>
-</div>
-
-<script>
-    setTimeout(function() {
-        document.getElementById('myFullscreenAd').style.display = 'block';
-    }, 1000);
-</script>
-            `;
-            break;
+    if (adType === 'video') {
+        // Generate video ad code
+        embedCode = generateVideoAdCode(ad);
+        shareableLink = generateShareableLink(ad);
+        adScript = generateVideoAdScript(ad);
+    } else {
+        // Generate other ad types code
+        embedCode = generateStandardAdCode(ad);
+        shareableLink = generateShareableLink(ad);
     }
     
-    return code.trim();
+    // Display the generated code
+    document.getElementById('embed-code').textContent = embedCode;
+    document.getElementById('short-link').textContent = shareableLink;
+    
+    if (adType === 'video') {
+        document.getElementById('ad-script-code').textContent = adScript;
+        document.getElementById('ad-script-container').style.display = 'block';
+    } else {
+        document.getElementById('ad-script-container').style.display = 'none';
+    }
+    
+    // Save the ad
+    saveAd(ad);
 }
 
-// Generate a short link for the ad
-function generateShortLink(adId) {
-    return `${window.location.origin}${window.location.pathname}#ad=${adId}`;
+// Generate standard ad code
+function generateStandardAdCode(ad) {
+    let code = `<div id="my-ad-${ad.id}" style="width: ${ad.width}px; height: ${ad.height}px; background-color: ${ad.bgColor}; position: relative; overflow: hidden; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')">`;
+    
+    if (ad.image) {
+        code += `<img src="${ad.image}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${ad.cropPosition};">`;
+    }
+    
+    if (ad.text) {
+        code += `<div style="position: absolute; bottom: 0; left: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 10px; text-align: center;">${ad.text}</div>`;
+    }
+    
+    code += `</div>`;
+    
+    return code;
 }
 
-// Display the ad in preview
-function displayAd(ad) {
-    // Set form values
+// Generate video ad code
+function generateVideoAdCode(ad) {
+    let code = `<div id="my-ad-${ad.id}" style="width: ${ad.width}px; height: ${ad.height}px; background-color: ${ad.bgColor}; position: relative; overflow: hidden;">`;
+    
+    if (ad.video.includes('youtube.com') || ad.video.includes('youtu.be')) {
+        // YouTube video
+        let videoId = '';
+        if (ad.video.includes('youtube.com/watch?v=')) {
+            videoId = ad.video.split('v=')[1].split('&')[0];
+        } else if (ad.video.includes('youtu.be/')) {
+            videoId = ad.video.split('youtu.be/')[1].split('?')[0];
+        }
+        
+        if (videoId) {
+            const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}&controls=0`;
+            if (ad.audioControl === 'muted') {
+                embedUrl += '&mute=1';
+            }
+            
+            code += `<iframe src="${embedUrl}" style="width: 100%; height: 100%; border: none;"></iframe>`;
+            code += `<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')"></div>`;
+        }
+    } else if (ad.video.includes('streamable.com')) {
+        // Streamable video
+        const videoId = ad.video.split('streamable.com/')[1];
+        code += `<iframe src="https://streamable.com/e/${videoId}?autoplay=1&loop=1&controls=0" style="width: 100%; height: 100%; border: none;"></iframe>`;
+        code += `<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')"></div>`;
+    } else {
+        // Direct video
+        code += `<video src="${ad.video}" style="width: 100%; height: 100%;" autoplay loop ${ad.audioControl === 'muted' ? 'muted' : ''} playsinline></video>`;
+        code += `<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')"></div>`;
+    }
+    
+    code += `</div>`;
+    
+    return code;
+}
+
+// Generate shareable link
+function generateShareableLink(ad) {
+    // In a real implementation, this would generate a short link that points to your server
+    // which would then render the ad with the ad script at the bottom
+    
+    // For this demo, we'll just create a data URL that contains the ad info
+    const adData = encodeURIComponent(JSON.stringify(ad));
+    return `${window.location.href.split('?')[0]}?ad=${adData}`;
+}
+
+// Generate video ad script that shows ad when opened via link
+function generateVideoAdScript(ad) {
+    return `<script>
+        // Check if this page was opened via our shareable link
+        if (window.location.search.includes('ad=')) {
+            // Parse the ad data
+            const adData = JSON.parse(decodeURIComponent(window.location.search.split('ad=')[1]));
+            
+            // Create the ad container
+            const adContainer = document.createElement('div');
+            adContainer.style.position = 'fixed';
+            adContainer.style.bottom = '0';
+            adContainer.style.left = '0';
+            adContainer.style.right = '0';
+            adContainer.style.height = '50px';
+            adContainer.style.backgroundColor = '#f0f0f0';
+            adContainer.style.borderTop = '1px solid #ddd';
+            adContainer.style.zIndex = '1000';
+            adContainer.style.display = 'flex';
+            adContainer.style.justifyContent = 'center';
+            adContainer.style.alignItems = 'center';
+            
+            // Add the ad script
+            const adScript = document.createElement('script');
+            adScript.type = 'text/javascript';
+            adScript.innerHTML = \`
+                atOptions = {
+                    'key': 'a481763decb23c81da5296aea54b0fd9',
+                    'format': 'iframe',
+                    'height': 50,
+                    'width': 320,
+                    'params': {}
+                };
+            \`;
+            
+            const invokeScript = document.createElement('script');
+            invokeScript.type = 'text/javascript';
+            invokeScript.src = '//www.highperformanceformat.com/a481763decb23c81da5296aea54b0fd9/invoke.js';
+            
+            adContainer.appendChild(adScript);
+            adContainer.appendChild(invokeScript);
+            
+            // Add to the page
+            document.body.appendChild(adContainer);
+        }
+    </script>`;
+}
+
+// Save ad to localStorage
+function saveAd(ad) {
+    // Check if we're updating an existing ad
+    if (currentAdId) {
+        const index = ads.findIndex(a => a.id === currentAdId);
+        if (index !== -1) {
+            ads[index] = ad;
+        }
+    } else {
+        // Add new ad
+        ads.push(ad);
+    }
+    
+    localStorage.setItem('makeMyAds', JSON.stringify(ads));
+    loadSavedAds();
+    currentAdId = null;
+}
+
+// Load saved ads from localStorage
+function loadSavedAds() {
+    const adsList = document.getElementById('ads-list');
+    adsList.innerHTML = '';
+    
+    if (ads.length === 0) {
+        adsList.innerHTML = '<p>No ads saved yet. Create your first ad!</p>';
+        return;
+    }
+    
+    ads.forEach(ad => {
+        const adItem = document.createElement('div');
+        adItem.className = 'ad-item';
+        adItem.innerHTML = `
+            <div>
+                <h3>${ad.name}</h3>
+                <p>Type: ${ad.type} | Size: ${ad.width}x${ad.height}</p>
+                <small>Created: ${new Date(ad.createdAt).toLocaleString()}</small>
+            </div>
+            <div class="ad-item-actions">
+                <button onclick="editAd('${ad.id}')">Edit</button>
+                <button class="delete-btn" onclick="deleteAd('${ad.id}')">Delete</button>
+            </div>
+        `;
+        adsList.appendChild(adItem);
+    });
+}
+
+// Edit an existing ad
+function editAd(adId) {
+    const ad = ads.find(a => a.id === adId);
+    if (!ad) return;
+    
+    currentAdId = ad.id;
+    
+    // Fill the form with ad data
     document.getElementById('ad-name').value = ad.name;
     document.getElementById('ad-type').value = ad.type;
     document.getElementById('bg-color').value = ad.bgColor;
@@ -834,80 +928,26 @@ function displayAd(ad) {
     }
     
     // Set size
-    if (ad.width && ad.height) {
-        const sizeOptions = document.querySelectorAll('.ad-size-option');
-        let foundSize = false;
-        
-        sizeOptions.forEach(option => {
-            if (option.dataset.size === `${ad.width}x${ad.height}`) {
-                option.click();
-                foundSize = true;
-            }
-        });
-        
-        if (!foundSize) {
-            document.querySelector('.ad-size-option[data-size="custom"]').click();
-            document.getElementById('custom-width').value = ad.width;
-            document.getElementById('custom-height').value = ad.height;
-            document.getElementById('ad-preview').style.width = `${ad.width}px`;
-            document.getElementById('ad-preview').style.height = `${ad.height}px`;
-        }
+    const standardSize = `${ad.width}x${ad.height}`;
+    const sizeOption = document.querySelector(`.ad-size-option[data-size="${standardSize}"]`);
+    
+    if (sizeOption) {
+        document.querySelectorAll('.ad-size-option').forEach(opt => opt.classList.remove('selected'));
+        sizeOption.classList.add('selected');
+        document.getElementById('custom-size-container').style.display = 'none';
+    } else {
+        document.querySelector('.ad-size-option[data-size="custom"]').click();
+        document.getElementById('custom-width').value = ad.width;
+        document.getElementById('custom-height').value = ad.height;
     }
     
     // Update preview
+    document.getElementById('ad-preview').style.width = `${ad.width}px`;
+    document.getElementById('ad-preview').style.height = `${ad.height}px`;
     updatePreview();
-}
-
-// Save ad to local storage
-function saveAd(ad) {
-    // Check if this is an update
-    const existingIndex = ads.findIndex(a => a.id === ad.id);
     
-    if (existingIndex >= 0) {
-        ads[existingIndex] = ad;
-    } else {
-        ads.push(ad);
-    }
-    
-    localStorage.setItem('makeMyAds', JSON.stringify(ads));
-    loadSavedAds();
-}
-
-// Load saved ads
-function loadSavedAds() {
-    const adsList = document.getElementById('ads-list');
-    adsList.innerHTML = '';
-    
-    if (ads.length === 0) {
-        adsList.innerHTML = '<p>No ads saved yet. Create your first ad!</p>';
-        return;
-    }
-    
-    ads.forEach(ad => {
-        const adItem = document.createElement('div');
-        adItem.className = 'ad-item';
-        adItem.innerHTML = `
-            <div>
-                <h3>${ad.name}</h3>
-                <p>Type: ${ad.type} | Size: ${ad.width}x${ad.height} | Created: ${new Date(ad.createdAt).toLocaleDateString()}</p>
-            </div>
-            <div class="ad-item-actions">
-                <button onclick="editAd('${ad.id}')">Edit</button>
-                <button class="delete-btn" onclick="deleteAd('${ad.id}')">Delete</button>
-            </div>
-        `;
-        adsList.appendChild(adItem);
-    });
-}
-
-// Edit an existing ad
-function editAd(adId) {
-    const ad = ads.find(a => a.id === adId);
-    if (ad) {
-        currentAdId = ad.id;
-        displayAd(ad);
-        document.querySelector('.tab[onclick*="create-tab"]').click();
-    }
+    // Switch to create tab
+    document.querySelector('.tab[onclick*="create-tab"]').click();
 }
 
 // Delete an ad
@@ -918,25 +958,84 @@ function deleteAd(adId) {
         loadSavedAds();
         
         if (currentAdId === adId) {
-            clearPreview();
             currentAdId = null;
+            clearPreview();
         }
     }
 }
 
-// Generate a unique ID
-function generateId() {
-    return currentAdId || Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+// Check for hash routing to load an ad
+function checkHashRouting() {
+    const params = new URLSearchParams(window.location.search);
+    const adParam = params.get('ad');
+    
+    if (adParam) {
+        try {
+            const ad = JSON.parse(decodeURIComponent(adParam));
+            renderAdFromLink(ad);
+        } catch (e) {
+            console.error('Error parsing ad data:', e);
+        }
+    }
 }
 
-// Escape HTML for code display
-function escapeHtml(unsafe) {
-    return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+// Render ad when opened via link
+function renderAdFromLink(ad) {
+    // Clear the page
+    document.body.innerHTML = '';
+    
+    // Create ad container
+    const adContainer = document.createElement('div');
+    adContainer.style.width = '100%';
+    adContainer.style.height = '100vh';
+    adContainer.style.display = 'flex';
+    adContainer.style.justifyContent = 'center';
+    adContainer.style.alignItems = 'center';
+    adContainer.style.backgroundColor = '#f5f5f5';
+    
+    // Add the ad
+    if (ad.type === 'video') {
+        adContainer.innerHTML = generateVideoAdCode(ad);
+        
+        // Add the ad script at the bottom
+        const adScriptContainer = document.createElement('div');
+        adScriptContainer.style.position = 'fixed';
+        adScriptContainer.style.bottom = '0';
+        adScriptContainer.style.left = '0';
+        adScriptContainer.style.right = '0';
+        adScriptContainer.style.height = '50px';
+        adScriptContainer.style.backgroundColor = '#f0f0f0';
+        adScriptContainer.style.borderTop = '1px solid #ddd';
+        adScriptContainer.style.zIndex = '1000';
+        adScriptContainer.style.display = 'flex';
+        adScriptContainer.style.justifyContent = 'center';
+        adScriptContainer.style.alignItems = 'center';
+        
+        const adScript = document.createElement('script');
+        adScript.type = 'text/javascript';
+        adScript.innerHTML = `
+            atOptions = {
+                'key': 'a481763decb23c81da5296aea54b0fd9',
+                'format': 'iframe',
+                'height': 50,
+                'width': 320,
+                'params': {}
+            };
+        `;
+        
+        const invokeScript = document.createElement('script');
+        invokeScript.type = 'text/javascript';
+        invokeScript.src = '//www.highperformanceformat.com/a481763decb23c81da5296aea54b0fd9/invoke.js';
+        
+        adScriptContainer.appendChild(adScript);
+        adScriptContainer.appendChild(invokeScript);
+        
+        document.body.appendChild(adContainer);
+        document.body.appendChild(adScriptContainer);
+    } else {
+        adContainer.innerHTML = generateStandardAdCode(ad);
+        document.body.appendChild(adContainer);
+    }
 }
 
 // Copy to clipboard
@@ -949,12 +1048,13 @@ function copyToClipboard(elementId) {
     document.execCommand('copy');
     window.getSelection().removeAllRanges();
     
-    alert('Copied to clipboard!');
-}
-
-// Check hash routing
-function checkHashRouting() {
-    if (window.location.hash.includes('ad=')) {
-        document.querySelector('.tab[onclick*="create-tab"]').click();
-    }
+    // Show copied notification
+    const originalText = elementId === 'embed-code' ? 'Copy Code' : 'Copy Link';
+    const button = document.querySelector(`button[onclick="copyToClipboard('${elementId}')"]`);
+    const originalButtonText = button.textContent;
+    button.textContent = 'Copied!';
+    
+    setTimeout(() => {
+        button.textContent = originalButtonText;
+    }, 2000);
 }
