@@ -2,35 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MakeMyAd - Professional Ad Generator</title>
-    <meta property="og:title" content="MakeMyAd - Create Professional Ads">
-    <meta property="og:description" content="Generate beautiful ads for your website or marketing campaigns">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MakeMyAd Pro - Mobile Ad Generator</title>
+    <meta property="og:title" content="MakeMyAd Pro - Create Professional Mobile Ads">
+    <meta property="og:description" content="Generate beautiful mobile ads for your marketing campaigns">
     <meta property="og:image" content="https://via.placeholder.com/1200x630">
     <meta property="og:url" content="https://example.com">
     <meta property="og:type" content="website">
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <!-- Fixed Header Ad -->
     <div id="header-ad">
         <img src="https://control.putulhost.com/Affiliate/60.gif" alt="Hosting Ad">
         <div class="ad-text">
-            🌐 সাশ্রয়ী মূল্যে উচ্চগতির হোস্টিং খুঁজছেন? ✅ BDIX ও Global Server সাপোর্টেড 🚀 ৯৯.৯% আপটাইম ও ২৪/৭ দক্ষ কাস্টমার সাপোর্ট
+            🌐 Affordable High-Speed Hosting ✅ BDIX & Global Server 🚀 99.9% Uptime
         </div>
     </div>
 
     <header>
         <div class="container">
             <h1><i class="fas fa-ad"></i> MakeMyAd Pro</h1>
-            <p class="tagline">Professional Ad Generator for Marketers</p>
+            <p class="tagline">Professional Mobile Ad Generator</p>
         </div>
     </header>
 
     <div class="container">
         <div class="tabs">
-            <button class="tab active" onclick="openTab(event, 'create-tab')"><i class="fas fa-plus-circle"></i> Create Ad</button>
+            <button class="tab active" onclick="openTab(event, 'create-tab')"><i class="fas fa-plus-circle"></i> Create</button>
             <button class="tab" onclick="openTab(event, 'my-ads-tab')"><i class="fas fa-folder"></i> My Ads</button>
             <button class="tab" onclick="openTab(event, 'help-tab')"><i class="fas fa-question-circle"></i> Help</button>
         </div>
@@ -58,12 +58,11 @@
                 <div class="form-group" id="size-container">
                     <label><i class="fas fa-expand"></i> Ad Size</label>
                     <div class="ad-size-options">
-                        <div class="ad-size-option selected" data-size="300x250">300x250 (Medium Rectangle)</div>
-                        <div class="ad-size-option" data-size="728x90">728x90 (Leaderboard)</div>
-                        <div class="ad-size-option" data-size="160x600">160x600 (Wide Skyscraper)</div>
-                        <div class="ad-size-option" data-size="320x50">320x50 (Mobile Banner)</div>
-                        <div class="ad-size-option" data-size="468x60">468x60 (Banner)</div>
-                        <div class="ad-size-option" data-size="custom">Custom Size</div>
+                        <div class="ad-size-option selected" data-size="300x250">300x250</div>
+                        <div class="ad-size-option" data-size="320x50">320x50</div>
+                        <div class="ad-size-option" data-size="336x280">336x280</div>
+                        <div class="ad-size-option" data-size="728x90">728x90</div>
+                        <div class="ad-size-option" data-size="custom">Custom</div>
                     </div>
                     <div id="custom-size-container">
                         <div class="size-inputs">
@@ -73,16 +72,15 @@
                     </div>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group" id="media-url-container">
-                        <label for="ad-image"><i class="fas fa-image"></i> Media URL</label>
-                        <input type="url" id="ad-image" placeholder="https://example.com/image.jpg or video URL">
-                        <small>Supports: JPG, PNG, GIF, MP4, YouTube, Streamable</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="ad-link"><i class="fas fa-link"></i> Destination URL</label>
-                        <input type="url" id="ad-link" required placeholder="https://example.com">
-                    </div>
+                <div class="form-group" id="media-url-container">
+                    <label for="ad-image"><i class="fas fa-image"></i> Media URL</label>
+                    <input type="url" id="ad-image" placeholder="https://example.com/image.jpg or video URL">
+                    <small>Supports: JPG, PNG, MP4, YouTube, Streamable</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="ad-link"><i class="fas fa-link"></i> Destination URL</label>
+                    <input type="url" id="ad-link" required placeholder="https://example.com">
                 </div>
 
                 <div class="form-group">
@@ -92,61 +90,31 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label><i class="fas fa-palette"></i> Background Color</label>
-                        <div class="color-picker">
-                            <div class="color-option selected" style="background-color: #1a237e;" data-color="#1a237e"></div>
-                            <div class="color-option" style="background-color: #0d47a1;" data-color="#0d47a1"></div>
-                            <div class="color-option" style="background-color: #1565c0;" data-color="#1565c0"></div>
-                            <div class="color-option" style="background-color: #1976d2;" data-color="#1976d2"></div>
-                            <div class="color-option" style="background-color: #2196f3;" data-color="#2196f3"></div>
-                            <input type="color" id="custom-color">
+                        <label><i class="fas fa-palette"></i> Background</label>
+                        <div class="color-picker" id="bg-color-picker">
+                            <div class="color-option selected" style="background-color: #0C0E12;" data-color="#0C0E12"></div>
+                            <div class="color-option" style="background-color: #1E2329;" data-color="#1E2329"></div>
+                            <div class="color-option" style="background-color: #F0B90B;" data-color="#F0B90B"></div>
+                            <div class="color-option" style="background-color: #EAECEF;" data-color="#EAECEF"></div>
+                            <input type="color" id="custom-color" value="#0C0E12">
                         </div>
-                        <input type="hidden" id="bg-color" value="#1a237e">
+                        <input type="hidden" id="bg-color" value="#0C0E12">
                     </div>
 
                     <div class="form-group">
-                        <label for="text-color"><i class="fas fa-font"></i> Text Color</label>
-                        <div class="color-picker">
-                            <div class="color-option selected" style="background-color: #ffffff;" data-color="#ffffff"></div>
-                            <div class="color-option" style="background-color: #000000;" data-color="#000000"></div>
-                            <div class="color-option" style="background-color: #f5f5f5;" data-color="#f5f5f5"></div>
-                            <div class="color-option" style="background-color: #ffeb3b;" data-color="#ffeb3b"></div>
-                            <div class="color-option" style="background-color: #4caf50;" data-color="#4caf50"></div>
-                            <input type="color" id="custom-text-color" value="#ffffff">
+                        <label><i class="fas fa-font"></i> Text Color</label>
+                        <div class="color-picker" id="text-color-picker">
+                            <div class="color-option selected" style="background-color: #F0B90B;" data-color="#F0B90B"></div>
+                            <div class="color-option" style="background-color: #FFFFFF;" data-color="#FFFFFF"></div>
+                            <div class="color-option" style="background-color: #EAECEF;" data-color="#EAECEF"></div>
+                            <div class="color-option" style="background-color: #0C0E12;" data-color="#0C0E12"></div>
+                            <input type="color" id="custom-text-color" value="#F0B90B">
                         </div>
-                        <input type="hidden" id="text-color" value="#ffffff">
+                        <input type="hidden" id="text-color" value="#F0B90B">
                     </div>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="ad-duration"><i class="fas fa-clock"></i> Display Duration (seconds)</label>
-                        <input type="number" id="ad-duration" min="1" value="5">
-                    </div>
-                    <div class="form-group">
-                        <label for="ad-position"><i class="fas fa-arrows-alt"></i> Position</label>
-                        <select id="ad-position">
-                            <option value="center">Center</option>
-                            <option value="top">Top</option>
-                            <option value="bottom">Bottom</option>
-                            <option value="left">Left</option>
-                            <option value="right">Right</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="crop-position"><i class="fas fa-crop"></i> Crop Position</label>
-                    <select id="crop-position">
-                        <option value="center">Center</option>
-                        <option value="top">Top</option>
-                        <option value="bottom">Bottom</option>
-                        <option value="left">Left</option>
-                        <option value="right">Right</option>
-                    </select>
-                </div>
-
-                <div id="video-options" class="form-group" style="display: none;">
+                <div class="form-group" id="video-options" style="display: none;">
                     <label><i class="fas fa-video"></i> Video Options</label>
                     <div class="checkbox-group">
                         <label>
@@ -166,10 +134,10 @@
 
                 <div class="form-actions">
                     <button type="button" class="primary-btn" onclick="generateAd()">
-                        <i class="fas fa-magic"></i> Generate Ad
+                        <i class="fas fa-magic"></i> Generate
                     </button>
                     <button type="button" class="secondary-btn" onclick="saveAd()">
-                        <i class="fas fa-save"></i> Save Ad
+                        <i class="fas fa-save"></i> Save
                     </button>
                     <button type="button" class="danger-btn" onclick="clearPreview()">
                         <i class="fas fa-trash"></i> Clear
@@ -187,9 +155,6 @@
                         </div>
                     </div>
                     <div class="preview-actions">
-                        <button class="crop-btn" onclick="showCropTool()">
-                            <i class="fas fa-crop"></i> Crop Image
-                        </button>
                         <button class="secondary-btn" onclick="testAd()">
                             <i class="fas fa-play"></i> Test Ad
                         </button>
@@ -233,78 +198,45 @@
             <h2><i class="fas fa-question-circle"></i> Help & Instructions</h2>
             <div class="help-content">
                 <div class="help-section">
-                    <h3><i class="fas fa-play-circle"></i> Video Ad Features</h3>
+                    <h3><i class="fas fa-mobile-alt"></i> Mobile-Friendly Ads</h3>
+                    <p>All ads generated are optimized for mobile devices with:</p>
                     <ul>
-                        <li><strong>Autoplay with Sound:</strong> Videos play automatically with sound (unless muted)</li>
-                        <li><strong>Streamable Support:</strong> Use videos from Streamable.com with direct embedding</li>
-                        <li><strong>YouTube Integration:</strong> Supports YouTube videos with autoplay</li>
-                        <li><strong>MP4 Videos:</strong> Direct MP4 links are supported for custom videos</li>
+                        <li>Responsive sizing that works on all screens</li>
+                        <li>Touch-friendly interactive elements</li>
+                        <li>Fast loading with minimal bandwidth usage</li>
+                        <li>Proper viewport scaling</li>
                     </ul>
                 </div>
 
                 <div class="help-section">
-                    <h3><i class="fas fa-cogs"></i> How to Use</h3>
-                    <ol>
-                        <li>Select the type of ad you want to create</li>
-                        <li>Fill in the required details (image/video URL, destination URL, etc.)</li>
-                        <li>Customize the appearance (size, color, position)</li>
-                        <li>Use the crop tool to adjust image positioning</li>
-                        <li>Click "Generate Ad" to create your ad</li>
-                        <li>Copy the embed code or shareable link to use your ad</li>
-                    </ol>
-                </div>
-
-                <div class="help-section">
-                    <h3><i class="fas fa-ad"></i> Ad Types</h3>
+                    <h3><i class="fas fa-video"></i> Video Ads</h3>
                     <ul>
-                        <li><strong>Banner Ad:</strong> Standard display ad in various sizes</li>
-                        <li><strong>Video Ad:</strong> Auto-play video ad with sound (supports YouTube, MP4, Streamable)</li>
-                        <li><strong>Social Bar:</strong> Floating bar with call-to-action</li>
-                        <li><strong>Popup Ad:</strong> Appears after a delay or user action</li>
-                        <li><strong>Fullscreen Ad:</strong> Covers the entire viewport</li>
+                        <li>Autoplay with sound (unmuted by default)</li>
+                        <li>Tapping anywhere opens destination URL</li>
+                        <li>Supports YouTube, Streamable, and direct MP4 links</li>
+                        <li>Optimized for mobile data usage</li>
                     </ul>
                 </div>
 
                 <div class="help-section">
-                    <h3><i class="fas fa-lightbulb"></i> Tips</h3>
+                    <h3><i class="fas fa-link"></i> Shareable Links</h3>
+                    <p>All ad data is encoded in the URL:</p>
                     <ul>
-                        <li>Use high-quality images (minimum 72 DPI)</li>
-                        <li>Keep video ads short (5-15 seconds recommended)</li>
-                        <li>Test your ads on different devices before publishing</li>
-                        <li>Use contrasting colors for text and background</li>
-                        <li>Save your ads for future editing and reuse</li>
+                        <li>No server required - works 100% client-side</li>
+                        <li>All settings preserved in the link</li>
+                        <li>Works across all modern browsers</li>
                     </ul>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Crop Tool Modal -->
-    <div id="crop-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="hideCropTool()">&times;</span>
-            <h2><i class="fas fa-crop"></i> Crop Image</h2>
-            <div class="crop-container">
-                <div id="crop-preview">
-                    <img id="crop-image" src="">
-                </div>
-                <div class="crop-controls">
-                    <label for="crop-zoom"><i class="fas fa-search"></i> Zoom:</label>
-                    <input type="range" id="crop-zoom" min="1" max="3" step="0.1" value="1">
-                    <button class="primary-btn" onclick="applyCrop()">
-                        <i class="fas fa-check"></i> Apply Crop
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Ad Test Modal -->
+    <!-- Test Ad Modal -->
     <div id="test-modal" class="modal">
-        <div class="modal-content" style="max-width: 90%; max-height: 90%;">
+        <div class="modal-content">
             <span class="close-btn" onclick="hideTestModal()">&times;</span>
             <h2><i class="fas fa-play-circle"></i> Testing Your Ad</h2>
-            <div id="test-ad-container" style="width: 100%; height: 80%;"></div>
+            <div id="test-ad-container"></div>
         </div>
     </div>
 
