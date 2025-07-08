@@ -121,7 +121,7 @@
                             <input type="checkbox" id="autoplay-video" checked> Autoplay
                         </label>
                         <label>
-                            <input type="checkbox" id="mute-video" checked> Mute (required for autoplay)
+                            <input type="checkbox" id="mute-video"> Mute
                         </label>
                         <label>
                             <input type="checkbox" id="loop-video" checked> Loop
@@ -198,33 +198,33 @@
             <h2><i class="fas fa-question-circle"></i> Help & Instructions</h2>
             <div class="help-content">
                 <div class="help-section">
-                    <h3><i class="fas fa-link"></i> Shareable URLs</h3>
-                    <p>Your ads generate shareable URLs with:</p>
+                    <h3><i class="fas fa-mobile-alt"></i> Mobile-Friendly Ads</h3>
+                    <p>All ads generated are optimized for mobile devices with:</p>
                     <ul>
-                        <li>Unique ID for server-side loading</li>
-                        <li>Social media preview support (Facebook, Twitter, WhatsApp)</li>
-                        <li>Dynamic content loading</li>
-                        <li>Works across all devices</li>
+                        <li>Responsive sizing that works on all screens</li>
+                        <li>Touch-friendly interactive elements</li>
+                        <li>Fast loading with minimal bandwidth usage</li>
+                        <li>Proper viewport scaling</li>
                     </ul>
                 </div>
 
                 <div class="help-section">
                     <h3><i class="fas fa-video"></i> Video Ads</h3>
                     <ul>
-                        <li>Autoplay muted (browser policy compliant)</li>
-                        <li>Sound activates after user interaction</li>
-                        <li>Clicking opens destination URL</li>
-                        <li>Supports YouTube, Streamable, and MP4</li>
+                        <li>Autoplay with sound (unmuted by default)</li>
+                        <li>Tapping anywhere opens destination URL</li>
+                        <li>Supports YouTube, Streamable, and direct MP4 links</li>
+                        <li>Optimized for mobile data usage</li>
                     </ul>
                 </div>
 
                 <div class="help-section">
-                    <h3><i class="fas fa-share"></i> Social Media Previews</h3>
-                    <p>When sharing your ad URL:</p>
+                    <h3><i class="fas fa-link"></i> Shareable Links</h3>
+                    <p>All ad data is encoded in the URL:</p>
                     <ul>
-                        <li>Title, description and thumbnail will show</li>
-                        <li>Video ads will show video previews</li>
-                        <li>Optimized for all platforms</li>
+                        <li>No server required - works 100% client-side</li>
+                        <li>All settings preserved in the link</li>
+                        <li>Works across all modern browsers</li>
                     </ul>
                 </div>
             </div>
@@ -239,50 +239,6 @@
             <div id="test-ad-container"></div>
         </div>
     </div>
-
-    <!-- Server API Simulation -->
-    <script>
-        // This would normally be on your server
-        function simulateServerAPI() {
-            const adsDatabase = {};
-            
-            return {
-                saveAd: function(adData) {
-                    const adId = 'ad_' + Math.random().toString(36).substr(2, 9);
-                    adsDatabase[adId] = adData;
-                    return adId;
-                },
-                getAd: function(adId) {
-                    return adsDatabase[adId];
-                },
-                generateMetaTags: function(adData) {
-                    let metaTags = `
-                        <meta property="og:title" content="${adData.name || 'MakeMyAd Pro'}">
-                        <meta property="og:description" content="${adData.text || 'Professional mobile ad'}">
-                        <meta property="og:url" content="https://example.com/ads?id=${adData.id}">
-                    `;
-                    
-                    if (adData.type === 'video') {
-                        metaTags += `
-                            <meta property="og:type" content="video.other">
-                            <meta property="og:video" content="${adData.mediaUrl}">
-                            <meta property="og:video:type" content="video/mp4">
-                            <meta property="og:image" content="https://via.placeholder.com/1200x630">
-                        `;
-                    } else {
-                        metaTags += `
-                            <meta property="og:type" content="website">
-                            <meta property="og:image" content="${adData.mediaUrl || 'https://via.placeholder.com/1200x630'}">
-                        `;
-                    }
-                    
-                    return metaTags;
-                }
-            };
-        }
-        
-        const serverAPI = simulateServerAPI();
-    </script>
 
     <script src="script.js"></script>
 </body>
