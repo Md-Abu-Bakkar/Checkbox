@@ -20,8 +20,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show demo ad in preview
     showDemoAd();
     
-    // Check for hash routing (shared links)
-    checkHashRouting();
+    // Check for URL parameters (shared links)
+    checkUrlParameters();
 });
 
 // Set up event listeners
@@ -681,8 +681,12 @@ function generateAd() {
         `;
     }
     
-    // Generate shareable link with data encoded
-    const shareableLink = `${window.location.origin}${window.location.pathname}#${encodeURIComponent(JSON.stringify(adData))}`;
+    // Generate shareable link with unique ID
+    const adIdForServer = serverAPI.saveAd(adData);
+    const shareableLink = `https://example.com/ads?id=${adIdForServer}`;
+    
+    // Generate meta tags for social sharing
+    const metaTags = serverAPI.generateMetaTags(adData);
     
     // Display the generated code and link
     document.getElementById('embed-code').textContent = embedCode.trim();
@@ -837,32 +841,33 @@ function hideTestModal() {
     document.getElementById('test-ad-container').innerHTML = '';
 }
 
-// Check for hash routing (shared links)
-function checkHashRouting() {
-    if (window.location.hash) {
-        try {
-            const adData = JSON.parse(decodeURIComponent(window.location.hash.substr(1)));
-            if (adData && adData.type) {
-                // Check if this ad already exists
-                const existingAd = ads.find(ad => 
-                    ad.type === adData.type && 
-                    ad.link === adData.link && 
-                    ad.mediaUrl === adData.mediaUrl
-                );
-                
-                if (existingAd) {
-                    loadAd(existingAd.id);
-                } else {
-                    // Add as new ad
-                    currentAdId = null;
-                    loadAd(adData.id); // This will create a new ID if needed
-                }
-                
-                // Scroll to top
-                window.scrollTo(0, 0);
+// Check for URL parameters (shared links)
+function checkUrlParameters() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const adId = urlParams.get('id');
+    
+    if (adId) {
+        // In a real implementation, this would fetch from your server
+        const adData = serverAPI.getAd(adId);
+        
+        if (adData) {
+            // Check if this ad already exists locally
+            const existingAd = ads.find(ad => 
+                ad.type === adData.type && 
+                ad.link === adData.link && 
+                ad.mediaUrl === adData.mediaUrl
+            );
+            
+            if (existingAd) {
+                loadAd(existingAd.id);
+            } else {
+                // Add as new ad
+                currentAdId = null;
+                loadAd(adData.id); // This will create a new ID if needed
             }
-        } catch (e) {
-            console.error('Error parsing shared ad data:', e);
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
         }
     }
 }
@@ -870,32 +875,11 @@ function checkHashRouting() {
 // Show toast notification
 function showToast(message) {
     const toast = document.createElement('div');
+    toast.className = 'toast';
     toast.textContent = message;
-    toast.style.position = 'fixed';
-    toast.style.bottom = '20px';
-    toast.style.left = '50%';
-    toast.style.transform = 'translateX(-50%)';
-    toast.style.backgroundColor = 'rgba(0,0,0,0.8)';
-    toast.style.color = 'white';
-    toast.style.padding = '10px 20px';
-    toast.style.borderRadius = '4px';
-    toast.style.zIndex = '1000';
-    toast.style.animation = 'fadeInOut 2.5s';
     document.body.appendChild(toast);
     
     setTimeout(() => {
         toast.remove();
     }, 2500);
 }
-
-// Add CSS for toast animation
-const style = document.createElement('style');
-style.textContent = `
-@keyframes fadeInOut {
-    0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
-    10% { opacity: 1; transform: translateX(-50%) translateY(0); }
-    90% { opacity: 1; transform: translateX(-50%) translateY(0); }
-    100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-}
-`;
-document.head.appendChild(style);
