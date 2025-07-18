@@ -22,6 +22,114 @@ const demoAds = {
     </div>`
 };
 
+// Ad scripts for random display
+const adScripts = {
+    '300x250': `<script type="text/javascript">
+        atOptions = {
+            'key': '7042485dacd2ed37f414c112ab42d1fe',
+            'format': 'iframe',
+            'height': 250,
+            'width': 300,
+            'params': {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/7042485dacd2ed37f414c112ab42d1fe/invoke.js"></script>`,
+    
+    '728x90': `<script type="text/javascript">
+        atOptions = {
+            'key': 'f22e84ab6933de7560b1c58944107cb2',
+            'format': 'iframe',
+            'height': 90,
+            'width': 728,
+            'params': {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/f22e84ab6933de7560b1c58944107cb2/invoke.js"></script>`,
+    
+    '160x600': `<script type="text/javascript">
+        atOptions = {
+            'key': '154723b96a181bd35f7d788ea51287dc',
+            'format': 'iframe',
+            'height': 300,
+            'width': 160,
+            'params': {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/154723b96a181bd35f7d788ea51287dc/invoke.js"></script>`,
+    
+    '468x60': `<script type="text/javascript">
+        atOptions = {
+            'key': 'e4f5f3f71157bf52dda4460f12a9d5c5',
+            'format': 'iframe',
+            'height': 60,
+            'width': 468,
+            'params': {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/e4f5f3f71157bf52dda4460f12a9d5c5/invoke.js"></script>`,
+    
+    '320x50': `<script type="text/javascript">
+        atOptions = {
+            'key': '5bc25cd0b371c68f0dbd30840a1d91c1',
+            'format': 'iframe',
+            'height': 50,
+            'width': 320,
+            'params': {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/5bc25cd0b371c68f0dbd30840a1d91c1/invoke.js"></script>`,
+    
+    'native': `<div id="youtube-videos"></div>
+    <script>
+        const apiKey = "AIzaSyCRA7g2azKSoLoG6u2RSbkg3uMzJjtUd6A";
+        const channelId = "UCiaRAw6ZC0i-JK83RwS4bkQ";
+        const maxResults = 3;
+        const redirectUrl = "https://abubakkardve.github.io/SmartDev-Solutions";
+
+        fetch(\`https://www.googleapis.com/youtube/v3/search?key=\${apiKey}&channelId=\${channelId}&part=snippet,id&order=date&maxResults=\${maxResults}\`)
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById("youtube-videos");
+                data.items.forEach(item => {
+                    const videoId = item.id.videoId;
+                    if (videoId) {
+                        const videoContainer = document.createElement("div");
+                        videoContainer.style.position = "relative";
+                        videoContainer.style.marginBottom = "20px";
+                        
+                        const iframe = document.createElement("iframe");
+                        iframe.width = "100%";
+                        iframe.height = "315";
+                        iframe.src = \`https://www.youtube.com/embed/\${videoId}?autoplay=1&mute=1&rel=0&controls=1&showinfo=0\`;
+                        iframe.frameborder = "0";
+                        iframe.allow = "autoplay; encrypted-media";
+                        iframe.allowFullscreen = true;
+                        
+                        const overlay = document.createElement("div");
+                        overlay.style.position = "absolute";
+                        overlay.style.top = "0";
+                        overlay.style.left = "0";
+                        overlay.style.width = "100%";
+                        overlay.style.height = "100%";
+                        overlay.style.cursor = "pointer";
+                        overlay.style.zIndex = "10";
+                        overlay.onclick = () => {
+                            window.location.href = redirectUrl;
+                        };
+                        
+                        videoContainer.appendChild(iframe);
+                        videoContainer.appendChild(overlay);
+                        container.appendChild(videoContainer);
+                    }
+                });
+            })
+            .catch(error => {
+                console.error("YouTube API Error:", error);
+                document.getElementById("youtube-videos").innerHTML = "ভিডিও লোড করতে সমস্যা হয়েছে।";
+            });
+    </script>`
+};
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
     // Load saved ads
@@ -41,6 +149,53 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Show demo ad in preview
     showDemoAd();
+    
+    // Show popup message after 5 seconds
+    setTimeout(showPopupMessage, 5000);
+    
+    // Show random ad on homepage occasionally
+    if (window.location.hash === '' || window.location.hash === '#') {
+        if (Math.random() < 0.3) { // 30% chance to show ad on homepage
+            setTimeout(() => {
+                const adTypes = ['300x250', '728x90', '160x600', '468x60', '320x50', 'native'];
+                const randomAdType = adTypes[Math.floor(Math.random() * adTypes.length)];
+                const adContainer = document.createElement('div');
+                adContainer.style.position = 'fixed';
+                adContainer.style.bottom = '20px';
+                adContainer.style.right = '20px';
+                adContainer.style.zIndex = '1000';
+                adContainer.style.border = '2px solid #F0B90B';
+                adContainer.style.borderRadius = '5px';
+                adContainer.style.overflow = 'hidden';
+                
+                if (randomAdType === 'native') {
+                    adContainer.innerHTML = adScripts['native'];
+                } else {
+                    adContainer.innerHTML = adScripts[randomAdType];
+                }
+                
+                const closeBtn = document.createElement('button');
+                closeBtn.textContent = '×';
+                closeBtn.style.position = 'absolute';
+                closeBtn.style.top = '5px';
+                closeBtn.style.right = '5px';
+                closeBtn.style.backgroundColor = 'rgba(0,0,0,0.5)';
+                closeBtn.style.color = 'white';
+                closeBtn.style.border = 'none';
+                closeBtn.style.borderRadius = '50%';
+                closeBtn.style.width = '25px';
+                closeBtn.style.height = '25px';
+                closeBtn.style.cursor = 'pointer';
+                closeBtn.style.zIndex = '1001';
+                closeBtn.onclick = function() {
+                    document.body.removeChild(adContainer);
+                };
+                
+                adContainer.appendChild(closeBtn);
+                document.body.appendChild(adContainer);
+            }, 10000); // Show after 10 seconds
+        }
+    }
 });
 
 // Set up event listeners
@@ -91,7 +246,6 @@ function initSizeOptions() {
                 const [width, height] = this.dataset.size.split('x');
                 document.getElementById('ad-preview').style.width = `${width}px`;
                 document.getElementById('ad-preview').style.height = `${height}px`;
-                
                 // Show demo ad for the selected size
                 showDemoAd();
             }
@@ -110,8 +264,8 @@ function initSizeOptions() {
     });
 }
 
-// Show demo ad in preview
-function showDemoAd() {
+// Show random ad in preview
+function showRandomAd() {
     const preview = document.getElementById('ad-preview');
     const selectedSize = document.querySelector('.ad-size-option.selected').dataset.size;
     
@@ -120,8 +274,8 @@ function showDemoAd() {
     
     // Check if user has entered any content
     const hasUserContent = document.getElementById('ad-image').value || 
-                          document.getElementById('ad-video').value || 
-                          document.getElementById('ad-text').value;
+                           document.getElementById('ad-video').value || 
+                           document.getElementById('ad-text').value;
     
     if (hasUserContent) {
         // If user has entered content, show their preview
@@ -129,17 +283,132 @@ function showDemoAd() {
         return;
     }
     
-    // Show demo ad based on selected size
-    if (selectedSize !== 'custom' && demoAds[selectedSize]) {
-        preview.innerHTML = demoAds[selectedSize];
+    // Show random ad based on selected size
+    if (selectedSize !== 'custom' && adScripts[selectedSize]) {
+        const adContainer = document.createElement('div');
+        adContainer.innerHTML = adScripts[selectedSize];
+        preview.appendChild(adContainer);
+    } else if (Math.random() > 0.7) {
+        // 30% chance to show native video ad for custom sizes
+        const adContainer = document.createElement('div');
+        adContainer.innerHTML = adScripts['native'];
+        preview.appendChild(adContainer);
     } else {
         // Default placeholder
         preview.innerHTML = `
-            <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background-color: #1E2026; color: #F0B90B; border: 2px dashed #F0B90B;">
+            <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; 
+                        background-color: #1E2026; color: #F0B90B; border: 2px dashed #F0B90B;">
                 <p>Your ad preview will appear here</p>
             </div>
         `;
     }
+}
+
+// Show demo ad in preview
+function showDemoAd() {
+    // 80% chance to show random ad, 20% to show simple placeholder
+    if (Math.random() < 0.8) {
+        showRandomAd();
+    } else {
+        const preview = document.getElementById('ad-preview');
+        const selectedSize = document.querySelector('.ad-size-option.selected').dataset.size;
+        
+        preview.innerHTML = '';
+        
+        if (selectedSize !== 'custom' && demoAds[selectedSize]) {
+            preview.innerHTML = demoAds[selectedSize];
+        } else {
+            preview.innerHTML = `
+                <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; 
+                            background-color: #1E2026; color: #F0B90B; border: 2px dashed #F0B90B;">
+                    <p>Your ad preview will appear here</p>
+                </div>
+            `;
+        }
+    }
+}
+
+// Show popup message
+function showPopupMessage() {
+    // Only show once per session
+    if (sessionStorage.getItem('popupShown')) return;
+    sessionStorage.setItem('popupShown', 'true');
+    
+    const popup = document.createElement('div');
+    popup.style.position = 'fixed';
+    popup.style.top = '0';
+    popup.style.left = '0';
+    popup.style.width = '100%';
+    popup.style.height = '100%';
+    popup.style.backgroundColor = 'rgba(0,0,0,0.8)';
+    popup.style.zIndex = '2000';
+    popup.style.display = 'flex';
+    popup.style.justifyContent = 'center';
+    popup.style.alignItems = 'center';
+    popup.style.fontFamily = 'Arial, sans-serif';
+    
+    const popupContent = document.createElement('div');
+    popupContent.style.backgroundColor = '#1E2026';
+    popupContent.style.padding = '20px';
+    popupContent.style.borderRadius = '10px';
+    popupContent.style.maxWidth = '500px';
+    popupContent.style.width = '90%';
+    popupContent.style.border = '2px solid #F0B90B';
+    
+    const message = document.createElement('div');
+    message.style.color = '#EAECEF';
+    message.style.marginBottom = '20px';
+    message.style.textAlign = 'center';
+    message.innerHTML = `
+        <h3 style="color: #F0B90B; margin-bottom: 15px;">📱 Smart tech updates, imo mods & useful tools</h3>
+        <p style="margin-bottom: 10px;">Crafted for Bangladeshi users. Join for smart solutions every day!</p>
+        <p style="margin-bottom: 15px;">🚀 MakeMyAd is a no-code, browser-based ad generator that lets you easily design banner, video, popup, and social bar ads — all without writing a single line of code.</p>
+        <p style="color: #F0B90B; font-weight: bold;">🔽 Explore the following resources to get started:</p>
+    `;
+    
+    const buttonContainer = document.createElement('div');
+    buttonContainer.style.display = 'flex';
+    buttonContainer.style.flexDirection = 'column';
+    buttonContainer.style.gap = '10px';
+    
+    const createButton = (text, url) => {
+        const btn = document.createElement('a');
+        btn.href = url;
+        btn.target = '_blank';
+        btn.style.backgroundColor = '#F0B90B';
+        btn.style.color = '#1E2026';
+        btn.style.padding = '10px';
+        btn.style.borderRadius = '5px';
+        btn.style.textAlign = 'center';
+        btn.style.textDecoration = 'none';
+        btn.style.fontWeight = 'bold';
+        btn.textContent = text;
+        return btn;
+    };
+    
+    buttonContainer.appendChild(createButton('▶️ Tutorial Video', 'https://youtu.be/M4gsrX0eYlg?si=wo0L2RXhi86KcUFe'));
+    buttonContainer.appendChild(createButton('💬 Join Telegram Channel', 'https://t.me/smarttipsbd25'));
+    buttonContainer.appendChild(createButton('📂 Developer Portfolio', 'https://abubakkardve.github.io/SmartDev-Solutions'));
+    
+    const closeButton = document.createElement('button');
+    closeButton.textContent = 'Close';
+    closeButton.style.marginTop = '15px';
+    closeButton.style.padding = '8px 15px';
+    closeButton.style.backgroundColor = 'transparent';
+    closeButton.style.color = '#F0B90B';
+    closeButton.style.border = '1px solid #F0B90B';
+    closeButton.style.borderRadius = '5px';
+    closeButton.style.cursor = 'pointer';
+    closeButton.style.width = '100%';
+    closeButton.onclick = function() {
+        document.body.removeChild(popup);
+    };
+    
+    popupContent.appendChild(message);
+    popupContent.appendChild(buttonContainer);
+    popupContent.appendChild(closeButton);
+    popup.appendChild(popupContent);
+    document.body.appendChild(popup);
 }
 
 // Clear preview
@@ -680,10 +949,10 @@ function generateEmbedCode(ad) {
     switch(ad.type) {
         case 'banner':
             embedCode = `
-<div style="width: ${ad.width}px; height: ${ad.height}px; background-color: ${ad.bgColor}; position: relative; overflow: hidden; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')">
-    ${ad.image ? `<img src="${ad.image}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${ad.cropPosition};">` : ''}
-    ${ad.text ? `<div style="position: absolute; bottom: 0; left: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 10px; text-align: center;">${ad.text}</div>` : ''}
-</div>`;
+                <div style="width: ${ad.width}px; height: ${ad.height}px; background-color: ${ad.bgColor}; position: relative; overflow: hidden; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')">
+                    ${ad.image ? `<img src="${ad.image}" style="width: 100%; height: 100%; object-fit: cover; object-position: ${ad.cropPosition};">` : ''}
+                    ${ad.text ? `<div style="position: absolute; bottom: 0; left: 0; right: 0; background-color: rgba(0,0,0,0.7); color: white; padding: 10px; text-align: center;">${ad.text}</div>` : ''}
+                </div>`;
             break;
             
         case 'video':
@@ -699,187 +968,186 @@ function generateEmbedCode(ad) {
                 if (videoId) {
                     const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0`;
                     embedCode = `
-<div style="width: ${ad.width}px; height: ${ad.height}px; position: relative;">
-    <iframe src="${embedUrl}" style="width: 100%; height: 100%; border: none;"></iframe>
-    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')"></div>
-</div>`;
+                        <div style="width: ${ad.width}px; height: ${ad.height}px; position: relative;">
+                            <iframe src="${embedUrl}" style="width: 100%; height: 100%; border: none;"></iframe>
+                            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')"></div>
+                        </div>`;
                 }
             } else {
                 // Direct video embed code with auto-play and sound control
                 embedCode = `
-<div style="width: ${ad.width}px; height: ${ad.height}px; position: relative;">
-    <video id="video-ad" style="width: 100%; height: 100%;" autoplay muted loop playsinline>
-        <source src="${ad.video}" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
-    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')"></div>
-    <script>
-        // Enable sound on user interaction
-        const videoAd = document.getElementById('video-ad');
-        const enableSound = function() {
-            videoAd.muted = false;
-            document.removeEventListener('scroll', enableSound);
-            document.removeEventListener('click', enableSound);
-            document.removeEventListener('touchstart', enableSound);
-        };
-        
-        document.addEventListener('scroll', enableSound);
-        document.addEventListener('click', enableSound);
-        document.addEventListener('touchstart', enableSound);
-    </script>
-</div>`;
+                    <div style="width: ${ad.width}px; height: ${ad.height}px; position: relative;">
+                        <video id="video-ad" style="width: 100%; height: 100%;" autoplay muted loop playsinline>
+                            <source src="${ad.video}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')"></div>
+                        <script>
+                            // Enable sound on user interaction
+                            const videoAd = document.getElementById('video-ad');
+                            const enableSound = function() {
+                                videoAd.muted = false;
+                                document.removeEventListener('scroll', enableSound);
+                                document.removeEventListener('click', enableSound);
+                                document.removeEventListener('touchstart', enableSound);
+                            };
+                            document.addEventListener('scroll', enableSound);
+                            document.addEventListener('click', enableSound);
+                            document.addEventListener('touchstart', enableSound);
+                        </script>
+                    </div>`;
             }
             break;
             
         case 'social':
             const isVertical = ad.position === 'left' || ad.position === 'right';
             embedCode = `
-<div style="position: fixed; ${ad.position}: 0; ${isVertical ? 'width: 50px; height: 100%;' : 'width: 100%; height: 50px;'} background-color: ${ad.bgColor}; display: flex; ${isVertical ? 'flex-direction: column;' : ''} align-items: center; justify-content: center; z-index: 1000;">
-    <button style="padding: 8px 15px; background-color: #F0B90B; color: #1E2026; border: none; border-radius: 4px; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')">
-        ${ad.text || 'Click Here'}
-    </button>
-</div>`;
+                <div style="position: fixed; ${ad.position}: 0; ${isVertical ? 'width: 50px; height: 100%;' : 'width: 100%; height: 50px;'} background-color: ${ad.bgColor}; display: flex; ${isVertical ? 'flex-direction: column;' : ''} align-items: center; justify-content: center; z-index: 1000;">
+                    <button style="padding: 8px 15px; background-color: #F0B90B; color: #1E2026; border: none; border-radius: 4px; cursor: pointer;" onclick="window.open('${ad.link}', '_blank')">
+                        ${ad.text || 'Click Here'}
+                    </button>
+                </div>`;
             break;
             
         case 'popup':
             embedCode = `
-<script>
-    function showPopupAd() {
-        const popup = document.createElement('div');
-        popup.style.position = 'fixed';
-        popup.style.top = '0';
-        popup.style.left = '0';
-        popup.style.width = '100%';
-        popup.style.height = '100%';
-        popup.style.backgroundColor = 'rgba(0,0,0,0.7)';
-        popup.style.zIndex = '1000';
-        popup.style.display = 'flex';
-        popup.style.justifyContent = 'center';
-        popup.style.alignItems = 'center';
-        
-        const popupContent = document.createElement('div');
-        popupContent.style.width = '80%';
-        popupContent.style.height = '80%';
-        popupContent.style.backgroundColor = '${ad.bgColor}';
-        popupContent.style.padding = '20px';
-        popupContent.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
-        popupContent.style.position = 'relative';
-        
-        ${ad.image ? `const img = document.createElement('img');
-        img.src = '${ad.image}';
-        img.style.maxWidth = '100%';
-        img.style.maxHeight = '70%';
-        img.style.display = 'block';
-        img.style.margin = '0 auto';
-        img.style.objectPosition = '${ad.cropPosition}';
-        popupContent.appendChild(img);` : ''}
-        
-        ${ad.text ? `const textDiv = document.createElement('div');
-        textDiv.textContent = '${ad.text.replace(/'/g, "\\'")}';
-        textDiv.style.marginTop = '15px';
-        textDiv.style.textAlign = 'center';
-        popupContent.appendChild(textDiv);` : ''}
-        
-        const closeButton = document.createElement('button');
-        closeButton.textContent = 'X';
-        closeButton.style.position = 'absolute';
-        closeButton.style.top = '5px';
-        closeButton.style.right = '5px';
-        closeButton.style.backgroundColor = 'transparent';
-        closeButton.style.border = 'none';
-        closeButton.style.fontSize = '16px';
-        closeButton.style.cursor = 'pointer';
-        closeButton.onclick = function() {
-            document.body.removeChild(popup);
-        };
-        popupContent.appendChild(closeButton);
-        
-        popupContent.style.cursor = 'pointer';
-        popupContent.onclick = function() {
-            window.open('${ad.link}', '_blank');
-        };
-        
-        popup.appendChild(popupContent);
-        document.body.appendChild(popup);
-        
-        setTimeout(function() {
-            if (document.body.contains(popup)) {
-                document.body.removeChild(popup);
-            }
-        }, ${ad.duration * 1000});
-    }
-    
-    // Show popup after 3 seconds
-    setTimeout(showPopupAd, 3000);
-</script>`;
+                <script>
+                    function showPopupAd() {
+                        const popup = document.createElement('div');
+                        popup.style.position = 'fixed';
+                        popup.style.top = '0';
+                        popup.style.left = '0';
+                        popup.style.width = '100%';
+                        popup.style.height = '100%';
+                        popup.style.backgroundColor = 'rgba(0,0,0,0.7)';
+                        popup.style.zIndex = '1000';
+                        popup.style.display = 'flex';
+                        popup.style.justifyContent = 'center';
+                        popup.style.alignItems = 'center';
+                        
+                        const popupContent = document.createElement('div');
+                        popupContent.style.width = '80%';
+                        popupContent.style.height = '80%';
+                        popupContent.style.backgroundColor = '${ad.bgColor}';
+                        popupContent.style.padding = '20px';
+                        popupContent.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
+                        popupContent.style.position = 'relative';
+                        
+                        ${ad.image ? `const img = document.createElement('img');
+                            img.src = '${ad.image}';
+                            img.style.maxWidth = '100%';
+                            img.style.maxHeight = '70%';
+                            img.style.display = 'block';
+                            img.style.margin = '0 auto';
+                            img.style.objectPosition = '${ad.cropPosition}';
+                            popupContent.appendChild(img);` : ''}
+                        
+                        ${ad.text ? `const textDiv = document.createElement('div');
+                            textDiv.textContent = '${ad.text.replace(/'/g, "\\'")}';
+                            textDiv.style.marginTop = '15px';
+                            textDiv.style.textAlign = 'center';
+                            popupContent.appendChild(textDiv);` : ''}
+                        
+                        const closeButton = document.createElement('button');
+                        closeButton.textContent = 'X';
+                        closeButton.style.position = 'absolute';
+                        closeButton.style.top = '5px';
+                        closeButton.style.right = '5px';
+                        closeButton.style.backgroundColor = 'transparent';
+                        closeButton.style.border = 'none';
+                        closeButton.style.fontSize = '16px';
+                        closeButton.style.cursor = 'pointer';
+                        closeButton.onclick = function() {
+                            document.body.removeChild(popup);
+                        };
+                        
+                        popupContent.appendChild(closeButton);
+                        popupContent.style.cursor = 'pointer';
+                        popupContent.onclick = function() {
+                            window.open('${ad.link}', '_blank');
+                        };
+                        
+                        popup.appendChild(popupContent);
+                        document.body.appendChild(popup);
+                        
+                        setTimeout(function() {
+                            if (document.body.contains(popup)) {
+                                document.body.removeChild(popup);
+                            }
+                        }, ${ad.duration * 1000});
+                    }
+                    
+                    // Show popup after 3 seconds
+                    setTimeout(showPopupAd, 3000);
+                </script>`;
             break;
             
         case 'fullscreen':
             embedCode = `
-<script>
-    function showFullscreenAd() {
-        const overlay = document.createElement('div');
-        overlay.style.position = 'fixed';
-        overlay.style.top = '0';
-        overlay.style.left = '0';
-        overlay.style.width = '100%';
-        overlay.style.height = '100vh';
-        overlay.style.backgroundColor = '${ad.bgColor}';
-        overlay.style.zIndex = '10000';
-        
-        ${ad.image ? `const img = document.createElement('img');
-        img.src = '${ad.image}';
-        img.style.width = '100%';
-        img.style.height = '100%';
-        img.style.objectFit = 'cover';
-        img.style.objectPosition = '${ad.cropPosition}';
-        overlay.appendChild(img);` : ''}
-        
-        ${ad.text ? `const textDiv = document.createElement('div');
-        textDiv.textContent = '${ad.text.replace(/'/g, "\\'")}';
-        textDiv.style.position = 'absolute';
-        textDiv.style.bottom = '20%';
-        textDiv.style.left = '0';
-        textDiv.style.right = '0';
-        textDiv.style.backgroundColor = 'rgba(0,0,0,0.7)';
-        textDiv.style.color = 'white';
-        textDiv.style.padding = '20px';
-        textDiv.style.textAlign = 'center';
-        overlay.appendChild(textDiv);` : ''}
-        
-        const skipButton = document.createElement('button');
-        skipButton.textContent = 'Skip Ad';
-        skipButton.style.position = 'absolute';
-        skipButton.style.bottom = '20px';
-        skipButton.style.right = '20px';
-        skipButton.style.padding = '8px 15px';
-        skipButton.style.backgroundColor = 'rgba(0,0,0,0.5)';
-        skipButton.style.color = 'white';
-        skipButton.style.border = 'none';
-        skipButton.style.borderRadius = '4px';
-        skipButton.style.cursor = 'pointer';
-        skipButton.onclick = function() {
-            document.body.removeChild(overlay);
-        };
-        overlay.appendChild(skipButton);
-        
-        overlay.style.cursor = 'pointer';
-        overlay.onclick = function() {
-            window.open('${ad.link}', '_blank');
-        };
-        
-        document.body.appendChild(overlay);
-        
-        setTimeout(function() {
-            if (document.body.contains(overlay)) {
-                document.body.removeChild(overlay);
-            }
-        }, ${ad.duration * 1000});
-    }
-    
-    // Show fullscreen ad immediately
-    showFullscreenAd();
-</script>`;
+                <script>
+                    function showFullscreenAd() {
+                        const overlay = document.createElement('div');
+                        overlay.style.position = 'fixed';
+                        overlay.style.top = '0';
+                        overlay.style.left = '0';
+                        overlay.style.width = '100%';
+                        overlay.style.height = '100vh';
+                        overlay.style.backgroundColor = '${ad.bgColor}';
+                        overlay.style.zIndex = '10000';
+                        
+                        ${ad.image ? `const img = document.createElement('img');
+                            img.src = '${ad.image}';
+                            img.style.width = '100%';
+                            img.style.height = '100%';
+                            img.style.objectFit = 'cover';
+                            img.style.objectPosition = '${ad.cropPosition}';
+                            overlay.appendChild(img);` : ''}
+                        
+                        ${ad.text ? `const textDiv = document.createElement('div');
+                            textDiv.textContent = '${ad.text.replace(/'/g, "\\'")}';
+                            textDiv.style.position = 'absolute';
+                            textDiv.style.bottom = '20%';
+                            textDiv.style.left = '0';
+                            textDiv.style.right = '0';
+                            textDiv.style.backgroundColor = 'rgba(0,0,0,0.7)';
+                            textDiv.style.color = 'white';
+                            textDiv.style.padding = '20px';
+                            textDiv.style.textAlign = 'center';
+                            overlay.appendChild(textDiv);` : ''}
+                        
+                        const skipButton = document.createElement('button');
+                        skipButton.textContent = 'Skip Ad';
+                        skipButton.style.position = 'absolute';
+                        skipButton.style.bottom = '20px';
+                        skipButton.style.right = '20px';
+                        skipButton.style.padding = '8px 15px';
+                        skipButton.style.backgroundColor = 'rgba(0,0,0,0.5)';
+                        skipButton.style.color = 'white';
+                        skipButton.style.border = 'none';
+                        skipButton.style.borderRadius = '4px';
+                        skipButton.style.cursor = 'pointer';
+                        skipButton.onclick = function() {
+                            document.body.removeChild(overlay);
+                        };
+                        
+                        overlay.appendChild(skipButton);
+                        overlay.style.cursor = 'pointer';
+                        overlay.onclick = function() {
+                            window.open('${ad.link}', '_blank');
+                        };
+                        
+                        document.body.appendChild(overlay);
+                        
+                        setTimeout(function() {
+                            if (document.body.contains(overlay)) {
+                                document.body.removeChild(overlay);
+                            }
+                        }, ${ad.duration * 1000});
+                    }
+                    
+                    // Show fullscreen ad immediately
+                    showFullscreenAd();
+                </script>`;
             break;
     }
     
@@ -909,7 +1177,6 @@ function generateShareableLink(ad) {
     
     // Create shareable URL
     const shareableLink = `${window.location.origin}${window.location.pathname}#/ad/${adDataBase64}`;
-    
     document.getElementById('short-link').textContent = shareableLink;
 }
 
@@ -1307,7 +1574,6 @@ function copyToClipboard(elementId) {
 // Check for hash routing
 function checkHashRouting() {
     const hash = window.location.hash;
-    
     if (hash.startsWith('#/ad/')) {
         const adDataBase64 = hash.replace('#/ad/', '');
         
@@ -1558,6 +1824,7 @@ function checkHashRouting() {
                         document.body.removeChild(preview);
                         window.location.hash = '';
                     };
+                    
                     adContainer.appendChild(skipButton);
                     break;
             }
