@@ -394,26 +394,32 @@ button:hover {
     .tabs {
         flex-direction: column;
     }
+    
     .tab {
         border-radius: 0;
         margin-right: 0;
         margin-bottom: 2px;
     }
+    
     .ad-item {
         flex-direction: column;
         align-items: flex-start;
     }
+    
     .ad-item-actions {
         margin-top: 10px;
         align-self: flex-end;
     }
+    
     .modal-content {
         width: 95%;
         margin: 10% auto;
     }
+    
     #header-ad {
         height: 60px;
     }
+    
     #header-ad div {
         font-size: 10px;
         padding: 5px;
@@ -424,19 +430,24 @@ button:hover {
     .preview-actions {
         flex-direction: column;
     }
+    
     .crop-btn, .clear-btn {
         width: 100%;
     }
+    
     #header-ad {
         height: 50px;
     }
+    
     #header-ad div {
         font-size: 8px;
         padding: 3px;
     }
+    
     header h1 {
         font-size: 2rem;
     }
+    
     .tagline {
         font-size: 0.9rem;
     }
