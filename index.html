@@ -10,6 +10,66 @@
     <meta property="og:url" content="https://example.com">
     <meta property="og:type" content="website">
     <link rel="stylesheet" href="style.css">
+    
+    <!-- Ad Scripts -->
+    <script type="text/javascript">
+        atOptions = {
+            'key': '7042485dacd2ed37f414c112ab42d1fe',
+            'format': 'iframe',
+            'height': 250,
+            'width': 300,
+            'params': {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/7042485dacd2ed37f414c112ab42d1fe/invoke.js"></script>
+
+    <script type="text/javascript">
+        atOptions = {
+            'key': 'f22e84ab6933de7560b1c58944107cb2',
+            'format': 'iframe',
+            'height': 90,
+            'width': 728,
+            'params': {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/f22e84ab6933de7560b1c58944107cb2/invoke.js"></script>
+
+    <script type="text/javascript">
+        atOptions = {
+            'key': '154723b96a181bd35f7d788ea51287dc',
+            'format': 'iframe',
+            'height': 300,
+            'width': 160,
+            'params': {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/154723b96a181bd35f7d788ea51287dc/invoke.js"></script>
+
+    <script type="text/javascript">
+        atOptions = {
+            'key': 'e4f5f3f71157bf52dda4460f12a9d5c5',
+            'format': 'iframe',
+            'height': 60,
+            'width': 468,
+            'params': {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/e4f5f3f71157bf52dda4460f12a9d5c5/invoke.js"></script>
+
+    <script type="text/javascript">
+        atOptions = {
+            'key': '5bc25cd0b371c68f0dbd30840a1d91c1',
+            'format': 'iframe',
+            'height': 50,
+            'width': 320,
+            'params': {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/5bc25cd0b371c68f0dbd30840a1d91c1/invoke.js"></script>
+
+    <script type='text/javascript' src='//pl27170826.profitableratecpm.com/5f/d8/97/5fd8973ec39689272d4fa4e12e3abef9.js'></script>
+    <script type='text/javascript' src='//pl27170833.profitableratecpm.com/c2/ff/69/c2ff69165d258c6bafc1f6a8a9797a58.js'></script>
+    <script async="async" data-cfasync="false" src="//pl27170817.profitableratecpm.com/3306bec72b792123b7ff703f7905b4f6/invoke.js"></script>
 </head>
 <body>
     <!-- Fixed Header Ad -->
@@ -41,6 +101,7 @@
                     <label for="ad-name">Ad Name</label>
                     <input type="text" id="ad-name" required placeholder="My Awesome Ad">
                 </div>
+                
                 <div class="form-group">
                     <label for="ad-type">Ad Type</label>
                     <select id="ad-type" onchange="updateFormFields()">
@@ -51,6 +112,7 @@
                         <option value="fullscreen">Fullscreen Ad</option>
                     </select>
                 </div>
+                
                 <div class="form-group" id="size-container">
                     <label>Ad Size</label>
                     <div class="ad-size-options">
@@ -68,24 +130,29 @@
                         </div>
                     </div>
                 </div>
+                
                 <div class="form-group">
                     <label for="ad-image">Image URL</label>
                     <input type="url" id="ad-image" placeholder="https://example.com/image.jpg">
                     <small>For banner, popup, and fullscreen ads</small>
                 </div>
+                
                 <div class="form-group" id="video-url-container" style="display: none;">
                     <label for="ad-video">Video URL</label>
                     <input type="url" id="ad-video" placeholder="https://example.com/video.mp4 or YouTube embed URL">
                     <small>For video ads (MP4, YouTube, Google Drive etc.)</small>
                 </div>
+                
                 <div class="form-group">
                     <label for="ad-link">Destination URL</label>
                     <input type="url" id="ad-link" required placeholder="https://example.com">
                 </div>
+                
                 <div class="form-group">
                     <label for="ad-text">Ad Text</label>
                     <textarea id="ad-text" rows="3" placeholder="Enter your ad text here..."></textarea>
                 </div>
+                
                 <div class="form-group">
                     <label>Background Color</label>
                     <div class="color-picker">
@@ -98,11 +165,13 @@
                     </div>
                     <input type="hidden" id="bg-color" value="#ffffff">
                 </div>
+                
                 <div class="form-group">
                     <label for="ad-duration">Display Duration (seconds)</label>
                     <input type="number" id="ad-duration" min="1" value="5" style="width: 100px;">
                     <small>For popup and fullscreen ads</small>
                 </div>
+                
                 <div class="form-group">
                     <label for="ad-position">Position</label>
                     <select id="ad-position">
@@ -114,6 +183,7 @@
                     </select>
                     <small>For social bar and popup ads</small>
                 </div>
+                
                 <div class="form-group">
                     <label for="crop-position">Crop Position</label>
                     <select id="crop-position">
@@ -125,9 +195,10 @@
                     </select>
                     <small>For image cropping</small>
                 </div>
+                
                 <button type="button" class="generate-btn" onclick="generateAd()">Generate Ad</button>
             </form>
-
+            
             <div class="preview-container">
                 <div class="preview-title">Preview</div>
                 <div id="ad-preview" class="ad-preview" style="width: 300px; height: 250px; background-color: #ffffff;">
@@ -141,7 +212,7 @@
                     <button class="clear-btn" onclick="clearPreview()">Clear Preview</button>
                 </div>
             </div>
-
+            
             <div class="ad-code">
                 <label>Embed Code</label>
                 <div class="code-block" id="embed-code">
@@ -150,7 +221,7 @@
                 </div>
                 <button class="copy-btn" onclick="copyToClipboard('embed-code')">Copy Code</button>
             </div>
-
+            
             <div class="ad-code">
                 <label>Shareable Link</label>
                 <div class="code-block" id="short-link">
@@ -183,6 +254,7 @@
                     <li>Click "Generate Ad" to create your ad</li>
                     <li>Copy the embed code or shareable link to use your ad</li>
                 </ol>
+                
                 <h3>Ad Types</h3>
                 <ul>
                     <li><strong>Banner Ad:</strong> Standard display ad in various sizes</li>
@@ -191,8 +263,10 @@
                     <li><strong>Popup Ad:</strong> Appears after a delay or user action</li>
                     <li><strong>Fullscreen Ad:</strong> Covers the entire viewport</li>
                 </ul>
+                
                 <h3>Video Auto-Play Policy</h3>
                 <p>Video ads will automatically play in muted mode according to browser policies. Sound will be enabled after user interaction (scroll, click, or touch).</p>
+                
                 <h3>Tips</h3>
                 <ul>
                     <li>Use high-quality images for best results</li>
@@ -223,6 +297,8 @@
         </div>
     </div>
 
+    <div id="container-3306bec72b792123b7ff703f7905b4f6"></div>
+    
     <script src="script.js"></script>
 </body>
 </html>
