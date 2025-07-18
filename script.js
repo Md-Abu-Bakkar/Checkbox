@@ -81,7 +81,7 @@ const adScripts = {
     
     'native': `<div id="youtube-videos"></div>
     <script>
-        const apiKey = "AIzaSyCRA7g2azKSoLoG6u2RSbkg3uMzJjtUd6A";
+        const apiKey = "api Google.3";
         const channelId = "UCiaRAw6ZC0i-JK83RwS4bkQ";
         const maxResults = 3;
         const redirectUrl = "https://abubakkardve.github.io/SmartDev-Solutions";
