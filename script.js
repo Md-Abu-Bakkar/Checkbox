@@ -445,6 +445,23 @@ function openTab(evt, tabName) {
     document.getElementById(tabName).classList.add('active');
     evt.currentTarget.classList.add('active');
 }
+// updateFormFields ফাংশনে এই পরিবর্তন করুন
+function updateFormFields() {
+  const adType = document.getElementById('ad-type').value;
+
+  // Show/hide video URL field
+  document.getElementById('video-url-container').style.display = adType === 'video' ? 'block' : 'none';
+  document.getElementById('cloudinary-url-container').style.display = adType === 'cloudinary' ? 'block' : 'none';
+
+  // Show/hide size options for certain ad types
+  document.getElementById('size-container').style.display = adType === 'social' || adType === 'fullscreen' ? 'none' : 'block';
+
+  // Show/hide Link Exchanger button
+  document.getElementById('openBtn').style.display = adType === 'cloudinary' ? 'block' : 'none';
+
+  // Update preview
+  updatePreview();
+}
 
 // Update form fields based on ad type
 function updateFormFields() {
