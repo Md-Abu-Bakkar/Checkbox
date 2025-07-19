@@ -1,6 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <title>Link Exchanger</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+    }
+
+    #openBtn {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      background: #FFD700;
+      color: #000;
+      border: none;
+      border-radius: 30px;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(255, 215, 0, 0.4);
+      z-index: 1000;
+    }
+
+    .popup {
+      position: fixed;
+      bottom: 70px;
+      right: 16px;
+      background: #222;
+      border: 1px solid #FFD700;
+      border-radius: 10px;
+      width: 260px;
+      padding: 14px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+      display: none;
+      z-index: 999;
+    }
+
+    .popup input {
+      width: 100%;
+      padding: 6px;
+      border: 1px solid #444;
+      border-radius: 6px;
+      background: #333;
+      color: #fff;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .popup button {
+      width: 100%;
+      background: #FFD700;
+      color: #000;
+      border: none;
+      padding: 7px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 4px;
+      font-size: 13px;
+    }
+
+    .popup .result {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #FFD700;
+      word-break: break-all;
+    }
+
+    .close {
+      position: absolute;
+      top: 6px;
+      right: 10px;
+      color: #FFD700;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .copy-btn {
+      background: transparent;
+      border: none;
+      color: #FFD700;
+      font-size: 12px;
+      cursor: pointer;
+      float: right;
+    }
+  </style>
+</head>
+<body>
+
+<button id="openBtn">Link Exchanger</button>
+
+<div class="popup" id="popup">
+  <span class="close" onclick="togglePopup()">×</span>
+  <input type="text" id="linkInput" placeholder="Paste embed link...">
+  <button onclick="generate()">Generate</button>
+  <div class="result" id="resultContainer" style="display:none;">
+    <span id="resultLink"></span>
+    <button class="copy-btn" onclick="copyLink()">Copy</button>
+  </div>
+</div>
+
+<script>
+  function togglePopup() {
+    const popup = document.getElementById('popup');
+    popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+  }
+
+  document.getElementById('openBtn').addEventListener('click', togglePopup);
+
+  function generate() {
+    const input = document.getElementById('linkInput').value.trim();
+    const result = document.getElementById('resultLink');
+    const container = document.getElementById('resultContainer');
+
+    try {
+      const url = new URL(input);
+      const cloud = url.searchParams.get('cloud_name');
+      const id = url.searchParams.get('public_id');
+      if (cloud && id) {
+        const mp4 = `https://res.cloudinary.com/${cloud}/video/upload/q_auto,f_auto/${id}.mp4`;
+        result.textContent = mp4;
+        container.style.display = 'block';
+      } else {
+        result.textContent = 'Invalid format.';
+        container.style.display = 'block';
+      }
+    } catch {
+      result.textContent = 'Invalid URL.';
+      container.style.display = 'block';
+    }
+  }
+
+  function copyLink() {
+    const text = document.getElementById('resultLink').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Link copied!');
+    });
+  }
+</script>
+
+</body>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MakeMyAd - Professional Ad Generator</title>
