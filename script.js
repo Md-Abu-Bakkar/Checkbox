@@ -2031,3 +2031,49 @@ function checkHashRouting() {
         }
     }
 }
+// Link Exchanger Functions
+function togglePopup() {
+  const popup = document.getElementById('popup');
+  popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+}
+
+function showLinkExchanger() {
+  document.getElementById('openBtn').style.display = 'block';
+  document.getElementById('openBtn').addEventListener('click', togglePopup);
+}
+
+function generate() {
+  const input = document.getElementById('linkInput').value.trim();
+  const result = document.getElementById('resultLink');
+  const container = document.getElementById('resultContainer');
+
+  try {
+    const url = new URL(input);
+    const cloud = url.searchParams.get('cloud_name');
+    const id = url.searchParams.get('public_id');
+    if (cloud && id) {
+      const mp4 = `https://res.cloudinary.com/${cloud}/video/upload/q_auto,f_auto/${id}.mp4`;
+      result.textContent = mp4;
+      container.style.display = 'block';
+    } else {
+      result.textContent = 'Invalid format.';
+      container.style.display = 'block';
+    }
+  } catch {
+    result.textContent = 'Invalid URL.';
+    container.style.display = 'block';
+  }
+}
+
+function copyLink() {
+  const text = document.getElementById('resultLink').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('Link copied!');
+  });
+}
+
+// DOMContentLoaded ইভেন্টে showLinkExchanger() ফাংশন কল করুন
+document.addEventListener('DOMContentLoaded', function() {
+  // ... অন্যান্য কোড ...
+  showLinkExchanger();
+});
