@@ -389,6 +389,68 @@ button:hover {
     padding: 8px 15px;
 }
 
+/* Cloudinary Video Ad Styles */
+.cloudinary-video-container {
+    position: relative;
+    width: 100%;
+    max-width: 640px;
+    margin: auto;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    border-radius: 10px;
+    background-color: #000;
+}
+
+.cloudinary-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.cloudinary-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    z-index: 5;
+}
+
+.cloudinary-sound-btn {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    background: rgba(0,0,0,0.6);
+    border: none;
+    padding: 8px;
+    border-radius: 50%;
+    z-index: 10;
+    cursor: pointer;
+}
+
+.cloudinary-sound-btn img {
+    width: 20px;
+    height: 20px;
+}
+
+/* Developer Popup Responsive */
+@media (max-width: 768px) {
+    #developer-popup {
+        max-width: 250px;
+        bottom: 10px;
+        left: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    #developer-popup {
+        max-width: 200px;
+        padding: 10px;
+    }
+}
+
 /* Responsive styles */
 @media (max-width: 768px) {
     .tabs {
