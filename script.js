@@ -22,31 +22,188 @@ const demoAds = {
     </div>`
 };
 
+// Ad scripts for random display
+const adScripts = {
+    '300x250': `<script type="text/javascript">
+        atOptions = {
+            'key': '7042485dacd2ed37f414c112ab42d1fe',
+            'format': 'iframe',
+            'height': 250,
+            'width': 300,
+            'params': {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/7042485dacd2ed37f414c112ab42d1fe/invoke.js"></script>`,
+    '728x90': `<script type="text/javascript">
+        atOptions = {
+            'key': 'f22e84ab6933de7560b1c58944107cb2',
+            'format': 'iframe',
+            'height': 90,
+            'width': 728,
+            'params': {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/f22e84ab6933de7560b1c58944107cb2/invoke.js"></script>`,
+    '160x600': `<script type="text/javascript">
+        atOptions = {
+            'key': '154723b96a181bd35f7d788ea51287dc',
+            'format': 'iframe',
+            'height': 300,
+            'width': 160,
+            'params': {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/154723b96a181bd35f7d788ea51287dc/invoke.js"></script>`,
+    '468x60': `<script type="text/javascript">
+        atOptions = {
+            'key': 'e4f5f3f71157bf52dda4460f12a9d5c5',
+            'format': 'iframe',
+            'height': 60,
+            'width': 468,
+            'params': {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/e4f5f3f71157bf52dda4460f12a9d5c5/invoke.js"></script>`,
+    '320x50': `<script type="text/javascript">
+        atOptions = {
+            'key': '5bc25cd0b371c68f0dbd30840a1d91c1',
+            'format': 'iframe',
+            'height': 50,
+            'width': 320,
+            'params': {}
+        };
+    </script>
+    <script type="text/javascript" src="//www.highperformanceformat.com/5bc25cd0b371c68f0dbd30840a1d91c1/invoke.js"></script>`,
+    'native': `<div id="youtube-videos"></div>
+    <script>
+        const apiKey = "AIzaSyCRA7g2azKSoLoG6u2RSbkg3uMzJjtUd6A";
+        const channelId = "UCiaRAw6ZC0i-JK83RwS4bkQ";
+        const maxResults = 3;
+        const redirectUrl = "https://abubakkardve.github.io/SmartDev-Solutions";
+        
+        fetch(\`https://www.googleapis.com/youtube/v3/search?key=\${apiKey}&channelId=\${channelId}&part=snippet,id&order=date&maxResults=\${maxResults}\`)
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById("youtube-videos");
+            data.items.forEach(item => {
+                const videoId = item.id.videoId;
+                if (videoId) {
+                    const videoContainer = document.createElement("div");
+                    videoContainer.style.position = "relative";
+                    videoContainer.style.marginBottom = "20px";
+                    
+                    const iframe = document.createElement("iframe");
+                    iframe.width = "100%";
+                    iframe.height = "315";
+                    iframe.src = \`https://www.youtube.com/embed/\${videoId}?autoplay=1&mute=1&rel=0&controls=1&showinfo=0\`;
+                    iframe.frameborder = "0";
+                    iframe.allow = "autoplay; encrypted-media";
+                    iframe.allowFullscreen = true;
+                    
+                    const overlay = document.createElement("div");
+                    overlay.style.position = "absolute";
+                    overlay.style.top = "0";
+                    overlay.style.left = "0";
+                    overlay.style.width = "100%";
+                    overlay.style.height = "100%";
+                    overlay.style.cursor = "pointer";
+                    overlay.style.zIndex = "10";
+                    overlay.onclick = () => {
+                        window.location.href = redirectUrl;
+                    };
+                    
+                    videoContainer.appendChild(iframe);
+                    videoContainer.appendChild(overlay);
+                    container.appendChild(videoContainer);
+                }
+            });
+        })
+        .catch(error => {
+            console.error("YouTube API Error:", error);
+            document.getElementById("youtube-videos").innerHTML = "ভিডিও লোড করতে সমস্যা হয়েছে।";
+        });
+    </script>`
+};
+
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if this is a direct view link (no ad networks should load)
+    if (window.location.pathname.includes('/view/')) {
+        // Hide all ad network containers
+        document.querySelectorAll('[id^="container-"], [id*="highperformanceformat"]').forEach(el => {
+            el.style.display = 'none';
+        });
+        
+        // Show developer popup after 3 seconds
+        setTimeout(() => {
+            document.getElementById('developer-popup').style.display = 'block';
+        }, 3000);
+    }
+
     // Load saved ads
     loadSavedAds();
-    
+
     // Set up event listeners
     setupEventListeners();
-    
+
     // Check for hash routing
     checkHashRouting();
-    
+
     // Initialize color picker
     initColorPicker();
-    
+
     // Initialize size options
     initSizeOptions();
-    
+
     // Show demo ad in preview
     showDemoAd();
-    
+
     // Show popup message after 5 seconds
     setTimeout(showPopupMessage, 5000);
-    
-    // Show fullscreen ad once per day
-    showFullscreenAdOncePerDay();
+
+    // Show random ad on homepage occasionally
+    if (window.location.hash === '' || window.location.hash === '#') {
+        if (Math.random() < 0.3) { // 30% chance to show ad on homepage
+            setTimeout(() => {
+                const adTypes = ['300x250', '728x90', '160x600', '468x60', '320x50', 'native'];
+                const randomAdType = adTypes[Math.floor(Math.random() * adTypes.length)];
+                const adContainer = document.createElement('div');
+                adContainer.style.position = 'fixed';
+                adContainer.style.bottom = '20px';
+                adContainer.style.right = '20px';
+                adContainer.style.zIndex = '1000';
+                adContainer.style.border = '2px solid #F0B90B';
+                adContainer.style.borderRadius = '5px';
+                adContainer.style.overflow = 'hidden';
+                
+                if (randomAdType === 'native') {
+                    adContainer.innerHTML = adScripts['native'];
+                } else {
+                    adContainer.innerHTML = adScripts[randomAdType];
+                }
+                
+                const closeBtn = document.createElement('button');
+                closeBtn.textContent = '×';
+                closeBtn.style.position = 'absolute';
+                closeBtn.style.top = '5px';
+                closeBtn.style.right = '5px';
+                closeBtn.style.backgroundColor = 'rgba(0,0,0,0.5)';
+                closeBtn.style.color = 'white';
+                closeBtn.style.border = 'none';
+                closeBtn.style.borderRadius = '50%';
+                closeBtn.style.width = '25px';
+                closeBtn.style.height = '25px';
+                closeBtn.style.cursor = 'pointer';
+                closeBtn.style.zIndex = '1001';
+                closeBtn.onclick = function() {
+                    document.body.removeChild(adContainer);
+                };
+                
+                adContainer.appendChild(closeBtn);
+                document.body.appendChild(adContainer);
+            }, 10000); // Show after 10 seconds
+        }
+    }
 });
 
 // Set up event listeners
@@ -60,16 +217,16 @@ function setupEventListeners() {
             updatePreview();
         });
     });
-    
+
     // Custom color picker
     document.getElementById('custom-color').addEventListener('input', function() {
         document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
         document.getElementById('bg-color').value = this.value;
         updatePreview();
     });
-    
+
     // Form changes that should update preview
-    const previewUpdateFields = ['ad-image', 'ad-video', 'ad-text', 'ad-link', 'bg-color', 'ad-position', 'crop-position'];
+    const previewUpdateFields = ['ad-image', 'ad-video', 'cloudinary-video', 'ad-text', 'ad-link', 'bg-color', 'ad-position', 'crop-position'];
     previewUpdateFields.forEach(id => {
         document.getElementById(id).addEventListener('input', updatePreview);
         document.getElementById(id).addEventListener('change', updatePreview);
@@ -103,7 +260,7 @@ function initSizeOptions() {
             }
         });
     });
-    
+
     // Custom size inputs
     document.getElementById('custom-width').addEventListener('input', function() {
         document.getElementById('ad-preview').style.width = `${this.value}px`;
@@ -116,16 +273,38 @@ function initSizeOptions() {
     });
 }
 
-// Show demo ad in preview
-function showDemoAd() {
+// Show random ad in preview
+function showRandomAd() {
     const preview = document.getElementById('ad-preview');
     const selectedSize = document.querySelector('.ad-size-option.selected').dataset.size;
-    
+
+    // Clear previous content
     preview.innerHTML = '';
+
+    // Check if user has entered any content
+    const hasUserContent = document.getElementById('ad-image').value || 
+                          document.getElementById('ad-video').value || 
+                          document.getElementById('cloudinary-video').value || 
+                          document.getElementById('ad-text').value;
     
-    if (selectedSize !== 'custom' && demoAds[selectedSize]) {
-        preview.innerHTML = demoAds[selectedSize];
+    if (hasUserContent) {
+        // If user has entered content, show their preview
+        updatePreview();
+        return;
+    }
+
+    // Show random ad based on selected size
+    if (selectedSize !== 'custom' && adScripts[selectedSize]) {
+        const adContainer = document.createElement('div');
+        adContainer.innerHTML = adScripts[selectedSize];
+        preview.appendChild(adContainer);
+    } else if (Math.random() > 0.7) {
+        // 30% chance to show native video ad for custom sizes
+        const adContainer = document.createElement('div');
+        adContainer.innerHTML = adScripts['native'];
+        preview.appendChild(adContainer);
     } else {
+        // Default placeholder
         preview.innerHTML = `
             <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background-color: #1E2026; color: #F0B90B; border: 2px dashed #F0B90B;">
                 <p>Your ad preview will appear here</p>
@@ -134,12 +313,34 @@ function showDemoAd() {
     }
 }
 
+// Show demo ad in preview
+function showDemoAd() {
+    // 80% chance to show random ad, 20% to show simple placeholder
+    if (Math.random() < 0.8) {
+        showRandomAd();
+    } else {
+        const preview = document.getElementById('ad-preview');
+        const selectedSize = document.querySelector('.ad-size-option.selected').dataset.size;
+        preview.innerHTML = '';
+        
+        if (selectedSize !== 'custom' && demoAds[selectedSize]) {
+            preview.innerHTML = demoAds[selectedSize];
+        } else {
+            preview.innerHTML = `
+                <div style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background-color: #1E2026; color: #F0B90B; border: 2px dashed #F0B90B;">
+                    <p>Your ad preview will appear here</p>
+                </div>
+            `;
+        }
+    }
+}
+
 // Show popup message
 function showPopupMessage() {
     // Only show once per session
     if (sessionStorage.getItem('popupShown')) return;
     sessionStorage.setItem('popupShown', 'true');
-    
+
     const popup = document.createElement('div');
     popup.style.position = 'fixed';
     popup.style.top = '0';
@@ -152,7 +353,7 @@ function showPopupMessage() {
     popup.style.justifyContent = 'center';
     popup.style.alignItems = 'center';
     popup.style.fontFamily = 'Arial, sans-serif';
-    
+
     const popupContent = document.createElement('div');
     popupContent.style.backgroundColor = '#1E2026';
     popupContent.style.padding = '20px';
@@ -160,7 +361,7 @@ function showPopupMessage() {
     popupContent.style.maxWidth = '500px';
     popupContent.style.width = '90%';
     popupContent.style.border = '2px solid #F0B90B';
-    
+
     const message = document.createElement('div');
     message.style.color = '#EAECEF';
     message.style.marginBottom = '20px';
@@ -171,12 +372,12 @@ function showPopupMessage() {
         <p style="margin-bottom: 15px;">🚀 MakeMyAd is a no-code, browser-based ad generator that lets you easily design banner, video, popup, and social bar ads — all without writing a single line of code.</p>
         <p style="color: #F0B90B; font-weight: bold;">🔽 Explore the following resources to get started:</p>
     `;
-    
+
     const buttonContainer = document.createElement('div');
     buttonContainer.style.display = 'flex';
     buttonContainer.style.flexDirection = 'column';
     buttonContainer.style.gap = '10px';
-    
+
     const createButton = (text, url) => {
         const btn = document.createElement('a');
         btn.href = url;
@@ -191,11 +392,11 @@ function showPopupMessage() {
         btn.textContent = text;
         return btn;
     };
-    
+
     buttonContainer.appendChild(createButton('▶️ Tutorial Video', 'https://youtu.be/M4gsrX0eYlg?si=wo0L2RXhi86KcUFe'));
     buttonContainer.appendChild(createButton('💬 Join Telegram Channel', 'https://t.me/smarttipsbd25'));
     buttonContainer.appendChild(createButton('📂 Developer Portfolio', 'https://abubakkardve.github.io/SmartDev-Solutions'));
-    
+
     const closeButton = document.createElement('button');
     closeButton.textContent = 'Close';
     closeButton.style.marginTop = '15px';
@@ -209,84 +410,12 @@ function showPopupMessage() {
     closeButton.onclick = function() {
         document.body.removeChild(popup);
     };
-    
+
     popupContent.appendChild(message);
     popupContent.appendChild(buttonContainer);
     popupContent.appendChild(closeButton);
     popup.appendChild(popupContent);
     document.body.appendChild(popup);
-}
-
-// Show fullscreen ad once per day
-function showFullscreenAdOncePerDay() {
-    const lastAdShown = localStorage.getItem('lastFullscreenAd');
-    const now = new Date().toDateString();
-    
-    if (lastAdShown !== now) {
-        localStorage.setItem('lastFullscreenAd', now);
-        
-        // Show after 10 seconds
-        setTimeout(() => {
-            const adContainer = document.createElement('div');
-            adContainer.style.position = 'fixed';
-            adContainer.style.top = '0';
-            adContainer.style.left = '0';
-            adContainer.style.width = '100%';
-            adContainer.style.height = '100vh';
-            adContainer.style.zIndex = '10000';
-            adContainer.style.backgroundColor = '#1E2026';
-            
-            // Add YouTube video player
-            const videoContainer = document.createElement('div');
-            videoContainer.style.width = '100%';
-            videoContainer.style.height = '100%';
-            videoContainer.style.position = 'relative';
-            
-            const iframe = document.createElement('iframe');
-            iframe.width = '100%';
-            iframe.height = '100%';
-            iframe.src = 'https://www.youtube.com/embed/M4gsrX0eYlg?autoplay=1&mute=1&rel=0&controls=0&showinfo=0';
-            iframe.frameborder = '0';
-            iframe.allow = 'autoplay; encrypted-media';
-            iframe.allowFullscreen = true;
-            
-            // Add clickable overlay
-            const overlay = document.createElement('div');
-            overlay.style.position = 'absolute';
-            overlay.style.top = '0';
-            overlay.style.left = '0';
-            overlay.style.width = '100%';
-            overlay.style.height = '100%';
-            overlay.style.cursor = 'pointer';
-            overlay.style.zIndex = '10';
-            overlay.onclick = () => {
-                window.location.href = 'https://abubakkardve.github.io/SmartDev-Solutions';
-            };
-            
-            // Add skip button
-            const skipButton = document.createElement('button');
-            skipButton.textContent = 'Skip Ad';
-            skipButton.style.position = 'absolute';
-            skipButton.style.bottom = '20px';
-            skipButton.style.right = '20px';
-            skipButton.style.padding = '8px 15px';
-            skipButton.style.backgroundColor = 'rgba(0,0,0,0.5)';
-            skipButton.style.color = 'white';
-            skipButton.style.border = 'none';
-            skipButton.style.borderRadius = '4px';
-            skipButton.style.cursor = 'pointer';
-            skipButton.style.zIndex = '11';
-            skipButton.onclick = function() {
-                document.body.removeChild(adContainer);
-            };
-            
-            videoContainer.appendChild(iframe);
-            videoContainer.appendChild(overlay);
-            adContainer.appendChild(videoContainer);
-            adContainer.appendChild(skipButton);
-            document.body.appendChild(adContainer);
-        }, 10000);
-    }
 }
 
 // Clear preview
@@ -307,12 +436,12 @@ function openTab(evt, tabName) {
     for (let i = 0; i < tabContents.length; i++) {
         tabContents[i].classList.remove('active');
     }
-    
+
     const tabs = document.getElementsByClassName('tab');
     for (let i = 0; i < tabs.length; i++) {
         tabs[i].classList.remove('active');
     }
-    
+
     document.getElementById(tabName).classList.add('active');
     evt.currentTarget.classList.add('active');
 }
@@ -320,13 +449,14 @@ function openTab(evt, tabName) {
 // Update form fields based on ad type
 function updateFormFields() {
     const adType = document.getElementById('ad-type').value;
-    
+
     // Show/hide video URL field
     document.getElementById('video-url-container').style.display = adType === 'video' ? 'block' : 'none';
-    
+    document.getElementById('cloudinary-url-container').style.display = adType === 'cloudinary' ? 'block' : 'none';
+
     // Show/hide size options for certain ad types
     document.getElementById('size-container').style.display = adType === 'social' || adType === 'fullscreen' ? 'none' : 'block';
-    
+
     // Update preview
     updatePreview();
 }
@@ -340,21 +470,22 @@ function updatePreview() {
     const adLink = document.getElementById('ad-link').value;
     const adImage = document.getElementById('ad-image').value;
     const adVideo = document.getElementById('ad-video').value;
+    const cloudinaryVideo = document.getElementById('cloudinary-video').value;
     const position = document.getElementById('ad-position').value;
     const cropPosition = document.getElementById('crop-position').value;
-    
+
     // Set background color
     preview.style.backgroundColor = bgColor;
-    
+
     // Clear previous content
     preview.innerHTML = '';
-    
+
     // If no user content, show demo ad
-    if (!adImage && !adVideo && !adText) {
+    if (!adImage && !adVideo && !cloudinaryVideo && !adText) {
         showDemoAd();
         return;
     }
-    
+
     // Create content based on ad type
     switch(adType) {
         case 'banner':
@@ -452,6 +583,61 @@ function updatePreview() {
                     
                     preview.appendChild(videoElement);
                 }
+            }
+            break;
+            
+        case 'cloudinary':
+            if (cloudinaryVideo) {
+                const videoContainer = document.createElement('div');
+                videoContainer.style.position = 'relative';
+                videoContainer.style.width = '100%';
+                videoContainer.style.height = '100%';
+                videoContainer.style.overflow = 'hidden';
+                videoContainer.style.backgroundColor = '#000';
+                
+                const video = document.createElement('video');
+                video.id = 'preview-cloudinary-video';
+                video.autoplay = true;
+                video.muted = true;
+                video.loop = true;
+                video.playsInline = true;
+                video.style.width = '100%';
+                video.style.height = '100%';
+                video.style.objectFit = 'cover';
+                video.src = cloudinaryVideo;
+                
+                const overlay = document.createElement('div');
+                overlay.style.position = 'absolute';
+                overlay.style.top = '0';
+                overlay.style.left = '0';
+                overlay.style.width = '100%';
+                overlay.style.height = '100%';
+                overlay.style.cursor = 'pointer';
+                overlay.style.zIndex = '5';
+                overlay.onclick = function() {
+                    if (adLink) window.open(adLink, '_blank');
+                };
+                
+                const soundBtn = document.createElement('button');
+                soundBtn.style.position = 'absolute';
+                soundBtn.style.bottom = '10px';
+                soundBtn.style.left = '10px';
+                soundBtn.style.backgroundColor = 'rgba(0,0,0,0.6)';
+                soundBtn.style.border = 'none';
+                soundBtn.style.borderRadius = '50%';
+                soundBtn.style.padding = '5px';
+                soundBtn.style.zIndex = '10';
+                soundBtn.style.cursor = 'pointer';
+                soundBtn.innerHTML = '<img src="https://cdn-icons-png.flaticon.com/512/727/727240.png" alt="Sound" style="width: 16px; height: 16px;">';
+                soundBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    video.muted = !video.muted;
+                };
+                
+                videoContainer.appendChild(video);
+                videoContainer.appendChild(overlay);
+                videoContainer.appendChild(soundBtn);
+                preview.appendChild(videoContainer);
             }
             break;
             
@@ -596,74 +782,8 @@ function updatePreview() {
             
             preview.appendChild(fullscreenContent);
             break;
-            
-        case 'native':
-            const nativeContainer = document.createElement('div');
-            nativeContainer.style.width = '100%';
-            nativeContainer.style.height = '100%';
-            nativeContainer.style.position = 'relative';
-            
-            const youtubeVideos = document.createElement('div');
-            youtubeVideos.id = 'youtube-videos';
-            youtubeVideos.style.width = '100%';
-            youtubeVideos.style.height = '100%';
-            
-            const script = document.createElement('script');
-            script.textContent = `
-                const apiKey = "AIzaSyCRA7g2azKSoLoG6u2RSbkg3uMzJjtUd6A";
-                const channelId = "UCiaRAw6ZC0i-JK83RwS4bkQ";
-                const maxResults = 3;
-                const redirectUrl = "https://abubakkardve.github.io/SmartDev-Solutions";
-                
-                fetch(\`https://www.googleapis.com/youtube/v3/search?key=\${apiKey}&channelId=\${channelId}&part=snippet,id&order=date&maxResults=\${maxResults}\`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const container = document.getElementById("youtube-videos");
-                        data.items.forEach(item => {
-                            const videoId = item.id.videoId;
-                            if (videoId) {
-                                const videoContainer = document.createElement("div");
-                                videoContainer.style.position = "relative";
-                                videoContainer.style.marginBottom = "20px";
-                                
-                                const iframe = document.createElement("iframe");
-                                iframe.width = "100%";
-                                iframe.height = "315";
-                                iframe.src = \`https://www.youtube.com/embed/\${videoId}?autoplay=1&mute=1&rel=0&controls=1&showinfo=0\`;
-                                iframe.frameborder = "0";
-                                iframe.allow = "autoplay; encrypted-media";
-                                iframe.allowFullscreen = true;
-                                
-                                const overlay = document.createElement("div");
-                                overlay.style.position = "absolute";
-                                overlay.style.top = "0";
-                                overlay.style.left = "0";
-                                overlay.style.width = "100%";
-                                overlay.style.height = "100%";
-                                overlay.style.cursor = "pointer";
-                                overlay.style.zIndex = "10";
-                                overlay.onclick = () => {
-                                    window.location.href = redirectUrl;
-                                };
-                                
-                                videoContainer.appendChild(iframe);
-                                videoContainer.appendChild(overlay);
-                                container.appendChild(videoContainer);
-                            }
-                        });
-                    })
-                    .catch(error => {
-                        console.error("YouTube API Error:", error);
-                        document.getElementById("youtube-videos").innerHTML = "ভিডিও লোড করতে সমস্যা হয়েছে।";
-                    });
-            `;
-            
-            nativeContainer.appendChild(youtubeVideos);
-            nativeContainer.appendChild(script);
-            preview.appendChild(nativeContainer);
-            break;
     }
-    
+
     // Make the preview clickable (for demo purposes)
     preview.style.cursor = 'pointer';
     preview.onclick = function() {
@@ -680,7 +800,7 @@ function showCropTool() {
         alert('Please add an image URL first');
         return;
     }
-    
+
     const modal = document.getElementById('crop-modal');
     const cropImage = document.getElementById('crop-image');
     cropImage.src = adImage;
@@ -688,16 +808,24 @@ function showCropTool() {
     cropImage.style.top = '0';
     cropImage.style.transform = 'scale(1)';
     currentCropSettings = { x: 0, y: 0, zoom: 1 };
-    
+
     // Set initial position based on crop position selection
     const cropPosition = document.getElementById('crop-position').value;
     let initialX = 0, initialY = 0;
     
     switch(cropPosition) {
-        case 'top': initialY = '-25%'; break;
-        case 'bottom': initialY = '25%'; break;
-        case 'left': initialX = '-25%'; break;
-        case 'right': initialX = '25%'; break;
+        case 'top':
+            initialY = '-25%';
+            break;
+        case 'bottom':
+            initialY = '25%';
+            break;
+        case 'left':
+            initialX = '-25%';
+            break;
+        case 'right':
+            initialX = '25%';
+            break;
     }
     
     cropImage.style.left = initialX;
@@ -706,14 +834,14 @@ function showCropTool() {
     currentCropSettings.y = parseInt(initialY) || 0;
     
     modal.style.display = 'block';
-    
+
     // Set up zoom slider
     document.getElementById('crop-zoom').addEventListener('input', function() {
         const zoomValue = parseFloat(this.value);
         cropImage.style.transform = `scale(${zoomValue})`;
         currentCropSettings.zoom = zoomValue;
     });
-    
+
     // Make image draggable
     let isDragging = false;
     let startX, startY;
@@ -735,7 +863,7 @@ function showCropTool() {
     document.addEventListener('mouseup', function() {
         isDragging = false;
     });
-    
+
     // Touch events for mobile
     cropImage.addEventListener('touchstart', function(e) {
         isDragging = true;
@@ -786,13 +914,14 @@ function generateAd() {
     const adType = document.getElementById('ad-type').value;
     const adImage = document.getElementById('ad-image').value;
     const adVideo = document.getElementById('ad-video').value;
+    const cloudinaryVideo = document.getElementById('cloudinary-video').value;
     const adLink = document.getElementById('ad-link').value;
     const adText = document.getElementById('ad-text').value;
     const bgColor = document.getElementById('bg-color').value;
     const duration = document.getElementById('ad-duration').value;
     const position = document.getElementById('ad-position').value;
     const cropPosition = document.getElementById('crop-position').value;
-    
+
     // Validate required fields
     if (!adName || !adLink) {
         alert('Please fill in all required fields (Ad Name and Destination URL)');
@@ -809,14 +938,17 @@ function generateAd() {
         return;
     }
     
+    if (adType === 'cloudinary' && !cloudinaryVideo) {
+        alert('Please add a Cloudinary video URL for this ad type');
+        return;
+    }
+
     // Get selected size
     let width, height;
     const selectedSize = document.querySelector('.ad-size-option.selected').dataset.size;
-    
     if (selectedSize === 'custom') {
         width = document.getElementById('custom-width').value;
         height = document.getElementById('custom-height').value;
-        
         if (!width || !height) {
             alert('Please enter custom width and height');
             return;
@@ -824,7 +956,7 @@ function generateAd() {
     } else {
         [width, height] = selectedSize.split('x');
     }
-    
+
     // For fullscreen and social ads, adjust size
     if (adType === 'fullscreen') {
         width = '100%';
@@ -838,7 +970,7 @@ function generateAd() {
             height = '50px';
         }
     }
-    
+
     // Create ad object
     const ad = {
         id: currentAdId || Date.now().toString(),
@@ -847,7 +979,7 @@ function generateAd() {
         width: width,
         height: height,
         image: adImage,
-        video: adVideo,
+        video: adType === 'cloudinary' ? cloudinaryVideo : adVideo,
         link: adLink,
         text: adText,
         bgColor: bgColor,
@@ -856,7 +988,7 @@ function generateAd() {
         cropPosition: cropPosition,
         createdAt: new Date().toISOString()
     };
-    
+
     // Save or update the ad
     if (currentAdId) {
         // Update existing ad
@@ -868,20 +1000,20 @@ function generateAd() {
         // Add new ad
         ads.push(ad);
     }
-    
+
     // Save to localStorage
     localStorage.setItem('makeMyAds', JSON.stringify(ads));
-    
+
     // Generate embed code and shareable link
     generateEmbedCode(ad);
     generateShareableLink(ad);
-    
+
     // Reload saved ads list
     loadSavedAds();
-    
+
     // Reset currentAdId
     currentAdId = null;
-    
+
     // Show success message
     alert(`Ad "${adName}" saved successfully!`);
 }
@@ -943,6 +1075,25 @@ function generateEmbedCode(ad) {
             }
             break;
             
+        case 'cloudinary':
+            embedCode = `
+<div style="position: relative; width: ${ad.width}px; height: ${ad.height}px; max-width: 100%; margin: auto; aspect-ratio: 16/9; overflow: hidden; border-radius: 10px; background-color: #000;">
+    <!-- Video -->
+    <video id="cloudinary-video-${ad.id}" autoplay muted loop playsinline preload="auto" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+        <source src="${ad.video}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    
+    <!-- Redirect clickable area -->
+    <div onclick="window.open('${ad.link}', '_blank')" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer; z-index: 5;"></div>
+    
+    <!-- Sound on button -->
+    <button onclick="document.getElementById('cloudinary-video-${ad.id}').muted = false" style="position: absolute; bottom: 15px; left: 15px; background: rgba(0,0,0,0.6); border: none; padding: 8px; border-radius: 50%; z-index: 10; cursor: pointer;">
+        <img src='https://cdn-icons-png.flaticon.com/512/727/727240.png' alt="Sound" style="width: 20px; height: 20px;">
+    </button>
+</div>`;
+            break;
+            
         case 'social':
             const isVertical = ad.position === 'left' || ad.position === 'right';
             embedCode = `
@@ -968,7 +1119,7 @@ function generateEmbedCode(ad) {
         popup.style.display = 'flex';
         popup.style.justifyContent = 'center';
         popup.style.alignItems = 'center';
-        
+
         const popupContent = document.createElement('div');
         popupContent.style.width = '80%';
         popupContent.style.height = '80%';
@@ -991,7 +1142,7 @@ function generateEmbedCode(ad) {
         textDiv.style.marginTop = '15px';
         textDiv.style.textAlign = 'center';
         popupContent.appendChild(textDiv);` : ''}
-        
+
         const closeButton = document.createElement('button');
         closeButton.textContent = 'X';
         closeButton.style.position = 'absolute';
@@ -1005,22 +1156,22 @@ function generateEmbedCode(ad) {
             document.body.removeChild(popup);
         };
         popupContent.appendChild(closeButton);
-        
+
         popupContent.style.cursor = 'pointer';
         popupContent.onclick = function() {
             window.open('${ad.link}', '_blank');
         };
-        
+
         popup.appendChild(popupContent);
         document.body.appendChild(popup);
-        
+
         setTimeout(function() {
             if (document.body.contains(popup)) {
                 document.body.removeChild(popup);
             }
         }, ${ad.duration * 1000});
     }
-    
+
     // Show popup after 3 seconds
     setTimeout(showPopupAd, 3000);
 </script>`;
@@ -1058,7 +1209,7 @@ function generateEmbedCode(ad) {
         textDiv.style.padding = '20px';
         textDiv.style.textAlign = 'center';
         overlay.appendChild(textDiv);` : ''}
-        
+
         const skipButton = document.createElement('button');
         skipButton.textContent = 'Skip Ad';
         skipButton.style.position = 'absolute';
@@ -1075,76 +1226,23 @@ function generateEmbedCode(ad) {
             document.body.removeChild(overlay);
         };
         overlay.appendChild(skipButton);
-        
+
         overlay.style.cursor = 'pointer';
         overlay.onclick = function() {
             window.open('${ad.link}', '_blank');
         };
-        
+
         document.body.appendChild(overlay);
-        
+
         setTimeout(function() {
             if (document.body.contains(overlay)) {
                 document.body.removeChild(overlay);
             }
         }, ${ad.duration * 1000});
     }
-    
+
     // Show fullscreen ad immediately
     showFullscreenAd();
-</script>`;
-            break;
-            
-        case 'native':
-            embedCode = `
-<div id="youtube-videos"></div>
-<script>
-    const apiKey = "AIzaSyCRA7g2azKSoLoG6u2RSbkg3uMzJjtUd6A";
-    const channelId = "UCiaRAw6ZC0i-JK83RwS4bkQ";
-    const maxResults = 3;
-    const redirectUrl = "https://abubakkardve.github.io/SmartDev-Solutions";
-    
-    fetch(\`https://www.googleapis.com/youtube/v3/search?key=\${apiKey}&channelId=\${channelId}&part=snippet,id&order=date&maxResults=\${maxResults}\`)
-        .then(response => response.json())
-        .then(data => {
-            const container = document.getElementById("youtube-videos");
-            data.items.forEach(item => {
-                const videoId = item.id.videoId;
-                if (videoId) {
-                    const videoContainer = document.createElement("div");
-                    videoContainer.style.position = "relative";
-                    videoContainer.style.marginBottom = "20px";
-                    
-                    const iframe = document.createElement("iframe");
-                    iframe.width = "100%";
-                    iframe.height = "315";
-                    iframe.src = \`https://www.youtube.com/embed/\${videoId}?autoplay=1&mute=1&rel=0&controls=1&showinfo=0\`;
-                    iframe.frameborder = "0";
-                    iframe.allow = "autoplay; encrypted-media";
-                    iframe.allowFullscreen = true;
-                    
-                    const overlay = document.createElement("div");
-                    overlay.style.position = "absolute";
-                    overlay.style.top = "0";
-                    overlay.style.left = "0";
-                    overlay.style.width = "100%";
-                    overlay.style.height = "100%";
-                    overlay.style.cursor = "pointer";
-                    overlay.style.zIndex = "10";
-                    overlay.onclick = () => {
-                        window.location.href = redirectUrl;
-                    };
-                    
-                    videoContainer.appendChild(iframe);
-                    videoContainer.appendChild(overlay);
-                    container.appendChild(videoContainer);
-                }
-            });
-        })
-        .catch(error => {
-            console.error("YouTube API Error:", error);
-            document.getElementById("youtube-videos").innerHTML = "ভিডিও লোড করতে সমস্যা হয়েছে।";
-        });
 </script>`;
             break;
     }
@@ -1169,13 +1267,12 @@ function generateShareableLink(ad) {
         position: ad.position,
         cropPosition: ad.cropPosition
     };
-    
+
     // Convert to base64
     const adDataBase64 = btoa(JSON.stringify(adData));
-    
+
     // Create shareable URL
     const shareableLink = `${window.location.origin}${window.location.pathname}#/ad/${adDataBase64}`;
-    
     document.getElementById('short-link').textContent = shareableLink;
 }
 
@@ -1213,22 +1310,23 @@ function editAd(adId) {
     if (!ad) return;
     
     currentAdId = adId;
-    
+
     // Fill the form with ad data
     document.getElementById('ad-name').value = ad.name;
     document.getElementById('ad-type').value = ad.type;
     document.getElementById('ad-image').value = ad.image || '';
-    document.getElementById('ad-video').value = ad.video || '';
+    document.getElementById('ad-video').value = ad.type !== 'cloudinary' ? ad.video || '' : '';
+    document.getElementById('cloudinary-video').value = ad.type === 'cloudinary' ? ad.video || '' : '';
     document.getElementById('ad-link').value = ad.link;
     document.getElementById('ad-text').value = ad.text || '';
     document.getElementById('bg-color').value = ad.bgColor;
     document.getElementById('ad-duration').value = ad.duration || 5;
     document.getElementById('ad-position').value = ad.position || 'center';
     document.getElementById('crop-position').value = ad.cropPosition || 'center';
-    
+
     // Update form fields
     updateFormFields();
-    
+
     // Set color picker
     document.querySelectorAll('.color-option').forEach(opt => {
         opt.classList.remove('selected');
@@ -1236,7 +1334,7 @@ function editAd(adId) {
             opt.classList.add('selected');
         }
     });
-    
+
     // Set size options
     const sizeStr = `${ad.width}x${ad.height}`;
     const standardSizes = ['300x250', '728x90', '160x600', '320x50', '468x60'];
@@ -1255,14 +1353,14 @@ function editAd(adId) {
         document.getElementById('custom-width').value = ad.width;
         document.getElementById('custom-height').value = ad.height;
     }
-    
+
     // Update preview
     updatePreview();
-    
+
     // Generate embed code and shareable link
     generateEmbedCode(ad);
     generateShareableLink(ad);
-    
+
     // Switch to create tab
     document.querySelector('.tab').click();
 }
@@ -1271,7 +1369,7 @@ function editAd(adId) {
 function viewAd(adId) {
     const ad = ads.find(a => a.id === adId);
     if (!ad) return;
-    
+
     // Create a temporary preview container
     const preview = document.createElement('div');
     preview.style.position = 'fixed';
@@ -1284,7 +1382,7 @@ function viewAd(adId) {
     preview.style.display = 'flex';
     preview.style.justifyContent = 'center';
     preview.style.alignItems = 'center';
-    
+
     // Create close button
     const closeButton = document.createElement('button');
     closeButton.textContent = 'X';
@@ -1302,7 +1400,7 @@ function viewAd(adId) {
         document.body.removeChild(preview);
     };
     preview.appendChild(closeButton);
-    
+
     // Create ad container
     const adContainer = document.createElement('div');
     adContainer.style.width = ad.type === 'fullscreen' ? '100%' : `${ad.width}${typeof ad.width === 'string' ? '' : 'px'}`;
@@ -1314,7 +1412,7 @@ function viewAd(adId) {
     adContainer.onclick = function() {
         window.open(ad.link, '_blank');
     };
-    
+
     // Render ad based on type
     switch(ad.type) {
         case 'banner':
@@ -1412,10 +1510,64 @@ function viewAd(adId) {
             }
             break;
             
+        case 'cloudinary':
+            if (ad.video) {
+                const videoContainer = document.createElement('div');
+                videoContainer.style.position = 'relative';
+                videoContainer.style.width = '100%';
+                videoContainer.style.height = '100%';
+                videoContainer.style.overflow = 'hidden';
+                videoContainer.style.backgroundColor = '#000';
+                
+                const video = document.createElement('video');
+                video.src = ad.video;
+                video.autoplay = true;
+                video.muted = true;
+                video.loop = true;
+                video.playsInline = true;
+                video.style.width = '100%';
+                video.style.height = '100%';
+                video.style.objectFit = 'cover';
+                
+                const overlay = document.createElement('div');
+                overlay.style.position = 'absolute';
+                overlay.style.top = '0';
+                overlay.style.left = '0';
+                overlay.style.width = '100%';
+                overlay.style.height = '100%';
+                overlay.style.cursor = 'pointer';
+                overlay.onclick = function() {
+                    window.open(ad.link, '_blank');
+                };
+                
+                const soundBtn = document.createElement('button');
+                soundBtn.textContent = '🔊';
+                soundBtn.style.position = 'absolute';
+                soundBtn.style.bottom = '15px';
+                soundBtn.style.left = '15px';
+                soundBtn.style.backgroundColor = 'rgba(0,0,0,0.6)';
+                soundBtn.style.border = 'none';
+                soundBtn.style.borderRadius = '50%';
+                soundBtn.style.padding = '8px';
+                soundBtn.style.cursor = 'pointer';
+                soundBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    video.muted = !video.muted;
+                    soundBtn.textContent = video.muted ? '🔊' : '🔈';
+                };
+                
+                videoContainer.appendChild(video);
+                videoContainer.appendChild(overlay);
+                videoContainer.appendChild(soundBtn);
+                adContainer.appendChild(videoContainer);
+            }
+            break;
+            
         case 'social':
             const isVertical = ad.position === 'left' || ad.position === 'right';
             const socialBar = document.createElement('div');
-            socialBar.style.position = 'absolute';
+            socialBar.style.position = 'fixed';
+            socialBar.style[ad.position] = '0';
             socialBar.style.width = isVertical ? '50px' : '100%';
             socialBar.style.height = isVertical ? '100%' : '50px';
             socialBar.style.backgroundColor = ad.bgColor;
@@ -1423,16 +1575,7 @@ function viewAd(adId) {
             socialBar.style.flexDirection = isVertical ? 'column' : 'row';
             socialBar.style.alignItems = 'center';
             socialBar.style.justifyContent = 'center';
-            
-            if (ad.position === 'top') {
-                socialBar.style.top = '0';
-            } else if (ad.position === 'bottom') {
-                socialBar.style.bottom = '0';
-            } else if (ad.position === 'left') {
-                socialBar.style.left = '0';
-            } else if (ad.position === 'right') {
-                socialBar.style.right = '0';
-            }
+            socialBar.style.zIndex = '1000';
             
             const ctaButton = document.createElement('button');
             ctaButton.textContent = ad.text || 'Click Here';
@@ -1528,72 +1671,6 @@ function viewAd(adId) {
             
             adContainer.appendChild(skipButton);
             break;
-            
-        case 'native':
-            const nativeContainer = document.createElement('div');
-            nativeContainer.style.width = '100%';
-            nativeContainer.style.height = '100%';
-            nativeContainer.style.position = 'relative';
-            
-            const youtubeVideos = document.createElement('div');
-            youtubeVideos.id = 'youtube-videos';
-            youtubeVideos.style.width = '100%';
-            youtubeVideos.style.height = '100%';
-            
-            const script = document.createElement('script');
-            script.textContent = `
-                const apiKey = "AIzaSyCRA7g2azKSoLoG6u2RSbkg3uMzJjtUd6A";
-                const channelId = "UCiaRAw6ZC0i-JK83RwS4bkQ";
-                const maxResults = 3;
-                const redirectUrl = "https://abubakkardve.github.io/SmartDev-Solutions";
-                
-                fetch(\`https://www.googleapis.com/youtube/v3/search?key=\${apiKey}&channelId=\${channelId}&part=snippet,id&order=date&maxResults=\${maxResults}\`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const container = document.getElementById("youtube-videos");
-                        data.items.forEach(item => {
-                            const videoId = item.id.videoId;
-                            if (videoId) {
-                                const videoContainer = document.createElement("div");
-                                videoContainer.style.position = "relative";
-                                videoContainer.style.marginBottom = "20px";
-                                
-                                const iframe = document.createElement("iframe");
-                                iframe.width = "100%";
-                                iframe.height = "315";
-                                iframe.src = \`https://www.youtube.com/embed/\${videoId}?autoplay=1&mute=1&rel=0&controls=1&showinfo=0\`;
-                                iframe.frameborder = "0";
-                                iframe.allow = "autoplay; encrypted-media";
-                                iframe.allowFullscreen = true;
-                                
-                                const overlay = document.createElement("div");
-                                overlay.style.position = "absolute";
-                                overlay.style.top = "0";
-                                overlay.style.left = "0";
-                                overlay.style.width = "100%";
-                                overlay.style.height = "100%";
-                                overlay.style.cursor = "pointer";
-                                overlay.style.zIndex = "10";
-                                overlay.onclick = () => {
-                                    window.location.href = redirectUrl;
-                                };
-                                
-                                videoContainer.appendChild(iframe);
-                                videoContainer.appendChild(overlay);
-                                container.appendChild(videoContainer);
-                            }
-                        });
-                    })
-                    .catch(error => {
-                        console.error("YouTube API Error:", error);
-                        document.getElementById("youtube-videos").innerHTML = "ভিডিও লোড করতে সমস্যা হয়েছে।";
-                    });
-            `;
-            
-            nativeContainer.appendChild(youtubeVideos);
-            nativeContainer.appendChild(script);
-            adContainer.appendChild(nativeContainer);
-            break;
     }
     
     preview.appendChild(adContainer);
@@ -1641,7 +1718,6 @@ function checkHashRouting() {
     const hash = window.location.hash;
     if (hash.startsWith('#/ad/')) {
         const adDataBase64 = hash.replace('#/ad/', '');
-        
         try {
             // Decode the base64 data
             const adData = JSON.parse(atob(adDataBase64));
@@ -1783,6 +1859,59 @@ function checkHashRouting() {
                     }
                     break;
                     
+                case 'cloudinary':
+                    if (adData.video) {
+                        const videoContainer = document.createElement('div');
+                        videoContainer.style.position = 'relative';
+                        videoContainer.style.width = '100%';
+                        videoContainer.style.height = '100%';
+                        videoContainer.style.overflow = 'hidden';
+                        videoContainer.style.backgroundColor = '#000';
+                        
+                        const video = document.createElement('video');
+                        video.src = adData.video;
+                        video.autoplay = true;
+                        video.muted = true;
+                        video.loop = true;
+                        video.playsInline = true;
+                        video.style.width = '100%';
+                        video.style.height = '100%';
+                        video.style.objectFit = 'cover';
+                        
+                        const overlay = document.createElement('div');
+                        overlay.style.position = 'absolute';
+                        overlay.style.top = '0';
+                        overlay.style.left = '0';
+                        overlay.style.width = '100%';
+                        overlay.style.height = '100%';
+                        overlay.style.cursor = 'pointer';
+                        overlay.onclick = function() {
+                            window.open(adData.link, '_blank');
+                        };
+                        
+                        const soundBtn = document.createElement('button');
+                        soundBtn.textContent = '🔊';
+                        soundBtn.style.position = 'absolute';
+                        soundBtn.style.bottom = '15px';
+                        soundBtn.style.left = '15px';
+                        soundBtn.style.backgroundColor = 'rgba(0,0,0,0.6)';
+                        soundBtn.style.border = 'none';
+                        soundBtn.style.borderRadius = '50%';
+                        soundBtn.style.padding = '8px';
+                        soundBtn.style.cursor = 'pointer';
+                        soundBtn.onclick = function(e) {
+                            e.stopPropagation();
+                            video.muted = !video.muted;
+                            soundBtn.textContent = video.muted ? '🔊' : '🔈';
+                        };
+                        
+                        videoContainer.appendChild(video);
+                        videoContainer.appendChild(overlay);
+                        videoContainer.appendChild(soundBtn);
+                        adContainer.appendChild(videoContainer);
+                    }
+                    break;
+                    
                 case 'social':
                     const isVertical = adData.position === 'left' || adData.position === 'right';
                     const socialBar = document.createElement('div');
@@ -1891,72 +2020,6 @@ function checkHashRouting() {
                     };
                     
                     adContainer.appendChild(skipButton);
-                    break;
-                    
-                case 'native':
-                    const nativeContainer = document.createElement('div');
-                    nativeContainer.style.width = '100%';
-                    nativeContainer.style.height = '100%';
-                    nativeContainer.style.position = 'relative';
-                    
-                    const youtubeVideos = document.createElement('div');
-                    youtubeVideos.id = 'youtube-videos';
-                    youtubeVideos.style.width = '100%';
-                    youtubeVideos.style.height = '100%';
-                    
-                    const script = document.createElement('script');
-                    script.textContent = `
-                        const apiKey = "AIzaSyCRA7g2azKSoLoG6u2RSbkg3uMzJjtUd6A";
-                        const channelId = "UCiaRAw6ZC0i-JK83RwS4bkQ";
-                        const maxResults = 3;
-                        const redirectUrl = "https://abubakkardve.github.io/SmartDev-Solutions";
-                        
-                        fetch(\`https://www.googleapis.com/youtube/v3/search?key=\${apiKey}&channelId=\${channelId}&part=snippet,id&order=date&maxResults=\${maxResults}\`)
-                            .then(response => response.json())
-                            .then(data => {
-                                const container = document.getElementById("youtube-videos");
-                                data.items.forEach(item => {
-                                    const videoId = item.id.videoId;
-                                    if (videoId) {
-                                        const videoContainer = document.createElement("div");
-                                        videoContainer.style.position = "relative";
-                                        videoContainer.style.marginBottom = "20px";
-                                        
-                                        const iframe = document.createElement("iframe");
-                                        iframe.width = "100%";
-                                        iframe.height = "315";
-                                        iframe.src = \`https://www.youtube.com/embed/\${videoId}?autoplay=1&mute=1&rel=0&controls=1&showinfo=0\`;
-                                        iframe.frameborder = "0";
-                                        iframe.allow = "autoplay; encrypted-media";
-                                        iframe.allowFullscreen = true;
-                                        
-                                        const overlay = document.createElement("div");
-                                        overlay.style.position = "absolute";
-                                        overlay.style.top = "0";
-                                        overlay.style.left = "0";
-                                        overlay.style.width = "100%";
-                                        overlay.style.height = "100%";
-                                        overlay.style.cursor = "pointer";
-                                        overlay.style.zIndex = "10";
-                                        overlay.onclick = () => {
-                                            window.location.href = redirectUrl;
-                                        };
-                                        
-                                        videoContainer.appendChild(iframe);
-                                        videoContainer.appendChild(overlay);
-                                        container.appendChild(videoContainer);
-                                    }
-                                });
-                            })
-                            .catch(error => {
-                                console.error("YouTube API Error:", error);
-                                document.getElementById("youtube-videos").innerHTML = "ভিডিও লোড করতে সমস্যা হয়েছে।";
-                            });
-                    `;
-                    
-                    nativeContainer.appendChild(youtubeVideos);
-                    nativeContainer.appendChild(script);
-                    adContainer.appendChild(nativeContainer);
                     break;
             }
             
